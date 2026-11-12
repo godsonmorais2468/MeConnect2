@@ -1,0 +1,83 @@
+/* ============================================================
+   Premium finish for every inner page. Loaded last, on top of the
+   dark/light skin, so it works in every theme:
+   - cards get a gradient hairline edge and a glow that follows the
+     pointer (lib/spotlight.ts sets --mx / --my)
+   - page banners get a slow moving aurora and a light sweep on the title
+   - rows slide in an accent wash on hover, buttons catch a glint
+   - section titles get an accent bar, icon tiles a soft glow
+   Motion is skipped for reduced motion and weak devices.
+   ============================================================ */
+@property --spot { syntax: '<number>'; inherits: false; initial-value: 0; }
+
+:root {
+  --edge: linear-gradient(150deg, rgba(var(--acc-hi-rgb), 0.5) 0%, rgba(255, 255, 255, 0.075) 30%, rgba(255, 255, 255, 0.05) 70%, rgba(var(--acc-rgb), 0.32) 100%);
+  --edge-hot: linear-gradient(150deg, rgba(var(--acc-hi-rgb), 0.85) 0%, rgba(255, 255, 255, 0.12) 35%, rgba(255, 255, 255, 0.08) 65%, rgba(var(--acc-rgb), 0.6) 100%);
+}
+:root[data-mode='light'] {
+  --edge: linear-gradient(150deg, rgba(var(--acc-rgb), 0.38) 0%, rgba(16, 24, 40, 0.09) 30%, rgba(16, 24, 40, 0.07) 70%, rgba(var(--acc-rgb), 0.24) 100%);
+  --edge-hot: linear-gradient(150deg, rgba(var(--acc-rgb), 0.75) 0%, rgba(16, 24, 40, 0.14) 35%, rgba(16, 24, 40, 0.1) 65%, rgba(var(--acc-rgb), 0.5) 100%);
+}
+
+/* ---------- cards: gradient edge + pointer glow ---------- */
+:is(.sheet, .cover, .regshell, .strip, .fbar, .menu, .ptile, .meet, .state, .opt, .qrpanel, .pcard, .plan, .mode, .help-hero, .help-card, .pf__side, .mv__side, .acc, .inv, .plist, .hist-panel, .sub-card-list, .tbl, .dir2 > section) {
+  border: 1px solid transparent;
+  background:
+    radial-gradient(280px circle at var(--mx, 50%) var(--my, 50%), rgba(var(--acc-hi-rgb), var(--spot)), transparent 70%) padding-box,
+    var(--glass-blue) padding-box,
+    var(--glass) padding-box,
+    linear-gradient(var(--card), var(--card)) padding-box,
+    var(--edge) border-box;
+  transition: --spot 0.35s ease, box-shadow 0.25s, transform 0.25s var(--ease);
+}
+:is(.sheet, .cover, .regshell, .strip, .fbar, .menu, .ptile, .meet, .state, .opt, .qrpanel, .pcard, .plan, .mode, .help-hero, .help-card, .pf__side, .mv__side, .acc, .inv, .plist, .hist-panel, .sub-card-list, .tbl, .dir2 > section):hover { --spot: 0.13; }
+:root[data-mode='light'] :is(.sheet, .cover, .regshell, .strip, .fbar, .menu, .ptile, .meet, .state, .opt, .qrpanel, .pcard, .plan, .mode, .help-hero, .help-card, .pf__side, .mv__side, .acc, .inv, .plist, .hist-panel, .sub-card-list, .tbl, .dir2 > section):hover { --spot: 0.1; }
+/* the big, interactive ones lift and take the hot edge */
+:is(.menu, .ptile, .opt, .plan, .help-card):hover { transform: translateY(-3px); background:
+    radial-gradient(280px circle at var(--mx, 50%) var(--my, 50%), rgba(var(--acc-hi-rgb), 0.16), transparent 70%) padding-box,
+    var(--glass-blue) padding-box, var(--glass) padding-box, linear-gradient(var(--card), var(--card)) padding-box, var(--edge-hot) border-box; }
+/* the dark dues strip keeps its own surface */
+.page:has(.plist--dues) .strip { background: radial-gradient(420px 220px at 100% 0%, rgba(var(--acc-glow-rgb), 0.38) 0%, rgba(var(--acc-glow-rgb), 0) 70%) padding-box, linear-gradient(160deg, var(--hero-a), var(--hero-b)) padding-box, var(--edge) border-box; }
+/* status panels keep their coloured edge */
+.state--ok { background-origin: border-box; }
+
+/* smaller cards inside panels */
+:is(.bcard, .wcard) { border: 1px solid transparent; background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), rgba(var(--acc-hi-rgb), var(--spot)), transparent 70%) padding-box, linear-gradient(rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.04)) padding-box, linear-gradient(var(--card), var(--card)) padding-box, var(--edge) border-box; transition: --spot 0.35s ease, box-shadow 0.25s, transform 0.25s var(--ease); }
+:is(.bcard, .wcard):hover { --spot: 0.15; transform: translateY(-2px); }
+:root[data-mode='light'] :is(.bcard, .wcard) { background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), rgba(var(--acc-rgb), var(--spot)), transparent 70%) padding-box, linear-gradient(#fff, #fff) padding-box, var(--edge) border-box; }
+
+/* ---------- page banner: slow aurora and a light sweep on the title ---------- */
+.phead::after { content: ''; position: absolute; inset: -60% -20%; z-index: -1; pointer-events: none; opacity: 0.8; background: conic-gradient(from 0deg at 72% 38%, rgba(var(--acc-glow-rgb), 0.5), rgba(var(--acc-glow-rgb), 0) 22%, rgba(23, 178, 106, 0.2) 48%, rgba(var(--acc-glow-rgb), 0) 70%, rgba(var(--acc-hi-rgb), 0.35)); filter: blur(46px); animation: pheadSpin 28s linear infinite; }
+.phead h1 { background: linear-gradient(100deg, #fff 35%, var(--on-dark-hi2) 47%, #fff 59%) 0% 0 / 250% 100% no-repeat; -webkit-background-clip: text; background-clip: text; color: transparent; animation: pheadShine 5.5s ease-in-out 0.8s infinite; }
+.phead__chip .glyph { box-shadow: 0 0 0 1px rgba(var(--acc-hi-rgb), 0.4), 0 0 18px rgba(var(--acc-hi-rgb), 0.45); }
+@keyframes pheadSpin { to { transform: rotate(360deg); } }
+@keyframes pheadShine { 0%, 55% { background-position: 0% 0; } 100% { background-position: 100% 0; } }
+
+/* ---------- rows: an accent wash slides in ---------- */
+:is(.row, .inv__row, .prow, .crow, .acc__head, .act, .sub-card-item, .matter, .ctrl__card) { background-image: linear-gradient(90deg, rgba(var(--acc-rgb), 0.16), rgba(var(--acc-rgb), 0) 55%); background-repeat: no-repeat; background-size: 0% 100%; transition: background-size 0.4s var(--ease), background-color var(--t-fast); }
+:is(.row, .inv__row, .prow, .crow, .acc__head, .act, .sub-card-item, .matter, .ctrl__card):hover { background-size: 100% 100%; }
+.tbl tbody tr { background-image: linear-gradient(90deg, rgba(var(--acc-rgb), 0.14), rgba(var(--acc-rgb), 0) 55%); background-repeat: no-repeat; background-size: 0% 100%; transition: background-size 0.4s var(--ease); }
+.tbl tbody tr:hover { background-size: 100% 100%; }
+
+/* ---------- buttons: a glint crosses the primary ---------- */
+.btn--primary { overflow: hidden; }
+.btn--primary::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.38) 50%, transparent 70%); transform: translateX(-130%); transition: transform 0.75s var(--ease); }
+.btn--primary:hover::after { transform: translateX(130%); }
+
+/* ---------- section titles and tiles ---------- */
+.sect h2::before, .list__title::before { content: ''; display: inline-block; width: 4px; height: 0.95em; margin-right: 10px; border-radius: 2px; vertical-align: -0.1em; background: linear-gradient(180deg, var(--acc-hi), var(--acc)); box-shadow: 0 0 12px rgba(var(--acc-rgb), 0.6); }
+.glyph { box-shadow: inset 0 0 0 1px var(--t-ring, transparent), 0 10px 22px -12px var(--t-fg, transparent); }
+.glyph--avatar { box-shadow: inset 0 0 0 1px var(--t-ring, transparent), 0 0 0 2px rgba(255, 255, 255, 0.14); }
+:root[data-mode='light'] .glyph--avatar { box-shadow: inset 0 0 0 1px var(--t-ring, transparent), 0 0 0 2px #fff; }
+.strip__item .glyph, .ptile .glyph, .menu .glyph { transition: transform 0.35s var(--ease); }
+a.strip__item:hover .glyph, .ptile:hover .glyph, .menu:hover .glyph { transform: scale(1.1) rotate(-4deg); }
+
+/* ---------- fields: a glowing underline on focus ---------- */
+.field__control, .pill-field, .lsearch { transition: border-color var(--t-fast), box-shadow 0.25s, background var(--t-fast); }
+
+@media (prefers-reduced-motion: reduce) {
+  .phead::after, .phead h1 { animation: none; }
+  .btn--primary::after { display: none; }
+}
+html[data-perf='low'] .phead::after, html[data-perf='low'] .phead h1 { animation: none; }
+html[data-perf='low'] .phead::after { display: none; }

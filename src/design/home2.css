@@ -1,0 +1,81 @@
+/* ============================================================
+   Home menus and status as cards.
+   - Menu cards (E-Directory, Chapter Dues, Office Bearers): a glowing
+     icon tile, title, one line, an arrow; Chapter Dues is the hot one:
+     an amber-to-red card with a count badge, right beside E-Directory.
+   - Status cards (Attendance, Dues, Polls, Wishes): each its own card,
+     tinted in its colour (--tc), a big figure, a status pill.
+   ============================================================ */
+
+/* ---------- menu cards ---------- */
+.menus { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--s-4); margin-bottom: var(--s-4); }
+.menus:has(> :nth-child(3)) { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr); }
+.menu { position: relative; display: flex; align-items: center; gap: var(--s-4); min-width: 0; padding: var(--s-5); overflow: hidden; isolation: isolate; border: 1px solid transparent; border-radius: 22px;
+  background: radial-gradient(260px 140px at 0% 0%, rgba(var(--acc-rgb), 0.16), transparent 70%) padding-box, linear-gradient(var(--card), var(--card)) padding-box, var(--edge) border-box;
+  box-shadow: var(--shadow-1); transition: transform 0.28s var(--ease), box-shadow 0.28s; }
+.menu:hover { transform: translateY(-4px); box-shadow: var(--shadow-md), 0 22px 40px -24px rgba(var(--acc-glow-rgb), 0.6); }
+.menu__ic { display: grid; place-items: center; flex-shrink: 0; }
+.menu__ic .glyph { box-shadow: inset 0 0 0 1px var(--t-ring, transparent), 0 14px 28px -12px var(--t-fg, transparent); transition: transform 0.35s var(--ease); }
+.menu:hover .menu__ic .glyph { transform: scale(1.08) rotate(-5deg); }
+.menu__txt { display: flex; flex: 1; flex-direction: column; gap: 3px; min-width: 0; }
+.menu__txt b { font-size: 1.05rem; font-weight: 700; letter-spacing: -0.015em; color: var(--ink); }
+.menu__txt small { font-size: 0.8125rem; line-height: 1.35; color: var(--ink-mute); }
+.menu__go { flex-shrink: 0; color: var(--ink-mute); transition: transform 0.25s var(--ease), color 0.2s; }
+.menu:hover .menu__go { color: var(--acc-hi); transform: translateX(4px); }
+
+/* the hot one: Chapter Dues */
+.menu--hot { padding: var(--s-5) var(--s-5) var(--s-5) var(--s-5);
+  background: radial-gradient(300px 160px at 100% 0%, rgba(240, 68, 56, 0.28), transparent 70%) padding-box, linear-gradient(135deg, rgba(247, 144, 9, 0.24), rgba(247, 144, 9, 0.06)) padding-box, linear-gradient(var(--card), var(--card)) padding-box, linear-gradient(135deg, #FEC84B 0%, #F79009 45%, #F04438 100%) border-box;
+  box-shadow: 0 20px 44px -22px rgba(247, 144, 9, 0.75), 0 0 0 1px rgba(247, 144, 9, 0.12); }
+.menu--hot:hover { box-shadow: 0 26px 50px -22px rgba(247, 144, 9, 0.95), 0 0 0 1px rgba(247, 144, 9, 0.2); }
+.menu--hot .menu__ic .glyph { animation: hotRing 2.4s ease-in-out infinite; }
+.menu--hot .menu__txt b { font-size: 1.15rem; }
+.menu--hot .menu__txt small { font-weight: 600; color: var(--ink-3); }
+.menu__flag { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; height: 20px; padding: 0 9px; border-radius: 999px; background: rgba(240, 68, 56, 0.16); box-shadow: inset 0 0 0 1px rgba(240, 68, 56, 0.4); color: #F97066; font-size: 0.66rem; font-style: normal; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.menu__flag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #F04438; box-shadow: 0 0 0 0 rgba(240, 68, 56, 0.7); animation: hotDot 1.6s ease-out infinite; }
+.menu__badge { display: grid; place-items: center; flex-shrink: 0; min-width: 52px; height: 52px; padding: 0 12px; border-radius: 18px; background: linear-gradient(145deg, #FDB022 0%, #F04438 100%); color: #fff; font-family: var(--font-brand); font-size: 1.5rem; font-weight: 800; line-height: 1; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 12px 24px -10px rgba(240, 68, 56, 0.9); }
+.menu--hot:not(.is-due) { background: radial-gradient(300px 160px at 100% 0%, rgba(23, 178, 106, 0.22), transparent 70%) padding-box, linear-gradient(var(--card), var(--card)) padding-box, linear-gradient(135deg, #6CE9A6, #17B26A) border-box; box-shadow: var(--shadow-1); }
+.menu--hot:not(.is-due) .menu__badge { background: linear-gradient(145deg, #32D583, #067647); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 12px 24px -10px rgba(23, 178, 106, 0.9); }
+@keyframes hotRing { 0%, 100% { box-shadow: inset 0 0 0 1px var(--t-ring, transparent), 0 0 0 0 rgba(247, 144, 9, 0.5), 0 14px 28px -12px var(--t-fg); } 50% { box-shadow: inset 0 0 0 1px var(--t-ring, transparent), 0 0 0 9px rgba(247, 144, 9, 0), 0 14px 28px -12px var(--t-fg); } }
+@keyframes hotDot { 0% { box-shadow: 0 0 0 0 rgba(240, 68, 56, 0.7); } 100% { box-shadow: 0 0 0 8px rgba(240, 68, 56, 0); } }
+
+/* ---------- status cards ---------- */
+.tiles { display: grid; grid-template-columns: minmax(0, 1.7fr) repeat(3, minmax(0, 1fr)); gap: var(--s-4); margin-bottom: var(--s-5); }
+.tile { --tc: 37, 99, 235; position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-3); min-width: 0; padding: var(--s-5); overflow: hidden; isolation: isolate; border: 1px solid transparent; border-radius: 22px;
+  background: radial-gradient(240px 140px at 100% 0%, rgba(var(--tc), 0.2), transparent 70%) padding-box, linear-gradient(var(--card), var(--card)) padding-box, linear-gradient(150deg, rgba(var(--tc), 0.6), rgba(255, 255, 255, 0.06) 40%, rgba(var(--tc), 0.25)) border-box;
+  box-shadow: var(--shadow-1); transition: transform 0.28s var(--ease), box-shadow 0.28s; }
+:root[data-mode='light'] .tile { background: radial-gradient(240px 140px at 100% 0%, rgba(var(--tc), 0.14), transparent 70%) padding-box, linear-gradient(#fff, #fff) padding-box, linear-gradient(150deg, rgba(var(--tc), 0.55), rgba(16, 24, 40, 0.07) 40%, rgba(var(--tc), 0.25)) border-box; }
+.tile::after { content: ''; position: absolute; z-index: -1; left: var(--s-5); right: var(--s-5); bottom: 0; height: 3px; border-radius: 3px 3px 0 0; background: rgb(var(--tc)); box-shadow: 0 0 14px rgba(var(--tc), 0.8); transform: scaleX(0.18); transform-origin: left; transition: transform 0.4s var(--ease); }
+.tile:hover { transform: translateY(-4px); box-shadow: var(--shadow-md), 0 20px 36px -22px rgba(var(--tc), 0.8); }
+.tile:hover::after { transform: scaleX(1); }
+.tile .glyph { box-shadow: inset 0 0 0 1px var(--t-ring, transparent), 0 12px 24px -10px rgba(var(--tc), 0.8); transition: transform 0.35s var(--ease); }
+.tile:hover .glyph { transform: scale(1.08) rotate(-5deg); }
+.tile__body { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; width: 100%; }
+.tile__label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute); }
+.tile__value { font-family: var(--font-brand); font-size: 1.9rem; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; color: var(--ink); }
+.tile__text { font-size: 0.875rem; font-weight: 500; line-height: 1.4; color: var(--ink-soft); }
+.tile .stat { margin-top: var(--s-1); max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.tile__go { position: absolute; top: var(--s-5); right: var(--s-5); color: var(--ink-mute); transition: transform 0.25s var(--ease), color 0.2s; }
+.tile:hover .tile__go { color: rgb(var(--tc)); transform: translateX(4px); }
+.tile--wide { flex-direction: row; align-items: center; gap: var(--s-4); }
+.tile--wide .tile__body { width: auto; flex: 1; }
+.tile--wide .tile__go { position: static; flex-shrink: 0; }
+
+/* ---------- smaller screens ---------- */
+@media (max-width: 1000px) {
+  .menus:has(> :nth-child(3)) { grid-template-columns: minmax(0, 1fr); }
+  .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .tile--wide { grid-column: 1 / -1; }
+}
+@media (max-width: 720px) {
+  .menus { grid-template-columns: minmax(0, 1fr); gap: var(--s-3); margin-bottom: var(--s-3); }
+  .menu { padding: var(--s-4); border-radius: 20px; }
+  .menu__badge { min-width: 46px; height: 46px; border-radius: 16px; font-size: 1.3rem; }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); margin-bottom: var(--s-5); }
+  .tile { padding: var(--s-4); border-radius: 20px; }
+  .tile__value { font-size: 1.6rem; }
+  .tiles > .tile:last-child { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .menu--hot .menu__ic .glyph, .menu__flag::before { animation: none; }
+}

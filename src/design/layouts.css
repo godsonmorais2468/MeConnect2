@@ -1,0 +1,344 @@
+/* ============================================================
+   One layout per page. Shell.tsx tags <html data-route="..."
+   data-sub="..."> for the open page, so each page is arranged on
+   its own here without touching its markup:
+     Directory       people as a grid of cards
+     Office Bearers  two columns of group cards
+     Dues            invoices as tickets, two across
+     Polls           a ballot: numbered cards in one narrow column
+     Wishes          birthdays and announcements side by side
+     Attendance      a centred column
+     Profile / Member  the identity panel on the left
+     Meetings, Bank  the form on the right
+     Team, Modes     the form as a band across the top, list as cards
+     Reports         filters as a left sidebar
+     Menu pages      a bento (Payments), numbered cards (Accounts),
+                     long rows (Reports), two big blocks (Vouchers)
+     Settings        a wide two-column form
+   Wide-screen arrangements start at 1101px; phones keep the stack.
+   ============================================================ */
+
+/* ---------- separate stat cards instead of one divided panel ---------- */
+@media (min-width: 721px) {
+  html:is([data-route='due-list'], [data-route='manage-rsvp'], [data-sub='collection'], [data-sub='financial-year'], [data-sub='ledger'], [data-sub='app-usage']) .strip { gap: var(--s-4); background: none; border: 0; box-shadow: none; overflow: visible; }
+  html:is([data-route='due-list'], [data-route='manage-rsvp'], [data-sub='collection'], [data-sub='financial-year'], [data-sub='ledger'], [data-sub='app-usage']) .strip__item { border: 1px solid var(--rule) !important; border-radius: var(--r-lg); background: linear-gradient(var(--card), var(--card)) padding-box, var(--edge) border-box; border-color: transparent !important; box-shadow: var(--shadow-1); }
+  html:is([data-route='due-list'], [data-route='manage-rsvp'], [data-sub='collection'], [data-sub='financial-year'], [data-sub='ledger'], [data-sub='app-usage']) .strip__item:last-child { border-right: 1px solid transparent !important; }
+}
+
+/* ---------- Directory: a wall of profile cards ----------
+   A slim search deck on top, an A-Z strip that sticks under the tabs, then
+   cards with a coloured banner, the photo straddling its edge, the name, company,
+   role and category below, and the profile score as a badge in the corner. */
+@media (min-width: 721px) {
+  /* the search deck: one row, labels hidden (every field already has a placeholder) */
+  html[data-route='directory'] .fbar { align-items: center; margin-bottom: var(--s-5); padding: 10px 12px; border-radius: var(--r-xl); }
+  html[data-route='directory'] .fbar .field__label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  html[data-route='directory'] .fbar .field__control { height: 46px; border-radius: 999px; padding-inline: 18px; }
+
+  /* the A-Z index lies across the top and sticks */
+  html[data-route='directory'] .dir2 { grid-template-columns: minmax(0, 1fr); gap: var(--s-4); }
+  html[data-route='directory'] .rail { order: -1; position: sticky; top: calc(var(--mast-h) + 8px); z-index: 5; flex-direction: row; justify-content: center; width: fit-content; max-width: 100%; height: auto; margin: 0 auto; padding: 6px 10px; overflow-x: auto; scrollbar-width: none; border-radius: 999px; background: color-mix(in srgb, var(--card) 82%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: var(--shadow-md); }
+  html[data-route='directory'] .rail::-webkit-scrollbar { display: none; }
+  html[data-route='directory'] .rail button { flex: none; width: 30px; height: 30px; max-height: none; border-radius: 50%; font-size: 0.75rem; }
+  html[data-route='directory'] .rail .rail__all { width: auto; padding: 0 12px; border-radius: 999px; font-size: 0.72rem; }
+
+  /* the wall */
+  html[data-route='directory'] .dir2 > section { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--s-5); align-content: start; overflow: visible; background: none; border: 0; box-shadow: none; }
+  html[data-route='directory'] .dir2 > section > :is(.empty, .dir2__cols) { grid-column: 1 / -1; }
+  html[data-route='directory'] .dir2__cols { display: none; }
+  html[data-route='directory'] .grp, html[data-route='directory'] .grp__rows { display: contents; }
+
+  html[data-route='directory'] .crow { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-height: 0; padding: 54px var(--s-5) var(--s-5); overflow: hidden; isolation: isolate; border: 1px solid transparent; border-radius: 20px; background: linear-gradient(var(--card), var(--card)) padding-box, var(--edge) border-box; box-shadow: var(--shadow-1); transition: transform 0.3s var(--ease), box-shadow 0.3s; }
+  html[data-route='directory'] .crow:hover { transform: translateY(-5px); box-shadow: var(--shadow-md), 0 22px 40px -22px rgba(var(--acc-glow-rgb), 0.55); }
+  /* the banner */
+  html[data-route='directory'] .crow::before { content: ''; position: absolute; z-index: -1; left: 0; right: 0; top: 0; height: 84px; background: radial-gradient(rgba(255, 255, 255, 0.28) 1px, transparent 1.5px) 0 0 / 14px 14px, radial-gradient(120px 80px at 90% 0%, rgba(255, 255, 255, 0.28), transparent 70%), linear-gradient(135deg, var(--acc-b2) 0%, var(--acc-a2) 100%); transition: filter 0.3s; }
+  html[data-route='directory'] .crow:hover::before { filter: brightness(1.12) saturate(1.15); }
+  /* photo straddles the banner edge, name under it */
+  html[data-route='directory'] .crow__name { flex-direction: column; align-items: flex-start; gap: var(--s-3); }
+  html[data-route='directory'] .crow__name .glyph, html[data-route='directory'] .crow__name .avatar-img { width: 64px; height: 64px; border: 4px solid var(--card); box-shadow: 0 8px 18px -8px rgba(16, 24, 40, 0.5); font-size: 1.1rem; }
+  html[data-route='directory'] .crow__name b { font-size: 1.05rem; font-weight: 700; letter-spacing: -0.015em; color: var(--ink); }
+  html[data-route='directory'] .crow__co { margin-top: var(--s-2); padding-left: 0; font-weight: 600; color: var(--ink); }
+  html[data-route='directory'] .crow__des { padding-left: 0; color: var(--ink-mute); }
+  html[data-route='directory'] .crow__cat { margin-top: var(--s-3); }
+  /* profile score: a round badge on the banner */
+  html[data-route='directory'] .crow__pct { position: absolute; top: 12px; right: 12px; padding: 3px; border-radius: 50%; background: var(--card); box-shadow: 0 6px 14px -6px rgba(16, 24, 40, 0.45); }
+}
+
+/* ---------- Office Bearers: the chain of command, kept short ----------
+   Every role is open, but each person is one compact row (photo, name,
+   company, and Call / WhatsApp / Email as round icon buttons); the long
+   contact lines are left to the member's own page. Wide screens: the
+   President as a dark hero card, a short stem, then roles three across.
+   Phones: a single column of cards, roles with several people become a
+   swipeable strip. */
+html[data-route='office-bearers'] .lsearch { max-width: 520px; margin: 0 auto var(--s-5); }
+html[data-route='office-bearers'] .acc { display: flex; flex-direction: column; gap: var(--s-4); overflow: visible; background: none; border: 0; box-shadow: none; }
+html[data-route='office-bearers'] .acc__item { position: relative; display: flex; flex-direction: column; overflow: visible; border: 1px solid transparent; border-radius: 20px; background: linear-gradient(var(--card), var(--card)) padding-box, var(--edge) border-box; box-shadow: var(--shadow-1); }
+html[data-route='office-bearers'] .acc__item:last-child { border-bottom: 1px solid transparent; }
+html[data-route='office-bearers'] .acc__item.is-open { background: linear-gradient(var(--card), var(--card)) padding-box, var(--edge) border-box; }
+/* all open; the header is a label, not a switch */
+html[data-route='office-bearers'] .acc__panel { grid-template-rows: 1fr !important; visibility: visible !important; }
+html[data-route='office-bearers'] .acc__chev, html[data-route='office-bearers'] .acc__title small { display: none; }
+html[data-route='office-bearers'] .acc__head { cursor: default; gap: var(--s-3); padding: 14px var(--s-4) 6px; }
+html[data-route='office-bearers'] .acc__head:hover { background-size: 0% 100%; }
+html[data-route='office-bearers'] .acc__head .glyph { --size: 38px !important; }
+html[data-route='office-bearers'] .acc__title b { font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute); }
+html[data-route='office-bearers'] .acc__count { margin-left: auto; }
+html[data-route='office-bearers'] .acc__no { width: 24px; height: 24px; font-size: 0.7rem; }
+
+/* a person: one row */
+html[data-route='office-bearers'] .bearers { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-2); padding: 2px var(--s-3) var(--s-3); }
+html[data-route='office-bearers'] .bcard { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--s-2) var(--s-3); padding: 10px 12px; border-radius: 16px; }
+html[data-route='office-bearers'] .bcard__top { display: flex; align-items: center; gap: var(--s-3); min-width: 0; }
+html[data-route='office-bearers'] .bcard .glyph--avatar, html[data-route='office-bearers'] .bcard .avatar-img { --size: 48px !important; width: 48px; height: 48px; }
+html[data-route='office-bearers'] .bcard__who { min-width: 0; }
+html[data-route='office-bearers'] .bcard__who b { display: block; overflow: hidden; font-size: 0.95rem; text-overflow: ellipsis; white-space: nowrap; }
+html[data-route='office-bearers'] .bcard__who span { display: block; overflow: hidden; font-size: 0.8rem; text-overflow: ellipsis; white-space: nowrap; }
+html[data-route='office-bearers'] .bcard .chips, html[data-route='office-bearers'] .bcard__kv { display: none; }
+html[data-route='office-bearers'] .bcard__acts { display: flex; gap: 6px; }
+html[data-route='office-bearers'] .bcard__acts .qa { width: 36px; height: 36px; padding: 0; justify-content: center; border-radius: 50%; font-size: 0; gap: 0; }
+html[data-route='office-bearers'] .bcard__acts .qa svg { width: 16px; height: 16px; }
+
+/* the President: a dark hero card, a little larger */
+html[data-route='office-bearers'] .acc__item[data-rank='0'] {
+  --ink: #fff; --ink-2: #E4E7EC; --ink-3: #CDD5DF; --ink-soft: #CDD5DF; --ink-mute: #98A2B3;
+  --acc-hi: var(--on-dark-hi); --acc-hi-rgb: var(--on-dark-hi-rgb); --acc-hi2: var(--on-dark-hi2);
+  --rule: rgba(255, 255, 255, 0.1); --rule-input: rgba(255, 255, 255, 0.18);
+  color: #fff; border-radius: 24px;
+  background: radial-gradient(520px 280px at 100% 0%, rgba(var(--acc-glow-rgb), 0.45) 0%, rgba(var(--acc-glow-rgb), 0) 70%) padding-box, radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1.5px) 0 0 / 18px 18px padding-box, linear-gradient(160deg, var(--hero-a), var(--hero-b)) padding-box, linear-gradient(150deg, #FEC84B 0%, rgba(255, 255, 255, 0.1) 35%, rgba(var(--acc-hi-rgb), 0.5) 100%) border-box;
+  box-shadow: 0 26px 50px -26px rgba(var(--acc-glow-rgb), 0.7), 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+html[data-route='office-bearers'] .acc__item[data-rank='0'] .acc__title b { color: #FEC84B; }
+html[data-route='office-bearers'] .acc__item[data-rank='0'] .acc__no { color: #78350F; background: #FEC84B; box-shadow: 0 0 16px rgba(254, 200, 75, 0.6); }
+html[data-route='office-bearers'] .acc__item[data-rank='0'] .acc__count { color: #FEC84B; background: rgba(254, 200, 75, 0.12); box-shadow: inset 0 0 0 1px rgba(254, 200, 75, 0.35); }
+html[data-route='office-bearers'] .acc__item[data-rank='0'] .bearers { padding: 4px var(--s-4) var(--s-4); }
+html[data-route='office-bearers'] .acc__item[data-rank='0'] .bcard { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: none; padding: var(--s-3) var(--s-4); }
+html[data-route='office-bearers'] .acc__item[data-rank='0'] .bcard .glyph--avatar, html[data-route='office-bearers'] .acc__item[data-rank='0'] .bcard .avatar-img { --size: 68px !important; width: 68px; height: 68px; box-shadow: 0 0 0 3px rgba(254, 200, 75, 0.6), 0 0 22px rgba(254, 200, 75, 0.35); }
+html[data-route='office-bearers'] .acc__item[data-rank='0'] .bcard__who b { font-size: 1.2rem; color: #fff; }
+html[data-route='office-bearers'] .acc__item[data-rank='0'] .bcard__who span { font-size: 0.875rem; color: #98A2B3; }
+html[data-route='office-bearers'] .acc__item[data-rank='0'] .qa { color: #E4E7EC; background: rgba(255, 255, 255, 0.07); border-color: rgba(255, 255, 255, 0.16); box-shadow: none; }
+html[data-route='office-bearers'] .acc__item[data-rank='0'] .qa:hover { color: #fff; background: rgba(255, 255, 255, 0.14); }
+/* a short stem from the President to the rest */
+html[data-route='office-bearers'] .acc__item[data-rank='0']::after { content: ''; position: absolute; left: 50%; top: 100%; width: 2px; height: var(--s-4); margin-left: -1px; background: linear-gradient(180deg, var(--acc-hi), rgba(var(--acc-rgb), 0.1)); }
+
+/* wide screens: roles three across; a role with several people takes the full row */
+@media (min-width: 901px) {
+  html[data-route='office-bearers'] .acc { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-5); align-items: stretch; }
+  html[data-route='office-bearers'] .acc__item[data-rank='0'] { grid-column: 1 / -1; width: min(640px, 100%); justify-self: center; margin-bottom: var(--s-2); }
+  html[data-route='office-bearers'] .acc__item:has(.bcard:nth-child(2)) { grid-column: 1 / -1; }
+  html[data-route='office-bearers'] .acc__item:has(.bcard:nth-child(2)) .bearers { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  html[data-route='office-bearers'] .acc__panel { flex: 1; }
+}
+
+/* phones: a single column; several people in one role become a swipeable strip */
+@media (max-width: 900px) {
+  html[data-route='office-bearers'] .acc { gap: var(--s-3); }
+  html[data-route='office-bearers'] .acc__item { border-radius: 18px; }
+  html[data-route='office-bearers'] .bearers:has(.bcard:nth-child(2)) { display: flex; gap: var(--s-3); overflow-x: auto; padding: 2px var(--s-3) var(--s-3); scroll-snap-type: x mandatory; scroll-padding-inline: var(--s-3); scrollbar-width: none; }
+  html[data-route='office-bearers'] .bearers:has(.bcard:nth-child(2))::-webkit-scrollbar { display: none; }
+  html[data-route='office-bearers'] .bearers:has(.bcard:nth-child(2)) .bcard { flex: 0 0 84%; scroll-snap-align: start; }
+  html[data-route='office-bearers'] .acc__item[data-rank='0'] .bcard .glyph--avatar, html[data-route='office-bearers'] .acc__item[data-rank='0'] .bcard .avatar-img { --size: 60px !important; width: 60px; height: 60px; }
+  html[data-route='office-bearers'] .acc__item[data-rank='0'] .bcard__who b { font-size: 1.05rem; }
+  html[data-route='office-bearers'] .lsearch { max-width: none; }
+  html[data-route='office-bearers'] .bcard .glyph--avatar, html[data-route='office-bearers'] .bcard .avatar-img { --size: 44px !important; width: 44px; height: 44px; }
+  html[data-route='office-bearers'] .bcard__acts .qa:nth-child(3) { display: none; }
+  html[data-route='office-bearers'] .bcard { padding: 10px; gap: var(--s-2); }
+  html[data-route='office-bearers'] .bcard__top { gap: 10px; }
+}
+
+/* ---------- Dues: invoice tickets ---------- */
+@media (min-width: 901px) {
+  html[data-route='dues'] .inv { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-4); overflow: visible; background: none; border: 0; box-shadow: none; }
+  html[data-route='dues'] .inv__row { position: relative; flex-wrap: wrap; align-content: space-between; gap: var(--s-3) var(--s-4); padding: var(--s-5) var(--s-5) var(--s-5) var(--s-6); border: 1px dashed var(--rule-input); border-radius: var(--r-lg); background-color: var(--card); box-shadow: var(--shadow-1); }
+  html[data-route='dues'] .inv__row::before { content: ''; position: absolute; left: 0; top: 18px; bottom: 18px; width: 4px; border-radius: 0 3px 3px 0; background: linear-gradient(180deg, var(--acc-hi), var(--acc)); }
+  html[data-route='dues'] .inv__row.is-late::before { background: #F04438; }
+  html[data-route='dues'] .inv__main { flex: 1 1 60%; }
+}
+
+/* ---------- Polls: a ballot, one narrow numbered column ---------- */
+@media (min-width: 721px) {
+  html[data-route='rsvp'] .att { max-width: 820px; margin: 0 auto; counter-reset: ballot; }
+  html[data-route='rsvp'] .pcard { position: relative; counter-increment: ballot; padding-left: 92px; }
+  html[data-route='rsvp'] .pcard::before { content: counter(ballot, decimal-leading-zero); position: absolute; left: var(--s-6); top: var(--s-5); font-family: var(--font-brand); font-size: 2.2rem; font-weight: 800; line-height: 1; color: rgba(var(--acc-rgb), 0.4); }
+}
+
+/* ---------- Attendance: one centred column ---------- */
+@media (min-width: 1101px) {
+  html[data-route='attendance'] .att:not(:has(> .qrpanel)) { max-width: 980px; margin: 0 auto; }
+  html[data-route='attendance'] .att:not(:has(> .qrpanel)) .meet { padding: var(--s-6) var(--s-7); }
+}
+
+/* ---------- Wishes: birthdays and announcements side by side ---------- */
+@media (min-width: 1101px) {
+  html[data-route='wishes'] .att { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: var(--s-5); }
+  html[data-route='wishes'] .att > .lsearch { grid-column: 1 / -1; max-width: 520px; }
+  html[data-route='wishes'] .wgrid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- Profile and member view: identity on the left ---------- */
+@media (min-width: 1101px) {
+  html[data-route='profile'] .pf { grid-template-columns: 340px minmax(0, 1fr); }
+  html[data-route='profile'] .pf__side { order: -1; }
+  .mv { grid-template-columns: 300px minmax(0, 1fr); }
+  .mv__side { order: -1; }
+}
+
+/* ---------- Help: three cards across ---------- */
+@media (min-width: 1101px) {
+  html[data-route='help'] .help-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* ---------- Forms and lists ---------- */
+@media (min-width: 1101px) {
+  /* form on the right */
+  html:is([data-route='meetings'], [data-sub='banks']) .duo { grid-template-columns: minmax(0, 1fr) minmax(340px, 410px); }
+  html:is([data-route='meetings'], [data-sub='banks']) .duo > :first-child { order: 2; }
+  /* the form as a band across the top, the list as cards */
+  html:is([data-route='team'], [data-sub='modes']) .duo { grid-template-columns: minmax(0, 1fr); }
+  html:is([data-route='team'], [data-sub='modes']) .duo > :first-child { position: static; }
+  html:is([data-route='team'], [data-sub='modes']) .duo > .sheet .form-stack { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-5) var(--s-5); align-items: start; }
+  html:is([data-route='team'], [data-sub='modes']) .duo > .sheet .form-stack > :last-child { grid-column: 1 / -1; }
+  html:is([data-route='team'], [data-sub='modes']) .duo > .list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3) var(--s-4); }
+  html:is([data-route='team'], [data-sub='modes']) .duo > .list > :is(.list__title, .lsearch) { grid-column: 1 / -1; }
+  html:is([data-route='team'], [data-sub='modes']) .duo > .list > .row { margin-top: 0; border-radius: var(--r-lg); }
+  /* a narrow form beside a wide list */
+  html[data-sub='financial-year'] .duo { grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); }
+  /* the two "heads" pages: form and list as a grid */
+  html:is([data-sub='heads']) .att:has(> .sheet):has(> .list) { display: grid; grid-template-columns: minmax(320px, 390px) minmax(0, 1fr); gap: var(--s-6); align-items: start; }
+  html[data-route='payments'][data-sub='heads'] .att:has(> .sheet):has(> .list) { grid-template-columns: minmax(0, 1fr) minmax(320px, 390px); }
+  html[data-route='payments'][data-sub='heads'] .att > .sheet { order: 2; }
+}
+
+/* ---------- Reports: filters as a left sidebar ---------- */
+@media (min-width: 1101px) {
+  html[data-route='reports'] .att:has(> .rfilters) { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: var(--s-5) var(--s-6); align-items: start; }
+  html[data-route='reports'] .att:has(> .rfilters) > * { grid-column: 2; }
+  html[data-route='reports'] .att:has(> .rfilters) > .rfilters { grid-column: 1; grid-row: 1 / span 40; position: sticky; top: calc(var(--mast-h) + 16px); }
+  html[data-route='reports'] .att:has(> .rfilters) > .filters-toggle { display: none; }
+  html[data-sub='collection'] .att:has(> .rfilters) { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: var(--s-5) var(--s-6); align-items: start; }
+  html[data-sub='collection'] .att:has(> .rfilters) > * { grid-column: 2; }
+  html[data-sub='collection'] .att:has(> .rfilters) > .rfilters { grid-column: 1; grid-row: 1 / span 40; position: sticky; top: calc(var(--mast-h) + 16px); }
+  html[data-sub='collection'] .att:has(> .rfilters) > .filters-toggle { display: none; }
+}
+
+/* ---------- Menu pages: four different arrangements ---------- */
+@media (min-width: 901px) {
+  /* Payments: a bento, the first block large */
+  html[data-route='payments']:not([data-sub]) .ptiles { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: minmax(130px, auto); gap: var(--s-4); }
+  html[data-route='payments']:not([data-sub]) .ptile:first-child { grid-column: span 2; grid-row: span 2; flex-direction: column; justify-content: flex-end; padding: var(--s-7) var(--s-6) var(--s-6); background: radial-gradient(420px 260px at 100% 0%, rgba(var(--acc-glow-rgb), 0.4) 0%, rgba(var(--acc-glow-rgb), 0) 70%) padding-box, linear-gradient(160deg, var(--hero-a), var(--hero-b)) padding-box, var(--edge) border-box; }
+  html[data-route='payments']:not([data-sub]) .ptile:first-child :is(b, h2, h3) { font-size: 1.35rem; color: #fff; }
+  html[data-route='payments']:not([data-sub]) .ptile:first-child :is(p, small, span:not(.glyph):not(.stat)) { color: #98A2B3; }
+  html[data-route='payments']:not([data-sub]) .ptile:first-child .glyph { --size: 56px !important; }
+  html[data-route='payments']:not([data-sub]) .ptile:nth-child(n + 2) { grid-column: span 2; }
+  /* Accounts: numbered cards */
+  html[data-route='accounts']:not([data-sub]) .ptiles { counter-reset: tile; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  html[data-route='accounts']:not([data-sub]) .ptile { counter-increment: tile; overflow: hidden; min-height: 190px; flex-direction: column; }
+  html[data-route='accounts']:not([data-sub]) .ptile::after { content: counter(tile, decimal-leading-zero); position: absolute; right: 18px; bottom: 6px; font-family: var(--font-brand); font-size: 4.2rem; font-weight: 800; line-height: 1; color: var(--ink); opacity: 0.06; pointer-events: none; }
+  /* Reports: long rows */
+  html[data-route='reports']:not([data-sub]) .ptiles { grid-template-columns: minmax(0, 1fr); gap: var(--s-3); max-width: 900px; }
+  html[data-route='reports']:not([data-sub]) .ptile { align-items: center; padding: var(--s-4) var(--s-6); }
+  /* Vouchers: two big blocks */
+  html[data-route='accounts'][data-sub='vouchers'] .ptiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-5); }
+  html[data-route='accounts'][data-sub='vouchers'] .ptile { min-height: 240px; flex-direction: column; justify-content: flex-end; padding: var(--s-7) var(--s-6) var(--s-6); }
+  html[data-route='accounts'][data-sub='vouchers'] .ptile:first-child { background: radial-gradient(360px 220px at 100% 0%, rgba(240, 68, 56, 0.2) 0%, rgba(240, 68, 56, 0) 70%) padding-box, linear-gradient(var(--card), var(--card)) padding-box, var(--edge) border-box; }
+  html[data-route='accounts'][data-sub='vouchers'] .ptile:last-child { background: radial-gradient(360px 220px at 100% 0%, rgba(23, 178, 106, 0.22) 0%, rgba(23, 178, 106, 0) 70%) padding-box, linear-gradient(var(--card), var(--card)) padding-box, var(--edge) border-box; }
+  html[data-route='accounts'][data-sub='vouchers'] .ptile .glyph { --size: 54px !important; }
+}
+
+/* ---------- Settings: a wide two-column form ---------- */
+@media (min-width: 901px) {
+  html[data-route='settings'] .page { max-width: 1000px; }
+  html[data-route='settings'] .form-stack { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-5) var(--s-6); align-items: start; }
+  html[data-route='settings'] .form-stack > :last-child { grid-column: 1 / -1; }
+}
+
+/* ---------- Member view: contact actions as three colour buttons ----------
+   Below the wide layout the Call / WhatsApp / Email panel sits above the details.
+   Instead of one divided panel it is three separate, vivid buttons side by side:
+   icon and label inline, a glow in each button's own colour, a glint on hover. */
+@media (max-width: 1100px) {
+  .mv > .mv__side { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-3); overflow: visible; border: 0; background: none; box-shadow: none; position: static; }
+  .mv__side .act { --a: #17B26A; --b: #067647; --glow: 23, 178, 106; position: relative; flex-direction: row; justify-content: center; gap: 8px; min-width: 0; height: 54px; padding: 0 10px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 18px; color: #fff; text-align: left;
+    background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.3) 50%, transparent 65%) 130% 0 / 250% 100% no-repeat, linear-gradient(160deg, var(--a), var(--b));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 14px 26px -14px rgba(var(--glow), 0.9);
+    transition: transform 0.2s var(--ease), box-shadow 0.2s, background-position 0.7s var(--ease); }
+  .mv__side .act:nth-child(2) { --a: #2EE27A; --b: #0E8C6A; --glow: 18, 140, 126; }
+  .mv__side .act:nth-child(3) { --a: var(--acc-a); --b: var(--acc-b); --glow: var(--acc-glow-rgb); }
+  .mv__side .act:hover { transform: translateY(-2px); background-position: -40% 0, 0 0; border-color: rgba(255, 255, 255, 0.4); }
+  .mv__side .act:active { transform: translateY(0); }
+  .mv__side .act--off { filter: grayscale(1); opacity: 0.45; }
+  .mv__side .act > .glyph { --size: 24px !important; width: 24px; height: 24px; border-radius: 0; background: none; box-shadow: none; color: #fff; }
+  .mv__side .act > .glyph svg { width: 20px; height: 20px; }
+  .mv__side .act > span:not(.glyph) { min-width: 0; }
+  .mv__side .act b { overflow: hidden; font-size: 0.875rem; font-weight: 700; letter-spacing: -0.005em; color: #fff; text-overflow: ellipsis; white-space: nowrap; }
+  .mv__side .act small { display: none; }
+}
+@media (max-width: 400px) {
+  .mv__side { gap: var(--s-2); }
+  .mv__side .act { gap: 5px; padding: 0 6px; }
+  .mv__side .act b { font-size: 0.78rem; }
+  .mv__side .act > .glyph { --size: 20px !important; width: 20px; height: 20px; }
+  .mv__side .act > .glyph svg { width: 17px; height: 17px; }
+}
+@media (max-width: 720px) {
+  /* the profile cover: a slimmer banner and tighter detail rows */
+  .cover__art { height: 88px; }
+  .cover .kv > div { padding-block: 9px; }
+}
+
+/* ---------- Directory on phones: two-up profile cards under a sliding A-Z strip ----------
+   The wide-screen version is above. Here the A-Z index leaves the right edge (where it ate
+   a column) and lies across the top as a strip that sticks and scrolls sideways; people are
+   compact two-across cards: slim banner, round photo on its edge, name, company, role. */
+@media (max-width: 720px) {
+  html[data-route='directory'] .filters-toggle { width: 100%; justify-content: center; height: 46px; border-radius: 999px; }
+  html[data-route='directory'] .dir2 { grid-template-columns: minmax(0, 1fr); gap: var(--s-3); }
+  html[data-route='directory'] .rail { order: -1; position: sticky; top: calc(var(--bar-h) + 8px); z-index: 5; flex-direction: row; justify-content: flex-start; width: 100%; height: auto; margin: 0; padding: 5px 8px; overflow-x: auto; scrollbar-width: none; border-radius: 999px; background: color-mix(in srgb, var(--card) 84%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: var(--shadow-md); }
+  html[data-route='directory'] .rail::-webkit-scrollbar { display: none; }
+  html[data-route='directory'] .rail button { flex: none; width: 32px; height: 32px; max-height: none; border-radius: 50%; font-size: 0.78rem; }
+  html[data-route='directory'] .rail .rail__all { width: auto; padding: 0 12px; border-radius: 999px; }
+
+  html[data-route='directory'] .dir2 > section { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); align-content: start; overflow: visible; background: none; border: 0; box-shadow: none; }
+  html[data-route='directory'] .dir2 > section > .empty { grid-column: 1 / -1; }
+  html[data-route='directory'] .grp, html[data-route='directory'] .grp__rows { display: contents; }
+
+  html[data-route='directory'] .crow { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-height: 0; padding: 44px var(--s-3) var(--s-4); overflow: hidden; isolation: isolate; border: 1px solid transparent; border-radius: 18px; background: linear-gradient(var(--card), var(--card)) padding-box, var(--edge) border-box; box-shadow: var(--shadow-1); }
+  html[data-route='directory'] .crow::before { content: ''; position: absolute; z-index: -1; left: 0; right: 0; top: 0; height: 58px; background: radial-gradient(rgba(255, 255, 255, 0.28) 1px, transparent 1.5px) 0 0 / 12px 12px, radial-gradient(90px 60px at 90% 0%, rgba(255, 255, 255, 0.28), transparent 70%), linear-gradient(135deg, var(--acc-b2) 0%, var(--acc-a2) 100%); }
+  html[data-route='directory'] .crow__name { flex-direction: column; align-items: flex-start; gap: var(--s-2); width: 100%; }
+  html[data-route='directory'] .crow__name .glyph, html[data-route='directory'] .crow__name .avatar-img { width: 54px; height: 54px; border: 3px solid var(--card); box-shadow: 0 6px 14px -6px rgba(16, 24, 40, 0.5); font-size: 0.95rem; }
+  html[data-route='directory'] .crow__name b { max-width: 100%; overflow: hidden; font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; color: var(--ink); text-overflow: ellipsis; white-space: nowrap; }
+  html[data-route='directory'] .crow__co, html[data-route='directory'] .crow__des { max-width: 100%; overflow: hidden; padding-left: 0; text-overflow: ellipsis; white-space: nowrap; }
+  html[data-route='directory'] .crow__co { margin-top: 2px; font-size: 0.8rem; font-weight: 600; color: var(--ink); }
+  html[data-route='directory'] .crow__des { font-size: 0.75rem; color: var(--ink-mute); }
+  html[data-route='directory'] .crow__cat { max-width: 100%; margin-top: var(--s-2); justify-self: auto; }
+  html[data-route='directory'] .crow__cat .chip { max-width: 100%; height: 22px; padding-inline: 8px; font-size: 0.68rem; }
+  html[data-route='directory'] .crow__pct { position: absolute; top: 8px; right: 8px; padding: 2px; border-radius: 50%; background: var(--card); box-shadow: 0 4px 10px -4px rgba(16, 24, 40, 0.45); transform: scale(0.78); transform-origin: top right; }
+}
+
+/* ---------- Chapter Dues: one card per member ----------
+   It used to be a single panel with rows and dividers, so everything read as one card and the
+   amount hung under each name behind a rule. Now: the totals are their own dark cards, and every
+   member is a separate card with a red-to-amber edge, the amount on the right of the name. */
+html[data-route='due-list'] .page .strip { gap: var(--s-3); overflow: visible; border: 0; background: none; box-shadow: none; }
+html[data-route='due-list'] .page .strip__item { border: 1px solid rgba(255, 255, 255, 0.1) !important; border-radius: 18px; background: radial-gradient(240px 120px at 100% 0%, rgba(var(--acc-glow-rgb), 0.35), transparent 70%), linear-gradient(160deg, var(--hero-a), var(--hero-b)); box-shadow: var(--shadow-md); }
+html[data-route='due-list'] .plist--dues { display: flex; flex-direction: column; gap: var(--s-3); padding: 0; overflow: visible; border: 0; background: none; box-shadow: none; }
+html[data-route='due-list'] .prow--due { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: start; gap: 4px var(--s-3); padding: var(--s-4) var(--s-4) var(--s-4) var(--s-5); overflow: hidden; border: 1px solid transparent; border-radius: 18px; background: linear-gradient(var(--card), var(--card)) padding-box, var(--edge) border-box; box-shadow: var(--shadow-1); }
+html[data-route='due-list'] .prow--due::before { content: ''; position: absolute; left: 0; top: 14px; bottom: 14px; width: 4px; border-radius: 0 3px 3px 0; background: linear-gradient(180deg, #FDB022, #F04438); box-shadow: 0 0 12px rgba(240, 68, 56, 0.6); }
+html[data-route='due-list'] .prow--due:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+html[data-route='due-list'] .prow--due { transition: transform 0.25s var(--ease), box-shadow 0.25s; }
+html[data-route='due-list'] .prow__main > b, html[data-route='due-list'] .prow__main a b { font-size: 1rem; color: var(--ink); }
+html[data-route='due-list'] .prow__main > span { font-size: 0.8125rem; }
+html[data-route='due-list'] .prow__main .prow__meta { margin-top: 2px; padding-top: 4px; border-top: 1px dashed var(--rule-input); font-size: 0.78rem; }
+html[data-route='due-list'] .prow__side { display: block; flex: none; width: auto; margin: 0; padding: 0; border: 0; }
+html[data-route='due-list'] .prow--due .stat { height: 32px; padding: 0 13px; font-family: var(--font-brand); font-size: 0.95rem; font-weight: 800; }
+@media (max-width: 720px) {
+  html[data-route='due-list'] .prow--due { padding: var(--s-3) var(--s-3) var(--s-3) var(--s-4); }
+  html[data-route='due-list'] .prow--due .avatar-img, html[data-route='due-list'] .prow--due .glyph { --size: 40px !important; width: 40px; height: 40px; }
+}
+
+/* a search bar that sits on top of a list keeps a gap below it */
+.list > .lsearch, .page > .lsearch { margin-bottom: var(--s-4); }
+@media (max-width: 720px) { .list > .lsearch, .page > .lsearch { margin-bottom: var(--s-3); } }
+.sheet > .lsearch, .hist-panel > .lsearch { margin-bottom: var(--s-3); }
+.list > :is(.filterbar, .verifybar):not(:last-child) { margin-bottom: var(--s-3); }
+.field > .seg + .field__hint { margin-top: var(--s-1); }

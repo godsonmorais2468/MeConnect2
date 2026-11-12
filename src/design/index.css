@@ -1,0 +1,31 @@
+/* ============================================================
+   ME-CONNECT design system v2: "Warm Editorial"
+   One entry point. Layers keep the order honest (no more
+   "loaded last wins"): tokens, legacy, base, primitives,
+   shell, pages.
+   Class names match the old app's markup contract, so pages
+   can be restyled without rewriting their TSX.
+   `legacy` holds the old per-page rules that are still in use;
+   it sits below everything new and shrinks as pages are ported.
+   ============================================================ */
+@layer tokens, legacy, base, primitives, shell, pages, skin, light, premium;
+
+@import './tokens.css' layer(tokens);
+@import '../styles/components.css' layer(legacy);
+@import './base.css' layer(base);
+@import './primitives.css' layer(primitives);
+@import './shell.css' layer(shell);
+@import './bottomnav.css' layer(shell);
+@import './login.css' layer(pages);
+@import './home.css' layer(pages);
+@import './hero.css' layer(pages);
+@import './splash.css' layer(pages);
+@import './directory.css' layer(pages);
+@import './pages.css' layer(pages);
+@import './skin.css' layer(skin);
+@import './light.css' layer(light);
+@import './premium.css' layer(premium);
+@import './layouts.css' layer(premium);
+@import './book.css' layer(premium);
+@import './home2.css' layer(premium);
+@import './header.css' layer(premium);

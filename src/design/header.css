@@ -1,0 +1,101 @@
+/* ============================================================
+   Title bar, finished: a bar tinted by the theme with a soft glow in
+   the corner, a hairline of light along its lower edge, a glowing logo
+   tile, a wordmark with a slow sheen, round glass buttons, and an
+   avatar in a lit ring. Always dark, in every theme and mode.
+   ============================================================ */
+.bar-top { position: relative; isolation: isolate;
+  background:
+    radial-gradient(560px 130px at 88% -50px, rgba(var(--acc-glow-rgb), 0.42) 0%, rgba(var(--acc-glow-rgb), 0) 70%),
+    radial-gradient(380px 110px at 4% -30px, rgba(var(--acc-hi-rgb), 0.16) 0%, rgba(var(--acc-hi-rgb), 0) 70%),
+    linear-gradient(180deg, var(--bar-a) 0%, var(--bar-b) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 14px 30px -18px rgba(0, 0, 0, 0.8); }
+/* dot grid, fading to the right */
+.bar-top::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1.4px); background-size: 16px 16px; -webkit-mask-image: linear-gradient(90deg, #000 0%, transparent 70%); mask-image: linear-gradient(90deg, #000 0%, transparent 70%); }
+/* the lit edge */
+.bar-top::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; pointer-events: none; background: linear-gradient(90deg, transparent 0%, rgba(var(--acc-hi-rgb), 0.75) 22%, rgba(255, 255, 255, 0.55) 50%, rgba(var(--acc-hi-rgb), 0.75) 78%, transparent 100%); box-shadow: 0 0 16px 1px rgba(var(--acc-rgb), 0.65); }
+
+/* logo tile */
+.bar-top__brand { gap: 12px; }
+.bar-top__brand .brand-mark { --size: 34px; border-radius: 10px; filter: none; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2), 0 0 0 4px rgba(var(--acc-rgb), 0.16), 0 8px 24px -4px rgba(var(--acc-rgb), 0.9); transition: transform 0.35s var(--ease), box-shadow 0.35s; }
+.bar-top__brand:hover .brand-mark { transform: rotate(-6deg) scale(1.06); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 0 0 5px rgba(var(--acc-rgb), 0.26), 0 10px 30px -4px rgba(var(--acc-rgb), 1); }
+
+/* the wordmark, with a slow sheen */
+.bar-top__word { background: linear-gradient(100deg, #FFFFFF 32%, var(--on-dark-hi2) 46%, #FFFFFF 60%) 0% 0 / 260% 100% no-repeat; -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 12px rgba(var(--acc-glow-rgb), 0.7)); animation: wordSheen 7s ease-in-out 2.5s infinite; }
+@keyframes wordSheen { 0%, 62% { background-position: 0% 0; } 100% { background-position: 100% 0; } }
+
+/* the chapter pill */
+.bar-top__ctx { height: 30px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.12); color: #E4E7EC; }
+.bar-top__ctx::before { box-shadow: 0 0 0 3px rgba(50, 213, 131, 0.2), 0 0 12px rgba(50, 213, 131, 0.9); }
+
+/* round glass buttons */
+.bar-top .icon-btn, .bar-top .bell__btn { width: 40px; height: 40px; border-radius: 50%; color: #CDD5DF; background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.13), inset 0 1px 0 rgba(255, 255, 255, 0.14); transition: color var(--t-fast), box-shadow 0.25s, transform 0.2s var(--ease), background var(--t-fast); }
+.bar-top .icon-btn:hover, .bar-top .bell__btn:hover, .bar-top .icon-btn[aria-expanded='true'], .bar-top .bell__btn.is-open { color: #fff; background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.06)); box-shadow: inset 0 0 0 1px rgba(var(--acc-hi-rgb), 0.6), 0 0 18px rgba(var(--acc-rgb), 0.55); transform: translateY(-1px); }
+.bell__badge { background: linear-gradient(145deg, #FDA29B 0%, #F04438 100%); box-shadow: 0 0 0 2px var(--bar-b), 0 4px 10px -2px rgba(240, 68, 56, 0.8); }
+
+/* the account button: a glass pill on wide screens, a lit ring around the photo everywhere */
+.me__btn { background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.12); }
+.me__btn:hover, .me__btn[aria-expanded='true'] { box-shadow: inset 0 0 0 1px rgba(var(--acc-hi-rgb), 0.6), 0 0 18px rgba(var(--acc-rgb), 0.45); }
+.me__btn .avatar-img, .me__btn .glyph--avatar { box-shadow: 0 0 0 2px var(--bar-b), 0 0 0 3.5px rgba(var(--acc-hi-rgb), 0.85), 0 0 18px rgba(var(--acc-rgb), 0.6); }
+.me__bar i { background: linear-gradient(90deg, var(--acc-a2), #32D583); box-shadow: 0 0 8px rgba(var(--acc-rgb), 0.7); }
+@media (max-width: 900px) {
+  .me__btn { background: transparent; box-shadow: none; }
+  .me__btn:hover, .me__btn[aria-expanded='true'] { box-shadow: none; }
+  .bar-top .icon-btn, .bar-top .bell__btn { width: 38px; height: 38px; }
+}
+@media (prefers-reduced-motion: reduce) { .bar-top__word { animation: none; } }
+html[data-perf='low'] .bar-top__word { animation: none; }
+
+/* ---------- notifications: a compact panel, never the whole screen ----------
+   Its height is capped (and clear of the bottom bar on phones), the list scrolls inside it,
+   and a dim scrim under the header closes it when tapped. */
+.bell__btn { position: relative; z-index: 45; }
+.notes__scrim { position: fixed; z-index: 40; left: 0; right: 0; bottom: 0; top: var(--bar-h); background: rgba(3, 6, 12, 0.5); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); animation: fadeIn 0.2s ease; }
+.notes { z-index: 50; display: flex; flex-direction: column; max-height: min(72dvh, 580px); overflow: hidden; border-radius: 22px; border: 1px solid transparent;
+  background: linear-gradient(var(--pop), var(--pop)) padding-box, var(--edge) border-box; box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.03); }
+.notes__head { flex-shrink: 0; padding: 14px 16px; }
+.notes__list { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 6px 6px 10px; }
+.notes__empty { padding: var(--s-6) var(--s-5); }
+.note { transition: background var(--t-fast); }
+@media (max-width: 900px) {
+  .notes { top: calc(var(--bar-h) + 8px); left: 10px; right: 10px; width: auto; max-height: calc(100dvh - var(--bar-h) - 8px - 118px - env(safe-area-inset-bottom)); }
+  .notes__scrim { bottom: 0; }
+}
+
+/* ---------- theme panel on phones: a compact sheet, colours as a row of dots ----------
+   Six dots across, two rows; the page behind is dimmed and tapping it closes the panel. */
+@media (max-width: 900px) {
+  .themer__pop { top: calc(var(--bar-h) + 8px); left: 10px; right: 10px; width: auto; max-height: calc(100dvh - var(--bar-h) - 8px - 118px - env(safe-area-inset-bottom)); overflow-y: auto; overscroll-behavior: contain; padding: 14px 12px 12px; border-radius: 22px; z-index: 50; }
+  .themer__head { margin-bottom: 8px; }
+  .themer__head:not(:first-child) { margin-top: 12px; }
+  .themer__modes { margin-bottom: 0; }
+  .themer__grid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 2px; }
+  .themer__opt { gap: 4px; padding: 6px 0 5px; border-radius: 12px; background: none; box-shadow: none; }
+  .themer__opt:hover { transform: none; }
+  .themer__opt.is-on { background: rgba(var(--acc-rgb), 0.12); box-shadow: inset 0 0 0 1.5px var(--sw); }
+  .themer__dot { width: 32px; height: 32px; }
+  .themer__name { font-size: 0.6rem; letter-spacing: -0.01em; }
+}
+
+/* ---------- tab row: a pill that slides behind the open tab ---------- */
+.nav-row { background: linear-gradient(180deg, rgba(var(--paper-rgb), 0.92), rgba(var(--paper-rgb), 0.78)); box-shadow: 0 1px 0 var(--rule), 0 14px 26px -18px rgba(0, 0, 0, 0.55); }
+:root[data-mode='light'] .nav-row { background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.82)); box-shadow: 0 1px 0 var(--rule), 0 14px 26px -18px rgba(16, 24, 40, 0.25); }
+.nav { position: relative; gap: 2px; }
+.nav__pill { position: absolute; z-index: 0; left: 0; top: 0; width: var(--w, 0px); height: var(--h, 0px); border-radius: 12px; opacity: var(--pill-o, 0); transform: translate(var(--x, 0px), var(--y, 0px)); pointer-events: none;
+  background: radial-gradient(60px 30px at 20% 0%, rgba(255, 255, 255, 0.35), transparent 70%), linear-gradient(160deg, var(--acc-a), var(--acc-b));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 10px 20px -8px rgba(var(--acc-glow-rgb), 0.85), 0 0 0 1px rgba(var(--acc-hi-rgb), 0.25); }
+.nav[data-ready] .nav__pill { transition: transform 0.5s cubic-bezier(0.3, 1.25, 0.5, 1), width 0.5s cubic-bezier(0.3, 1.25, 0.5, 1), height 0.3s, opacity 0.2s; }
+.nav a { position: relative; z-index: 1; padding: 0 14px; border-radius: 12px; font-weight: 600; transition: color var(--t-fast), background var(--t-fast); }
+.nav a svg { transition: color var(--t-fast), transform 0.3s var(--ease); }
+.nav a:hover svg { transform: translateY(-1px) scale(1.08); }
+.nav a.active, :root[data-mode='light'] .nav a.active { color: #fff; font-weight: 700; background: transparent; box-shadow: none; }
+.nav a.active svg, :root[data-mode='light'] .nav a.active svg { color: #fff; transform: none; }
+.nav a::after, :root[data-mode='light'] .nav a::after { display: none; }
+.nav a:not(.active):hover { background: rgba(var(--acc-rgb), 0.09); }
+.nav a:focus-visible { outline: 2px solid var(--acc-hi); outline-offset: -2px; }
+.nav .badge { margin-left: 2px; box-shadow: 0 0 0 2px transparent; background: linear-gradient(145deg, #FDA29B, #F04438); }
+@media (prefers-reduced-motion: reduce) { .nav[data-ready] .nav__pill { transition: none; } }
+
+/* the title bar's pop-ups (theme, notifications, account) open downward over the tab row, so the bar must stack above it */
+.bar-top { z-index: 3; }
+.nav-row { position: relative; z-index: 1; }

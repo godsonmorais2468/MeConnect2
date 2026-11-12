@@ -1,0 +1,186 @@
+/* ============================================================
+   Light mode (any accent). skin.css is written for a dark canvas; this layer
+   turns the content surfaces light (white panels on cool grey,
+   dark text) and keeps the "hero" surfaces dark on purpose: the
+   title bar, Home greeting card, page banners, Dues summary, the
+   profile cover. Those are re-scoped with dark text variables.
+   Generated from light.src: "@L" is the theme selector.
+   ============================================================ */
+
+/* ---------- canvas ---------- */
+:root[data-mode='light'] .app::before { height: 360px; background: radial-gradient(640px 260px at 85% -40px, rgba(var(--acc-rgb), 0.12) 0%, rgba(var(--acc-rgb), 0) 70%), linear-gradient(180deg, #EBEEF3 0%, rgba(245, 246, 248, 0) 100%); }
+:root[data-mode='light'] .app::after { height: 360px; background-image: radial-gradient(rgba(16, 24, 40, 0.06) 1px, transparent 1px); }
+:root[data-mode='light'] ::selection { background: rgba(var(--acc-rgb), 0.25); color: var(--ink); }
+:root[data-mode='light'] ::-webkit-scrollbar-thumb { background: #D0D5DD; border-color: var(--paper); }
+:root[data-mode='light'] .skel { background: linear-gradient(90deg, #F2F4F7, #EAECF0, #F2F4F7); background-size: 200% 100%; }
+:root[data-mode='light'] input:-webkit-autofill, :root[data-mode='light'] textarea:-webkit-autofill, :root[data-mode='light'] select:-webkit-autofill { -webkit-text-fill-color: var(--ink); box-shadow: 0 0 0 1000px #fff inset; caret-color: var(--ink); }
+
+/* ---------- tab row ---------- */
+:root[data-mode='light'] .nav-row { background: rgba(255, 255, 255, 0.88); box-shadow: 0 1px 0 var(--rule), 0 8px 16px -12px rgba(16, 24, 40, 0.18); }
+:root[data-mode='light'] .nav a { color: var(--ink-mute); }
+:root[data-mode='light'] .nav a svg { color: #98A2B3; }
+:root[data-mode='light'] .nav a:hover { color: var(--ink); background: var(--tile-3); }
+:root[data-mode='light'] .nav a:hover svg { color: var(--ink-mute); }
+:root[data-mode='light'] .nav a.active { color: var(--acc-hi); background: rgba(var(--acc-rgb), 0.1); box-shadow: inset 0 0 0 1px rgba(var(--acc-rgb), 0.22); }
+:root[data-mode='light'] .nav a.active svg { color: var(--acc); }
+:root[data-mode='light'] .nav a::after { background: var(--acc); box-shadow: none; }
+
+/* ---------- panels ---------- */
+:root[data-mode='light'] :is(.sheet, .cover, .regshell, .strip, .fbar, .menu, .ptile, .acc, .inv, .plist, .hist-panel, .sub-card-list, .mv__side, .dir2 > section, .tbl, .empty) { box-shadow: var(--shadow-1); }
+:root[data-mode='light'] .menu:hover, :root[data-mode='light'] .ptile:hover { border-color: rgba(var(--acc-rgb), 0.45); box-shadow: var(--shadow-md); }
+:root[data-mode='light'] :is(.row:hover, .tbl tbody tr:hover, .acc__head:hover, .inv__row:hover, .prow:hover, .crow:hover, .act:hover, .sub-card-item:hover, .matter:hover, .ctrl__card:hover, a.kpi:hover, .note:hover) { background: rgba(16, 24, 40, 0.03); }
+:root[data-mode='light'] .acc__item.is-open { background: var(--tile-2); }
+:root[data-mode='light'] .tbl th, :root[data-mode='light'] .dir2__cols { background: var(--tile-2); color: var(--ink-mute); }
+:root[data-mode='light'] .menu__go, :root[data-mode='light'] .matter__go { color: #D0D5DD; }
+:root[data-mode='light'] .menu__txt b, :root[data-mode='light'] .strip__value { color: var(--ink); }
+:root[data-mode='light'] :is(.bcard, .wcard, .geo, .plan__totals div, .preview > div, .help-hours div, .sub-period-card, .pay__items, .pop__pct, .prow__det, .man__row, .typelist li, .pick__chosen, .pay__m, .upi__app, .demo, .sub-date-pill) { background: var(--tile-2); color: var(--ink); }
+:root[data-mode='light'] .bcard, :root[data-mode='light'] .wcard { background: #fff; }
+:root[data-mode='light'] .bcard:hover, :root[data-mode='light'] .wcard:hover { box-shadow: var(--shadow-md); }
+:root[data-mode='light'] .preview > div, :root[data-mode='light'] .pollinfo { background: rgba(var(--acc-rgb), 0.08); border-color: rgba(var(--acc-rgb), 0.28); }
+:root[data-mode='light'] .pollinfo { color: var(--acc-hi); }
+:root[data-mode='light'] .state--ok { border-color: #ABEFC6; }
+:root[data-mode='light'] .state--go { border-color: #C7D7FE; }
+:root[data-mode='light'] .state--wait { border-color: #FEDF89; }
+
+/* ---------- buttons ---------- */
+:root[data-mode='light'] :is(.btn--line, .btn--xs, .qa, .help-link, .iconbtn, .filebox__btn) { color: var(--ink-3); background: #fff; border-color: var(--rule-input); box-shadow: var(--shadow-xs); }
+:root[data-mode='light'] :is(.btn--line, .btn--xs, .qa, .help-link, .iconbtn):hover { color: var(--ink); background: var(--tile-2); border-color: #B8C0CC; }
+:root[data-mode='light'] .qa--off, :root[data-mode='light'] .qa--off:hover { color: #98A2B3; background: #fff; }
+:root[data-mode='light'] .btn--ghost { color: var(--ink-3); }
+:root[data-mode='light'] .btn--ghost:hover { color: var(--ink); background: var(--tile-3); }
+:root[data-mode='light'] .help-link svg { color: var(--acc); }
+
+/* ---------- chips, status, tiles ---------- */
+:root[data-mode='light'] .chip { color: #344054; background: #F2F4F7; box-shadow: inset 0 0 0 1px #E4E7EC; }
+:root[data-mode='light'] .chip--gold { color: #B54708; background: #FFFAEB; box-shadow: inset 0 0 0 1px #FEDF89; }
+:root[data-mode='light'] .chip--red { color: var(--acc-hi); background: rgba(var(--acc-rgb), 0.1); box-shadow: inset 0 0 0 1px rgba(var(--acc-rgb), 0.28); }
+:root[data-mode='light'] .stat { color: #344054; background: #F2F4F7; box-shadow: inset 0 0 0 1px #E4E7EC; }
+:root[data-mode='light'] .stat--ok { color: #067647; background: #ECFDF3; box-shadow: inset 0 0 0 1px #ABEFC6; }
+:root[data-mode='light'] .stat--bad { color: #B42318; background: #FEF3F2; box-shadow: inset 0 0 0 1px #FECDCA; }
+:root[data-mode='light'] .stat--warn, :root[data-mode='light'] .duepill { color: #B54708; background: #FFFAEB; box-shadow: inset 0 0 0 1px #FEDF89; }
+:root[data-mode='light'] .stat--idle { color: #475467; background: #F9FAFB; box-shadow: inset 0 0 0 1px #EAECF0; }
+:root[data-mode='light'] .acc__no { color: var(--ink-mute); background: #F2F4F7; box-shadow: inset 0 0 0 1px #E4E7EC; }
+:root[data-mode='light'] .acc__item[data-rank='0'] .acc__no { color: #B54708; background: #FFFAEB; box-shadow: inset 0 0 0 1px #FEDF89; }
+:root[data-mode='light'] .acc__item[data-rank='1'] .acc__no { color: #475467; background: #F2F4F7; box-shadow: inset 0 0 0 1px #D0D5DD; }
+:root[data-mode='light'] .acc__item[data-rank='2'] .acc__no { color: #B93815; background: #FEF6EE; box-shadow: inset 0 0 0 1px #F9DBAF; }
+:root[data-mode='light'] .acc__count { color: var(--acc-hi); background: rgba(var(--acc-rgb), 0.1); box-shadow: inset 0 0 0 1px rgba(var(--acc-rgb), 0.28); }
+:root[data-mode='light'] .acc__count.is-zero { color: var(--ink-mute); background: #F2F4F7; box-shadow: inset 0 0 0 1px #E4E7EC; }
+:root[data-mode='light'] .acc__chev { color: #98A2B3; }
+:root[data-mode='light'] .sub-period-status-badge--active { color: #067647; background: #ECFDF3; border-color: #ABEFC6; }
+:root[data-mode='light'] .sub-period-status-badge--urgent { color: #B54708; background: #FFFAEB; border-color: #FEDF89; }
+:root[data-mode='light'] .sub-period-status-badge--expired { color: #B42318; background: #FEF3F2; border-color: #FECDCA; }
+:root[data-mode='light'] .headkind--income { color: #0B6B45 !important; background: rgba(22, 163, 74, 0.12) !important; border-color: rgba(22, 163, 74, 0.45) !important; }
+:root[data-mode='light'] .headkind--expense { color: #b91c1c !important; background: rgba(220, 38, 38, 0.1) !important; border-color: rgba(220, 38, 38, 0.4) !important; }
+:root[data-mode='light'] .t-red { --t-bg: #EFF4FF; --t-fg: #1D4ED8; --t-ring: rgba(29, 78, 216, 0.14); }
+:root[data-mode='light'] .t-gold { --t-bg: #FFFAEB; --t-fg: #B54708; --t-ring: rgba(181, 71, 8, 0.14); }
+:root[data-mode='light'] .t-navy { --t-bg: #EEF4FF; --t-fg: #3538CD; --t-ring: rgba(53, 56, 205, 0.14); }
+:root[data-mode='light'] .t-green { --t-bg: #ECFDF3; --t-fg: #067647; --t-ring: rgba(6, 118, 71, 0.14); }
+:root[data-mode='light'] .t-steel { --t-bg: #F2F4F7; --t-fg: #475467; --t-ring: rgba(71, 84, 103, 0.14); }
+:root[data-mode='light'] .t-wine { --t-bg: #F4F3FF; --t-fg: #5925DC; --t-ring: rgba(89, 37, 220, 0.14); }
+:root[data-mode='light'] .glyph--avatar { box-shadow: inset 0 0 0 1px var(--t-ring, transparent), 0 0 0 2px #fff; }
+:root[data-mode='light'] .avatar-img { box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--rule-strong); }
+:root[data-mode='light'] .badge { box-shadow: 0 0 0 2px #fff; }
+:root[data-mode='light'] .nav .badge { box-shadow: 0 0 0 2px #fff; }
+
+/* ---------- progress, tabs, segmented ---------- */
+:root[data-mode='light'] .bar, :root[data-mode='light'] .qrpanel__bar { background: #EAECF0; }
+:root[data-mode='light'] .bar i, :root[data-mode='light'] .qrpanel__bar i { box-shadow: none; }
+:root[data-mode='light'] .ring__track { stroke: #EAECF0; }
+:root[data-mode='light'] .ring.is-done .ring__n { color: #067647; }
+:root[data-mode='light'] .tabs button[aria-selected='true'] { color: var(--acc-hi); box-shadow: inset 0 -2px 0 var(--acc); }
+:root[data-mode='light'] .seg, :root[data-mode='light'] .filter-tabs { background: var(--tile-3); border-color: var(--rule); }
+:root[data-mode='light'] .seg button, :root[data-mode='light'] .filter-tab { color: var(--ink-mute); }
+:root[data-mode='light'] .seg button:hover, :root[data-mode='light'] .filter-tab:hover { color: var(--ink); background: rgba(255, 255, 255, 0.6); }
+:root[data-mode='light'] .seg button[aria-pressed='true'], :root[data-mode='light'] .filter-tab--active, :root[data-mode='light'] .filter-tab--active:hover { color: #fff; }
+
+/* ---------- forms ---------- */
+:root[data-mode='light'] :is(.field__control, .pill-field, .lsearch, .captcha__in, .pin input, .filebox, .kind__opt, .choice, .rchoice, .pick__search, .man__fields input, .msel__btn, .hsel__btn, .ssel__btn) { color: var(--ink); background: #fff; border-color: var(--rule-input); box-shadow: var(--shadow-xs); }
+:root[data-mode='light'] :is(.field__control, .pill-field, .lsearch, .captcha__in, .filebox, .kind__opt, .choice):hover { border-color: #B8C0CC; background: #fff; }
+:root[data-mode='light'] :is(.field__control:focus, .pill-field:focus-within, .lsearch:focus-within, .captcha__in:focus, .pin input:focus, .msel__btn:focus-visible) { border-color: rgba(var(--acc-rgb), 0.7); background: #fff; box-shadow: var(--ring-focus); }
+:root[data-mode='light'] .pill-field:focus-within, :root[data-mode='light'] .lsearch:focus-within { color: var(--acc); }
+:root[data-mode='light'] .field__control::placeholder, :root[data-mode='light'] .pill-field input::placeholder, :root[data-mode='light'] .lsearch input::placeholder, :root[data-mode='light'] .captcha__in::placeholder, :root[data-mode='light'] .msel__search input::placeholder { color: #98A2B3; }
+:root[data-mode='light'] .field__control:disabled { color: var(--ink-mute); -webkit-text-fill-color: var(--ink-mute); background: var(--tile-2); }
+:root[data-mode='light'] .field__error { color: #D92D20; }
+:root[data-mode='light'] .native-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23667085' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
+:root[data-mode='light'] select option { background: #fff; color: var(--ink); }
+:root[data-mode='light'] .pin input { color: var(--acc-hi); }
+:root[data-mode='light'] .kind__opt.is-on, :root[data-mode='light'] .choice.is-on, :root[data-mode='light'] .rchoice.is-on { border-color: rgba(var(--acc-rgb), 0.7); background: rgba(var(--acc-rgb), 0.07); }
+:root[data-mode='light'] .kind__opt--income.is-on { border-color: #16a34a; background: rgba(22, 163, 74, 0.1); }
+:root[data-mode='light'] .choice__mark, :root[data-mode='light'] .optlist__mark { border-color: #98A2B3; }
+:root[data-mode='light'] .toggle { background: #EAECF0; box-shadow: inset 0 0 0 1px rgba(16, 24, 40, 0.04); }
+:root[data-mode='light'] .toggle[aria-checked='true'] { box-shadow: none; }
+:root[data-mode='light'] .form-error { color: #B42318; background: #FFFBFA; border-color: #FDA29B; }
+
+/* ---------- dropdowns, overlays ---------- */
+:root[data-mode='light'] :is(.hsel__list, .msel__menu, .ssel__list, .ssel__menu, .pop, .notes) { background: #fff; background-image: none; border-color: var(--rule); box-shadow: var(--shadow-2); color: var(--ink); }
+:root[data-mode='light'] :is(.msel__search, .ssel__search, .msel__toolbar, .notes__head) { background: #fff; border-color: var(--rule); color: var(--ink); }
+:root[data-mode='light'] .msel__opt.is-on, :root[data-mode='light'] .pick__row.is-on { background: rgba(var(--acc-rgb), 0.08); border-color: rgba(var(--acc-rgb), 0.28); }
+:root[data-mode='light'] .msel__code-badge { color: var(--ink-3); background: #F2F4F7; }
+:root[data-mode='light'] .menu-item { color: var(--ink-3); }
+:root[data-mode='light'] .menu-item:hover { color: var(--ink); background: var(--tile-3); }
+:root[data-mode='light'] .menu-item svg { color: var(--ink-mute); }
+:root[data-mode='light'] .pop__name { color: var(--ink); }
+:root[data-mode='light'] .notes__head h2 span { color: var(--acc-hi); background: rgba(var(--acc-rgb), 0.1); box-shadow: inset 0 0 0 1px rgba(var(--acc-rgb), 0.28); }
+:root[data-mode='light'] .notes__all { color: var(--acc-hi); }
+:root[data-mode='light'] .notes__all:hover:not(:disabled) { background: rgba(var(--acc-rgb), 0.1); }
+:root[data-mode='light'] .note.is-unread { background: rgba(var(--acc-rgb), 0.06); }
+:root[data-mode='light'] .note.is-unread:hover { background: rgba(var(--acc-rgb), 0.12); }
+:root[data-mode='light'] .scan, :root[data-mode='light'] .confirm, :root[data-mode='light'] .pvbackdrop { background: rgba(16, 24, 40, 0.55); }
+:root[data-mode='light'] .confirm__card, :root[data-mode='light'] .scan__card, :root[data-mode='light'] .pvmodal { color: var(--ink); background: #fff; box-shadow: 0 24px 48px -12px rgba(16, 24, 40, 0.28); }
+:root[data-mode='light'] .scan__x { color: var(--ink); background: #fff; border-color: var(--rule-input); }
+:root[data-mode='light'] .pvmodal__image, :root[data-mode='light'] .photo__img { background: #EFF0EB; }
+:root[data-mode='light'] .toast { background: #101828; }
+:root[data-mode='light'] .themer__head { color: var(--ink-mute); }
+:root[data-mode='light'] .themer__opt { background: var(--tile-2); box-shadow: inset 0 0 0 1px var(--rule); color: var(--ink-3); }
+:root[data-mode='light'] .themer__opt:hover { background: var(--tile-3); }
+:root[data-mode='light'] .themer__opt.is-on { color: var(--ink); background: #fff; box-shadow: inset 0 0 0 1.5px var(--sw); }
+
+/* ---------- Home and Directory ---------- */
+:root[data-mode='light'] .sheet__more:hover, :root[data-mode='light'] .people__more:hover { background: rgba(var(--acc-rgb), 0.1); }
+:root[data-mode='light'] .people__more { background: var(--tile-2); color: var(--acc-hi); }
+:root[data-mode='light'] a.kpi::after { box-shadow: none; }
+:root[data-mode='light'] .rail { background: #fff; }
+:root[data-mode='light'] .rail button { color: var(--ink-3); }
+:root[data-mode='light'] .rail button:hover:not(:disabled) { color: var(--acc); background: rgba(var(--acc-rgb), 0.1); }
+:root[data-mode='light'] .rail button:disabled { color: #D0D5DD; }
+:root[data-mode='light'] .rail button.is-on { color: #fff; box-shadow: 0 2px 6px rgba(var(--acc-rgb), 0.4); }
+:root[data-mode='light'] .grp__letter { color: var(--acc-hi); background: rgba(var(--acc-rgb), 0.1); }
+
+/* ---------- Login ---------- */
+:root[data-mode='light'] .login { background: radial-gradient(900px 520px at 50% 45%, #FFFFFF 0%, rgba(255, 255, 255, 0) 70%), var(--paper); }
+:root[data-mode='light'] .login::before { background-image: radial-gradient(rgba(16, 24, 40, 0.09) 1px, transparent 1px); }
+:root[data-mode='light'] .login__ring { border-color: rgba(var(--acc-rgb), 0.16); }
+:root[data-mode='light'] .login__ring--b { border-color: rgba(var(--acc-rgb), 0.09); }
+:root[data-mode='light'] .login__card { background: #fff; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 32px 64px -24px rgba(16, 24, 40, 0.28), 0 0 0 1px rgba(16, 24, 40, 0.06); }
+:root[data-mode='light'] .login__card::before, :root[data-mode='light'] .login__card::after { background: var(--paper); box-shadow: inset 0 0 0 1px rgba(16, 24, 40, 0.06); }
+:root[data-mode='light'] .login__top h1 { color: var(--ink); }
+:root[data-mode='light'] .captcha__code { border-color: rgba(var(--acc-rgb), 0.3); background: repeating-linear-gradient(135deg, rgba(var(--acc-rgb), 0.07) 0 6px, rgba(var(--acc-rgb), 0.12) 6px 12px); }
+:root[data-mode='light'] .captcha__code span { color: var(--acc-hi); }
+:root[data-mode='light'] .captcha__code::before, :root[data-mode='light'] .captcha__code::after { background: rgba(16, 24, 40, 0.3); }
+:root[data-mode='light'] .login__powered a { color: var(--ink-3); }
+
+/* ---------- profile, subscription ---------- */
+:root[data-mode='light'] .cover__head h1 { color: var(--ink); }
+:root[data-mode='light'] .cover__head .avatar-img, :root[data-mode='light'] .cover__head .glyph { border-color: #fff; }
+:root[data-mode='light'] .sub-card-item--active { box-shadow: inset 3px 0 0 #17B26A; }
+:root[data-mode='light'] .inv__row.is-late, :root[data-mode='light'] .prow--due { box-shadow: inset 3px 0 0 #F04438; }
+
+/* ============================================================
+   Dark islands: these stay dark on the light theme, so they get
+   dark-surface variables and the light overrides above undone.
+   ============================================================ */
+:root[data-mode='light'] :is(.hero, .phead, .dues__sum, .cover__art, .pass, .page:has(.plist--dues) .strip) {
+  --ink: #fff; --ink-2: #E4E7EC; --ink-3: #CDD5DF; --ink-soft: #CDD5DF; --ink-mute: #98A2B3;
+  --acc-hi: var(--on-dark-hi); --acc-hi-rgb: var(--on-dark-hi-rgb); --acc-hi2: var(--on-dark-hi2);
+  --rule: rgba(255, 255, 255, 0.08); --rule-input: rgba(255, 255, 255, 0.16);
+}
+:root[data-mode='light'] .hero .chip { color: #E4E7EC; background: rgba(255, 255, 255, 0.06); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12); }
+:root[data-mode='light'] .hero .chip--gold { color: #FEC84B; background: rgba(247, 144, 9, 0.12); box-shadow: inset 0 0 0 1px rgba(247, 144, 9, 0.3); }
+:root[data-mode='light'] :is(.phead, .dues__sum) :is(.btn--line, .btn--ghost, .btn--xs) { color: #E4E7EC; background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.14); box-shadow: none; }
+:root[data-mode='light'] :is(.phead, .dues__sum) :is(.btn--line, .btn--ghost, .btn--xs):hover { color: #fff; background: rgba(255, 255, 255, 0.12); }
+:root[data-mode='light'] .page:has(.plist--dues) .strip .strip__value { color: #fff; }
+:root[data-mode='light'] .page:has(.plist--dues) .strip .stat { color: #CDD5DF; background: rgba(255, 255, 255, 0.06); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12); }
+:root[data-mode='light'] .hero .stat--ok, :root[data-mode='light'] .page:has(.plist--dues) .strip .stat--ok { color: #6CE9A6; background: rgba(23, 178, 106, 0.14); box-shadow: inset 0 0 0 1px rgba(50, 213, 131, 0.35); }
+:root[data-mode='light'] .hero .stat--bad, :root[data-mode='light'] .page:has(.plist--dues) .strip .stat--bad { color: #FDA29B; background: rgba(240, 68, 56, 0.14); box-shadow: inset 0 0 0 1px rgba(249, 112, 102, 0.35); }
+
+:root[data-mode='light'] .themer__modes { background: var(--tile-3); box-shadow: inset 0 0 0 1px var(--rule); }

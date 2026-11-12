@@ -1,0 +1,55 @@
+/* ============================================================
+   E-Directory v4: a filter toolbar, then a real data table with
+   columns (Name, Company, Designation, Category, Profile) and an
+   A-Z index on the right.
+   ============================================================ */
+.fbar { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--s-3); align-items: end; margin-bottom: var(--s-4); padding: var(--s-4) var(--s-5); background: var(--card); border: 1px solid var(--rule); border-radius: var(--r-lg); box-shadow: var(--shadow-1); }
+.fbar__clear { grid-column: 1 / -1; justify-self: start; }
+.filters-toggle { display: none; }
+
+.dir2 { display: grid; grid-template-columns: minmax(0, 1fr) 36px; gap: var(--s-3); align-items: start; }
+.dir2 > section { min-width: 0; overflow: clip; background: var(--card); border: 1px solid var(--rule); border-radius: var(--r-lg); box-shadow: var(--shadow-1); }
+.dir2 > section > .empty { border: 0; }
+
+.dir2__cols, .crow { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.5fr) minmax(0, 1.2fr) minmax(0, 1.2fr) 52px; gap: var(--s-4); align-items: center; }
+.dir2__cols { position: sticky; top: var(--mast-h); z-index: 2; margin: 0; padding: 12px var(--s-6); border: 0; border-bottom: 1px solid var(--rule); border-radius: 0; background: var(--tile-2); font-size: 0.75rem; font-weight: 500; color: var(--ink-mute); }
+.dir2__cols span:first-child { padding-left: 0; }
+.dir2__pct { text-align: center; }
+.grp { display: block; margin: 0; }
+.grp__rows { display: block; }
+
+.crow { position: relative; min-height: 64px; padding: 10px var(--s-6); color: var(--ink); background: var(--card); border: 0; border-bottom: 1px solid var(--rule); border-radius: 0; box-shadow: none; transition: background var(--t-fast); }
+.crow:hover { background: #FCFCFD; transform: none; border-color: var(--rule); }
+.crow__name { display: flex; align-items: center; gap: var(--s-3); min-width: 0; }
+.crow__name b { font-size: 0.875rem; font-weight: 500; overflow-wrap: anywhere; }
+.crow__name .glyph, .crow__name .avatar-img { --size: 34px; width: 34px; height: 34px; font-size: 0.8rem; }
+.crow__co, .crow__des { min-width: 0; padding-left: 0; font-size: 0.85rem; overflow-wrap: anywhere; }
+.crow__co { color: var(--ink-soft); }
+.crow__des { color: var(--ink-mute); }
+.crow__cat { min-width: 0; max-width: none; padding-left: 0; margin: 0; }
+.crow__cat .chip { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.crow__pct { display: grid; place-items: center; }
+.crow__pct .ring__n { font-size: 0.68rem; }
+
+.rail { position: sticky; top: calc(var(--mast-h) + 12px); display: flex; flex-direction: column; align-items: center; gap: 1px; height: min(calc(100vh - 200px), 700px); padding: 6px 0; background: var(--card); border: 1px solid var(--rule-strong); border-radius: var(--r-md); box-shadow: none; }
+.rail button { width: 26px; flex: 1 1 0; min-height: 0; max-height: 26px; padding: 0; border: 0; border-radius: var(--r-sm); background: transparent; font-size: 0.7rem; font-weight: 700; line-height: 1; color: var(--ink-soft); }
+.rail button:hover:not(:disabled) { color: var(--accent); background: var(--accent-wash); }
+.rail button:disabled { color: var(--paper-3); cursor: default; }
+.rail button.is-on { color: #fff; background: var(--accent); box-shadow: 0 2px 6px rgba(var(--acc-glow-rgb), 0.35); }
+.rail .rail__all { font-size: 0.6rem; max-height: 26px; }
+
+@media (max-width: 1000px) { .fbar { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 720px) {
+  .filters-toggle { display: inline-flex; margin-bottom: var(--s-3); }
+  .fbar { display: none; grid-template-columns: 1fr 1fr; padding: var(--s-3) var(--s-4); }
+  .fbar.is-open { display: grid; }
+  .dir2 { grid-template-columns: minmax(0, 1fr) 30px; gap: var(--s-2); }
+  .dir2__cols { display: none; }
+  .crow { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'name pct' 'co co' 'des cat'; gap: 2px var(--s-3); padding: 10px var(--s-4); }
+  .crow__name { grid-area: name; }
+  .crow__co { grid-area: co; padding-left: 46px; }
+  .crow__des { grid-area: des; padding-left: 46px; font-size: 0.8rem; }
+  .crow__cat { grid-area: cat; justify-self: end; }
+  .crow__pct { grid-area: pct; }
+  .rail button { width: 24px; }
+}

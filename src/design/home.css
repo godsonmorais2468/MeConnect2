@@ -1,0 +1,118 @@
+/* ============================================================
+   Home as a dashboard: header bar, a strip of four headline
+   numbers, then a main column (Today, Office Bearers) beside a
+   narrow column (Chapter Controls, E-Directory).
+   ============================================================ */
+.dash { display: grid; grid-template-columns: minmax(0, 1fr) 368px; gap: var(--s-6); align-items: start; }
+.dash__main, .dash__side { display: flex; flex-direction: column; gap: var(--s-6); min-width: 0; }
+.dash__chips { margin-top: var(--s-3); }
+
+/* panels whose body runs edge to edge (lists and tables) */
+.sheet--flush { padding: 0; overflow: hidden; }
+.sheet--flush .sheet__head { margin: 0; padding: 16px var(--s-6); border-radius: var(--r-lg) var(--r-lg) 0 0; }
+.sheet--flush .sheet__head > div { flex: 1; min-width: 0; }
+.sheet--flush .sheet__head h2 { font-size: 1rem; }
+.sheet__more { display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 10px; border-radius: 8px; font-size: 0.8125rem; white-space: nowrap; }
+.sheet__more:hover { background: #EFF4FF; text-decoration: none; }
+
+/* KPI cells are links: an icon tile, a label, a big number, a status */
+.kpi { position: relative; align-items: flex-start; transition: background var(--t-fast); }
+a.kpi:hover { background: #FCFCFD; }
+a.kpi::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.28s var(--ease); }
+a.kpi:hover::after { transform: scaleX(1); }
+.kpi .stat { margin-top: 8px; }
+.kpi > div { text-align: left; }
+
+/* "Today": each matter is one table row */
+.matters { display: flex; flex-direction: column; }
+.matter { display: flex; align-items: center; gap: var(--s-4); padding: 14px var(--s-6); border-bottom: 1px solid var(--rule); transition: background var(--t-fast); }
+.matter:last-child { border-bottom: 0; }
+.matter:hover { background: #FCFCFD; }
+.matter__txt { flex: 1; min-width: 0; }
+.matter__txt b { display: block; font-size: 0.875rem; font-weight: 600; color: var(--ink); }
+.matter__txt span { display: block; margin-top: 1px; font-size: 0.8125rem; color: var(--ink-mute); }
+.matter__go { flex-shrink: 0; color: #D0D5DD; transition: color var(--t-fast), transform 0.2s var(--ease); }
+.matter:hover .matter__go, .ctrl__card:hover .matter__go { color: var(--accent); transform: translateX(3px); }
+
+.tbl--flush { border: 0; border-radius: 0; }
+.who { display: inline-flex; align-items: center; gap: 12px; font-weight: 500; color: var(--ink); }
+
+/* Chapter Controls: a two-column grid of shortcuts */
+.ctrl__grid { display: grid; grid-template-columns: 1fr 1fr; }
+.ctrl__card { display: flex; align-items: center; gap: var(--s-3); padding: 12px var(--s-4); border-bottom: 1px solid var(--rule); transition: background var(--t-fast); }
+.ctrl__card:nth-child(odd) { border-right: 1px solid var(--rule); }
+.ctrl__card:nth-last-child(-n + 2):nth-child(odd), .ctrl__card:last-child { border-bottom: 0; }
+.ctrl__card:hover { background: #FCFCFD; }
+.ctrl__card > span:not(.glyph) { flex: 1; min-width: 0; }
+.ctrl__card .matter__go { display: none; }
+.ctrl__card b { display: block; font-size: 0.8125rem; font-weight: 600; line-height: 1.25; color: var(--ink); }
+.ctrl__card small { display: block; font-size: 0.72rem; color: var(--ink-mute); line-height: 1.25; }
+
+/* E-Directory preview */
+.people { display: flex; flex-direction: column; }
+.people li { display: flex; align-items: center; gap: var(--s-3); padding: 10px var(--s-6); border-bottom: 1px solid var(--rule); }
+.people li span { display: flex; flex-direction: column; min-width: 0; }
+.people li b { overflow: hidden; font-size: 0.875rem; font-weight: 500; color: var(--ink); text-overflow: ellipsis; white-space: nowrap; }
+.people li small { overflow: hidden; font-size: 0.78rem; color: var(--ink-mute); text-overflow: ellipsis; white-space: nowrap; }
+.people__more { display: flex; align-items: center; justify-content: center; height: 44px; background: var(--tile-2); font-size: 0.8125rem; font-weight: 600; color: var(--accent-deep); transition: background var(--t-fast); }
+.people__more:hover { background: #EFF4FF; }
+
+@media (max-width: 1000px) {
+  .dash { grid-template-columns: minmax(0, 1fr); gap: var(--s-5); }
+  .dash__main, .dash__side { gap: var(--s-5); }
+}
+@media (max-width: 720px) {
+  .sheet--flush .sheet__head { padding: 14px var(--s-4); }
+  .matter { padding: 12px var(--s-4); gap: var(--s-3); }
+  .matter .stat { display: none; }
+  .people li { padding-left: var(--s-4); padding-right: var(--s-4); }
+  .kpi { flex-direction: column; gap: var(--s-3); }
+  .kpi .stat { display: none; }
+}
+
+/* the strip now carries every status once: Attendance, Dues, Polls, Wishes (and Chapter Dues when it is on) */
+.kpi__text { margin-top: 2px; max-width: 30ch; font-size: 0.8125rem; line-height: 1.35; color: var(--ink-mute); }
+.kpi--wide { grid-column: span 2; }
+.kpi .strip__value + .stat, .kpi__text + .stat { margin-top: 8px; }
+.strip { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+@media (max-width: 720px) {
+  .kpi--wide { grid-column: 1 / -1; }
+  .kpi .stat { display: inline-flex; }
+  .kpi { flex-direction: row; gap: var(--s-3); }
+}
+
+/* column plan: Attendance gets a wider cell, the others share the rest equally */
+@media (min-width: 721px) {
+  .strip { grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, 1fr)); }
+  .strip:has(> :nth-child(5)) { grid-template-columns: minmax(0, 1.5fr) repeat(4, minmax(0, 1fr)); }
+  .kpi--wide { grid-column: auto; }
+  .strip__item { padding: var(--s-5) var(--s-5); gap: var(--s-3); }
+}
+.kpi > div { min-width: 0; }
+.kpi .stat { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+
+/* phones: two columns, Attendance across the top, everything left-aligned */
+@media (max-width: 720px) {
+  .strip { grid-template-columns: 1fr 1fr; }
+  .kpi { flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: var(--s-3); text-align: left; padding: var(--s-4); }
+  .kpi--wide { grid-column: 1 / -1; flex-direction: row; align-items: center; }
+  .kpi > div { width: 100%; }
+  .kpi .strip__value { font-size: 1.5rem; }
+}
+
+/* ============================================================
+   Menus: the two destinations that are not in the strip. Plain
+   link cards, no lists.
+   ============================================================ */
+.menus { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-4); margin-bottom: var(--s-6); }
+.menu { display: flex; align-items: center; gap: var(--s-4); min-width: 0; padding: var(--s-5) var(--s-6); background: var(--card); border: 1px solid var(--rule); border-radius: var(--r-lg); box-shadow: var(--shadow-1); transition: border-color var(--t-fast), box-shadow var(--t-fast), transform var(--t-fast); }
+.menu:hover { border-color: #C7D7FE; box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.menu__txt { display: flex; flex: 1; flex-direction: column; min-width: 0; }
+.menu__txt b { font-size: 1rem; font-weight: 600; color: var(--ink); }
+.menu__txt small { margin-top: 2px; font-size: 0.8125rem; color: var(--ink-mute); }
+.menu__go { flex-shrink: 0; color: #D0D5DD; transition: color var(--t-fast), transform 0.2s var(--ease); }
+.menu:hover .menu__go { color: var(--accent); transform: translateX(3px); }
+@media (max-width: 720px) {
+  .menus { grid-template-columns: minmax(0, 1fr); gap: var(--s-3); margin-bottom: var(--s-5); }
+  .menu { padding: var(--s-4); }
+}

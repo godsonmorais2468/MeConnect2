@@ -1,0 +1,77 @@
+/* ============================================================
+   ME-CONNECT design system: "Pine & Paper"
+   Warm paper, flat white cards with hairline borders, a deep pine
+   side rail and one amber signal. Flat colour, no glass, no gloss.
+   Display type: Bricolage Grotesque. Text: Figtree.
+   ============================================================ */
+:root {
+  color-scheme: light;
+
+  --paper: #F4F2EC;
+  --card: #FFFFFF;
+  --card-sunk: #FAF9F5;
+
+  --ink: #14201F;
+  --ink-soft: #34433F;
+  --ink-mute: #5B6B66;
+  --line: rgba(20, 32, 31, 0.1);
+  --line-mid: rgba(20, 32, 31, 0.2);
+
+  --pine: #0F2E2B;
+  --pine-2: #17403C;
+  --brand: #0D6E61;
+  --brand-deep: #0A5249;
+  --brand-wash: rgba(13, 110, 97, 0.08);
+  --accent: var(--brand);
+
+  --amber: #E39A16;
+  --amber-bright: #F2B33D;
+  --amber-ink: #7E5300;
+  --amber-wash: rgba(227, 154, 22, 0.12);
+  --gold: var(--amber);
+  --gold-light: #F8E3B4;
+  --gold-ink: var(--amber-ink);
+
+  --ok: #1B8A5A;
+  --ok-ink: #14663F;
+  --green: var(--ok);
+  --green-ink: var(--ok-ink);
+
+  --danger: #C2362B;
+  --danger-ink: #93251C;
+  --danger-wash: rgba(194, 54, 43, 0.08);
+
+  --shadow-0: 0 1px 2px rgba(20, 32, 31, 0.06);
+  --shadow-1: 0 1px 2px rgba(20, 32, 31, 0.05), 0 4px 14px rgba(20, 32, 31, 0.05);
+  --shadow-2: 0 14px 36px rgba(20, 32, 31, 0.16);
+
+  --font: 'Figtree', system-ui, 'Segoe UI', sans-serif;
+  --font-display: 'Bricolage Grotesque', 'Figtree', system-ui, sans-serif;
+
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 16px;
+  --radius: var(--r-md);
+  --surface-sunken: var(--card-sunk);
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --side-w: 244px;
+  --top-h: 64px;
+  --tabs-h: 64px;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--paper);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: rgba(13, 110, 97, 0.18); color: var(--ink); }
+h1, h2, h3 { font-family: var(--font-display); }

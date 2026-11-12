@@ -1,0 +1,56 @@
+/* ============================================================
+   Phone bottom navigation: a blue pill bar with a notch cut
+   around a floating bubble that carries the open page's icon.
+   The notch path and the bubble's position are painted from JS
+   (components/BottomNav.tsx) on one spring, so they never drift.
+   Shown below 900px; the tab row under the title bar is hidden there.
+   ============================================================ */
+.bnav { display: none; }
+
+@media (max-width: 900px) {
+  .nav-row { display: none; }
+  .app { padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
+  .toasts { bottom: calc(104px + env(safe-area-inset-bottom)); }
+
+  .bnav { position: fixed; z-index: 60; left: 12px; right: 12px; bottom: calc(14px + env(safe-area-inset-bottom)); display: block; height: 64px; filter: drop-shadow(0 10px 18px rgba(16, 24, 40, 0.22)) drop-shadow(0 2px 4px rgba(16, 24, 40, 0.12)); -webkit-tap-highlight-color: transparent; }
+
+  /* the bar: pill-shaped box that clips the painted outline (and with it, the notch) */
+  .bnav__bar { position: absolute; inset: 0; border-radius: 32px; overflow: hidden; }
+  .bnav__shape { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .bnav__shape path { shape-rendering: geometricPrecision; }
+
+  .bnav__items { position: absolute; inset: 0; display: flex; align-items: stretch; padding: 0 10px; }
+  .bnav__item { position: relative; flex: 1 1 0; display: grid; place-items: center; min-width: 0; color: rgba(255, 255, 255, 0.78); border-radius: 20px; transition: color 0.2s, transform 0.2s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .bnav__item svg { transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.2s; }
+  .bnav__item:active svg { transform: scale(0.86); }
+  .bnav__item:focus-visible { outline: 2px solid #fff; outline-offset: -8px; }
+  /* the open tab's own icon drops away: the bubble above carries it */
+  .bnav__item.is-on svg { opacity: 0; transform: translateY(14px) scale(0.6); }
+  .bnav__item.is-on .bnav__badge { opacity: 0; }
+
+  .bnav__badge { position: absolute; top: 12px; left: calc(50% + 6px); display: grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: #F04438; color: #fff; font-size: 0.64rem; font-weight: 700; box-shadow: 0 0 0 2px var(--acc-b2); transition: opacity 0.2s; }
+
+  /* the floating bubble: positioned by JS (translateX), centred a little above the bar's top edge */
+  /* the mover: placed and shaped from JS (translate, lean, stretch); it carries no look of its own */
+  .bnav__bubble { position: absolute; left: 0; top: calc(-6px - 26px); width: 52px; height: 52px; will-change: transform; pointer-events: none; }
+  /* the bubble itself, in the theme's light accent so it stands out from the bar; it bobs gently when at rest */
+  .bnav__orb { position: relative; display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; color: var(--bar-a); background: radial-gradient(circle at 32% 24%, #FFFFFF 0%, transparent 46%), linear-gradient(180deg, var(--on-dark-hi2) 0%, var(--on-dark-hi) 100%); box-shadow: 0 12px 24px -8px rgba(var(--acc-glow-rgb), 0.75), 0 0 0 4px rgba(var(--acc-hi-rgb), 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -3px 0 rgba(var(--acc-glow-rgb), 0.2); animation: bnavFloat 3.4s ease-in-out infinite; }
+  .bnav__bubble-icon { display: grid; place-items: center; animation: bnavPop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+  .bnav__badge--bubble { top: -2px; left: auto; right: -2px; box-shadow: 0 0 0 2px var(--paper); }
+
+  @keyframes bnavFloat {
+    0%, 100% { transform: translateY(0); box-shadow: 0 12px 24px -8px rgba(var(--acc-glow-rgb), 0.7), 0 0 0 4px rgba(var(--acc-hi-rgb), 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -3px 0 rgba(var(--acc-glow-rgb), 0.2); }
+    50% { transform: translateY(-2.5px); box-shadow: 0 18px 28px -8px rgba(var(--acc-glow-rgb), 0.55), 0 0 0 7px rgba(var(--acc-hi-rgb), 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -3px 0 rgba(var(--acc-glow-rgb), 0.2); }
+  }
+  @keyframes bnavPop {
+    0% { opacity: 0; transform: translateY(8px) scale(0.5) rotate(-12deg); }
+    60% { opacity: 1; }
+    100% { opacity: 1; transform: none; }
+  }
+}
+
+@media (max-width: 900px) and (prefers-reduced-motion: reduce) {
+  .bnav__bubble-icon { animation: none; }
+  .bnav__orb { animation: none; }
+  .bnav__item svg { transition: none; }
+}

@@ -1,0 +1,146 @@
+/* ============================================================
+   Address book (components/MemberDirectory.tsx): the E-Directory
+   and the Super Admin's chapter members.
+   - a big search pill and a Filters button, then category chips
+   - the A-Z list: one glass panel, sticky letter headings, rows
+     that light up when picked
+   - the open contact beside it: photo in a progress ring, role,
+     company and mobile, three colour action buttons
+   - phones: the contact slides up as a bottom sheet over a scrim,
+     and the A-Z index floats down the right edge
+   ============================================================ */
+.ab { --ab-top: calc(var(--mast-h) + 12px); }
+
+/* ---------- search and filters ---------- */
+.ab__bar { display: flex; gap: var(--s-3); margin-bottom: var(--s-3); }
+.ab__search { display: flex; flex: 1; align-items: center; gap: var(--s-3); min-width: 0; height: 56px; padding: 0 var(--s-5); border: 1px solid var(--rule-input); border-radius: 18px; background: var(--card); box-shadow: var(--shadow-1); color: var(--ink-mute); transition: border-color var(--t-fast), box-shadow 0.25s, color var(--t-fast); }
+.ab__search:focus-within { border-color: var(--acc-hi); box-shadow: var(--ring-focus); color: var(--acc-hi); }
+.ab__search input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; font-size: 1.02rem; color: var(--ink); }
+.ab__search input::placeholder { color: var(--ink-mute); }
+.ab__x { display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 50%; background: var(--tile-3); color: var(--ink-mute); }
+.ab__x:hover { color: var(--ink); }
+.ab__filters { display: inline-flex; align-items: center; gap: 8px; height: 56px; padding: 0 var(--s-5); border: 1px solid var(--rule-input); border-radius: 18px; background: var(--card); box-shadow: var(--shadow-1); font-weight: 600; color: var(--ink-3); transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast); }
+.ab__filters:hover { color: var(--ink); border-color: var(--acc-hi); }
+.ab__filters.is-on { color: var(--acc-hi); border-color: var(--acc-hi); background: rgba(var(--acc-rgb), 0.1); }
+.ab__count { display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--acc); color: #fff; font-size: 0.7rem; font-style: normal; font-weight: 700; }
+.ab__more { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: end; gap: var(--s-4); margin-bottom: var(--s-3); padding: var(--s-4) var(--s-5); border: 1px solid var(--rule); border-radius: 18px; background: var(--card); box-shadow: var(--shadow-1); animation: abDrop 0.25s var(--ease); }
+
+.ab__more .ab__clear { grid-column: 1 / -1; justify-self: start; }
+.ab__bar { margin-bottom: var(--s-4); }
+.ab__more { margin-top: calc(var(--s-1) * -1); margin-bottom: var(--s-4); }
+
+/* ---------- (the category chips were removed; Category is a filter again) ---------- */
+.ab__cats { display: flex; gap: var(--s-2); margin-bottom: var(--s-4); padding: 2px 0 var(--s-1); overflow-x: auto; scrollbar-width: none; }
+.ab__cats::-webkit-scrollbar { display: none; }
+.ab__cats button { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 var(--s-4); border: 1px solid var(--rule-input); border-radius: 999px; background: var(--card); font-size: 0.8125rem; font-weight: 600; color: var(--ink-soft); white-space: nowrap; transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast), transform 0.2s var(--ease); }
+.ab__cats button:hover { color: var(--ink); border-color: var(--acc-hi); transform: translateY(-1px); }
+.ab__cats button.is-on { color: #fff; border-color: transparent; background: linear-gradient(160deg, var(--acc-a), var(--acc-b)); box-shadow: 0 8px 18px -8px rgba(var(--acc-glow-rgb), 0.8); }
+.ab__cats .ab__clear { border-style: dashed; color: var(--ink-mute); }
+
+/* ---------- the list and the open contact ---------- */
+.ab__main { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: var(--s-6); align-items: start; }
+.ab__list { grid-column: 1; grid-row: 1; min-width: 0; padding-bottom: var(--s-2); border: 1px solid transparent; border-radius: 24px; background: linear-gradient(var(--card), var(--card)) padding-box, var(--edge) border-box; box-shadow: var(--shadow-1); }
+.ab__list > .empty { margin: var(--s-4); }
+.ab__group ul { display: flex; flex-direction: column; gap: 2px; padding: var(--s-2) var(--s-2) var(--s-1) var(--s-2); }
+.ab__letter { position: sticky; top: var(--ab-top); z-index: 3; margin: 0; padding: 9px var(--s-5); border-block: 1px solid var(--rule); background: color-mix(in srgb, var(--card) 86%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); font-family: var(--font-brand); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.24em; color: var(--acc-hi); }
+.ab__group:first-child .ab__letter { border-top: 0; border-radius: 24px 24px 0 0; }
+
+.ab__row { display: flex; align-items: center; gap: var(--s-4); width: 100%; padding: 10px var(--s-4); border: 0; border-radius: 16px; background: transparent; color: inherit; text-align: left; transition: background var(--t-fast), box-shadow var(--t-fast), transform 0.2s var(--ease); }
+.ab__row:hover { background: rgba(var(--acc-rgb), 0.07); }
+.ab__row.is-on { background: linear-gradient(90deg, rgba(var(--acc-rgb), 0.18), rgba(var(--acc-rgb), 0.05)); box-shadow: inset 3px 0 0 var(--acc); }
+.ab__who { display: flex; flex: 1; flex-direction: column; min-width: 0; line-height: 1.3; }
+.ab__who b { overflow: hidden; font-size: 0.975rem; font-weight: 650; color: var(--ink); text-overflow: ellipsis; white-space: nowrap; }
+.ab__who small { overflow: hidden; font-size: 0.8125rem; color: var(--ink-mute); text-overflow: ellipsis; white-space: nowrap; }
+.ab__go { flex-shrink: 0; color: var(--ink-mute); opacity: 0; transform: translateX(-4px); transition: opacity var(--t-fast), transform 0.2s var(--ease), color var(--t-fast); }
+.ab__row:hover .ab__go, .ab__row.is-on .ab__go { opacity: 1; transform: none; }
+.ab__row.is-on .ab__go { color: var(--acc-hi); }
+
+/* A-Z index: a slim pill on the list's right edge */
+.ab__index { position: sticky; top: calc(var(--ab-top) + 64px); z-index: 4; grid-column: 1; grid-row: 1; align-self: start; justify-self: end; display: flex; flex-direction: column; gap: 1px; margin: 64px 8px 0 0; padding: 6px 3px; border: 1px solid var(--rule); border-radius: 999px; background: color-mix(in srgb, var(--card) 82%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: var(--shadow-md); }
+.ab__index button { display: grid; place-items: center; width: 22px; height: 19px; padding: 0; border: 0; border-radius: 50%; background: transparent; font-size: 0.64rem; font-weight: 700; color: var(--ink-3); }
+.ab__index button:hover:not(:disabled) { color: var(--acc-hi); background: rgba(var(--acc-rgb), 0.14); }
+.ab__index button:disabled { color: var(--ink-mute); opacity: 0.35; cursor: default; }
+.ab__index button.is-on { color: #fff; background: linear-gradient(160deg, var(--acc-a), var(--acc-b)); box-shadow: 0 0 10px rgba(var(--acc-glow-rgb), 0.7); }
+.ab__list { padding-right: 34px; }
+
+/* ---------- the open contact ---------- */
+.ab__detail { grid-column: 2; grid-row: 1; position: sticky; top: var(--ab-top); display: flex; flex-direction: column; gap: var(--s-5); padding: 32px var(--s-6) var(--s-6); border: 1px solid transparent; border-radius: 28px; text-align: center; background: radial-gradient(380px 240px at 50% 0%, rgba(var(--acc-glow-rgb), 0.3) 0%, rgba(var(--acc-glow-rgb), 0) 70%) padding-box, radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1.5px) 0 0 / 16px 16px padding-box, linear-gradient(var(--card), var(--card)) padding-box, var(--edge) border-box; box-shadow: var(--shadow-md); }
+.ab__close, .ab__grip, .ab__scrim { display: none; }
+.ab__id { display: flex; flex-direction: column; align-items: center; gap: var(--s-2); }
+.ab__photo { position: relative; display: grid; place-items: center; width: 124px; height: 124px; margin-bottom: var(--s-2); }
+.ab__ring { position: absolute; inset: 0; overflow: visible; }
+.ab__ring-bg { stroke: var(--rule-strong); }
+.ab__ring-fg { stroke: var(--acc-hi); filter: drop-shadow(0 0 6px rgba(var(--acc-rgb), 0.8)); transition: stroke-dashoffset 0.7s var(--ease); }
+.ab__photo-in { display: grid; place-items: center; border-radius: 50%; }
+.ab__photo-in .avatar-img, .ab__photo-in .glyph { box-shadow: 0 14px 30px -12px rgba(16, 24, 40, 0.55); }
+.ab__detail h2 { font-family: var(--font-brand); font-size: 1.4rem; font-weight: 800; letter-spacing: -0.01em; line-height: 1.2; color: var(--ink); }
+.ab__role { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--acc-hi); }
+.ab__id .chips { justify-content: center; margin-top: var(--s-1); }
+
+.ab__facts { display: flex; flex-direction: column; text-align: left; border: 1px solid var(--rule); border-radius: 16px; background: rgba(var(--acc-rgb), 0.04); }
+.ab__facts > div { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); padding: 12px var(--s-4); }
+.ab__facts > div + div { border-top: 1px solid var(--rule); }
+.ab__facts dt { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; font-size: 0.8125rem; color: var(--ink-mute); }
+.ab__facts dd { min-width: 0; font-size: 0.9rem; font-weight: 600; color: var(--ink); text-align: right; overflow-wrap: anywhere; }
+
+.ab__acts { display: flex; gap: var(--s-2); }
+.ab__act { position: relative; display: inline-flex; flex: 1 1 0; align-items: center; justify-content: center; gap: 8px; min-width: 0; height: 48px; overflow: hidden; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.22); font-size: 0.85rem; font-weight: 700; color: #fff; background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.3) 50%, transparent 65%) 130% 0 / 250% 100% no-repeat, linear-gradient(160deg, var(--a), var(--b)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 12px 22px -12px rgba(var(--glow), 0.9); transition: transform 0.2s var(--ease), background-position 0.7s var(--ease); }
+.ab__act:hover { transform: translateY(-2px); background-position: -40% 0, 0 0; }
+.ab__act--call { --a: #17B26A; --b: #067647; --glow: 23, 178, 106; }
+.ab__act--wa { --a: #2EE27A; --b: #0E8C6A; --glow: 18, 140, 126; }
+.ab__act--mail { --a: var(--acc-a); --b: var(--acc-b); --glow: var(--acc-glow-rgb); }
+.ab__open { width: 100%; height: 50px; border-radius: 15px; }
+.ab__none { padding: var(--s-6) 0; color: var(--ink-mute); }
+
+@keyframes abDrop { from { opacity: 0; transform: translateY(-6px); } }
+
+/* ---------- tablets and phones ---------- */
+@media (max-width: 899px) {
+  .ab { --ab-top: calc(var(--bar-h) + 8px); }
+  .ab__bar { position: sticky; top: var(--ab-top); z-index: 12; }
+  .ab__search { height: 52px; border-radius: 26px; padding: 0 var(--s-4); }
+  .ab__filters { width: 52px; height: 52px; padding: 0; justify-content: center; border-radius: 50%; position: relative; }
+  .ab__filters span:not(.ab__count) { display: none; }
+  .ab__filters .ab__count { position: absolute; top: -3px; right: -3px; }
+  .ab__more { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); padding: var(--s-4); }
+
+  .ab__main { grid-template-columns: minmax(0, 1fr) 26px; gap: var(--s-2); }
+  .ab__list { grid-column: 1; grid-row: 1; padding-right: 0; }
+  .ab__list { padding-right: 0; border-radius: 22px; }
+  .ab__letter { top: calc(var(--ab-top) + 60px); padding: 8px var(--s-4); }
+  .ab__row { gap: var(--s-3); padding: 9px var(--s-3); }
+  .ab__go { display: none; }
+  /* nothing is "picked" on a phone until the sheet is open */
+  .ab:not([data-sheet]) .ab__row.is-on { background: transparent; box-shadow: none; }
+  .ab:not([data-sheet]) .ab__row.is-on:hover { background: rgba(var(--acc-rgb), 0.07); }
+
+  /* the A-Z index is a slim column beside the list; it sticks under the search bar and never covers anything */
+  /* the A-Z index: All and A to Z in a slim column beside the list, starting level with it; it follows you down and
+     sticks under the search bar, sized so every button stays above the bottom bar */
+  .ab__index { position: sticky; top: calc(var(--ab-top) + 62px); grid-column: 2; grid-row: 1; align-self: start; justify-self: stretch; z-index: 4; height: calc(100dvh - var(--ab-top) - 62px - 118px - env(safe-area-inset-bottom)); min-height: 360px; max-height: 540px; margin: 0; padding: 5px 2px; box-shadow: none; }
+  .ab__index button { flex: 1 1 0; min-height: 0; max-height: 23px; width: 100%; height: auto; border-radius: 6px; font-size: 0.6rem; line-height: 1; }
+
+  /* the contact is a bottom sheet over a scrim */
+  .ab__scrim { display: block; position: fixed; inset: 0; z-index: 85; background: rgba(3, 6, 12, 0.6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+  .ab__scrim.is-open { opacity: 1; pointer-events: auto; }
+  .ab__detail { position: fixed; top: auto; left: 0; right: 0; bottom: 0; z-index: 90; max-height: 88dvh; overflow-y: auto; overscroll-behavior: contain; padding: 36px var(--s-5) calc(var(--s-6) + env(safe-area-inset-bottom)); border-radius: 28px 28px 0 0; visibility: hidden; transform: translateY(104%); transition: transform 0.45s cubic-bezier(0.32, 0.72, 0, 1), visibility 0s 0.45s; box-shadow: 0 -30px 60px -20px rgba(0, 0, 0, 0.7); }
+  .ab__detail.is-open { visibility: visible; transform: none; transition-delay: 0s; }
+  .ab__grip { display: block; position: absolute; top: 10px; left: 50%; width: 42px; height: 4px; margin-left: -21px; border-radius: 2px; background: var(--rule-input); }
+  .ab__close { display: grid; place-items: center; position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--tile-3); color: var(--ink-mute); }
+  .ab__photo { width: 108px; height: 108px; }
+  .ab__ring { width: 108px; height: 108px; }
+  .ab__photo-in .avatar-img, .ab__photo-in .glyph { --size: 84px !important; width: 84px !important; height: 84px !important; }
+  .ab__acts { flex-wrap: wrap; }
+  .ab__act { flex: 1 1 30%; }
+}
+@media (min-width: 900px) and (max-width: 1100px) {
+  .ab__main { grid-template-columns: minmax(0, 1fr) 320px; gap: var(--s-4); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ab__more { animation: none; }
+  .ab__detail, .ab__scrim { transition: none; }
+}
+
+/* the All button at the top of the index */
+.ab__index .ab__all { flex-shrink: 0; width: 100%; font-size: 0.6rem; letter-spacing: -0.01em; }
+@media (min-width: 900px) { .ab__index .ab__all { height: 19px; border-radius: 9px; } }

@@ -1,0 +1,97 @@
+/* ============================================================
+   Splash: a glow blooms in the page colour, the mark springs in
+   with a light sweeping round it and its M drawn by hand, the
+   name sharpens out of a blur, the tagline rolls through its
+   three words, and the screen splits open along a bright seam.
+   Everything follows the chosen theme (--paper, --ink, --acc).
+   Each element is drawn in its finished state; animations only
+   start it from "hidden" (fill-mode both), so a device that runs
+   none still shows a complete, still logo.
+   ============================================================ */
+html.splash-on, html.splash-on body { overflow: hidden; }
+
+.splash { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; overflow: hidden; color: var(--ink); cursor: pointer; }
+
+/* the page colour, in two halves that part on exit */
+.splash__half { position: absolute; left: 0; right: 0; height: calc(50% + 1px); z-index: 0; background: var(--paper); will-change: transform; }
+.splash__half--t { top: 0; box-shadow: 0 1px 0 rgba(var(--acc-rgb), 0); }
+.splash__half--b { bottom: 0; }
+
+/* a bloom of the accent behind the mark, with a dot grid that fades out from the middle */
+.splash__glow { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.splash__glow::before { content: ''; position: absolute; left: 50%; top: 44%; width: min(120vmin, 900px); height: min(120vmin, 900px); margin: calc(min(120vmin, 900px) / -2) 0 0 calc(min(120vmin, 900px) / -2); border-radius: 50%; background: radial-gradient(closest-side, rgba(var(--acc-glow-rgb), 0.32) 0%, rgba(var(--acc-glow-rgb), 0.1) 45%, rgba(var(--acc-glow-rgb), 0) 100%); animation: splashBloom 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) 0.05s both; }
+.splash__glow::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(var(--ink-rgb, 128, 140, 160), 0.22) 1px, transparent 1px); background-size: 22px 22px; -webkit-mask-image: radial-gradient(closest-side at 50% 44%, #000 0%, transparent 70%); mask-image: radial-gradient(closest-side at 50% 44%, #000 0%, transparent 70%); animation: splashFadeIn 1.4s ease-out 0.3s both; }
+
+.splash__stage { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; width: 100%; padding: 0 20px 36px; }
+
+/* ---------- the mark ---------- */
+.splash__orb { position: relative; display: grid; place-items: center; width: 164px; height: 164px; }
+/* a bright arc that sweeps once round the mark */
+.splash__halo { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, rgba(var(--acc-hi-rgb), 0) 0deg, rgba(var(--acc-hi-rgb), 0) 200deg, rgba(var(--acc-hi-rgb), 0.95) 340deg, rgba(var(--acc-hi-rgb), 0) 360deg); -webkit-mask-image: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px)); mask-image: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px)); filter: drop-shadow(0 0 8px rgba(var(--acc-hi-rgb), 0.8)); animation: splashSweep 1.5s cubic-bezier(0.45, 0.05, 0.25, 1) 0.2s both; }
+.splash__pulse { position: absolute; inset: 22px; border-radius: 50%; border: 1.5px solid rgba(var(--acc-hi-rgb), 0.7); opacity: 0; animation: splashPulse 1.3s cubic-bezier(0.2, 0.6, 0.3, 1) var(--d, 0s) both; }
+
+.splash__tile { position: relative; width: 96px; height: 96px; overflow: hidden; border-radius: 26px; background: linear-gradient(150deg, var(--acc-a2) 0%, var(--acc-b2) 55%, var(--acc-b) 100%); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 18px 40px -12px rgba(var(--acc-glow-rgb), 0.85), 0 0 0 1px rgba(255, 255, 255, 0.1); animation: splashTile 0.9s cubic-bezier(0.34, 1.5, 0.64, 1) 0.1s both; }
+.splash__mark { position: absolute; inset: 14px; width: 68px; height: 68px; }
+.splash__m { stroke-dasharray: 1; stroke-dashoffset: 0; animation: splashDraw 0.75s cubic-bezier(0.5, 0, 0.2, 1) 0.6s both; }
+.splash__dot { transform-box: fill-box; transform-origin: center; animation: splashDrop 0.7s cubic-bezier(0.34, 1.9, 0.5, 1) 1.05s both; }
+/* a soft gloss crossing the tile when the dot lands */
+.splash__shine { position: absolute; top: -20%; bottom: -20%; left: -60%; width: 40%; background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0)); transform: skewX(-18deg); animation: splashShine 0.9s ease-in-out 1.2s both; }
+
+/* ---------- the name and the tagline ---------- */
+.splash__word { display: flex; justify-content: center; margin: 18px 0 0; font-family: var(--font-display); font-size: clamp(2rem, 6.6vmin, 3.2rem); font-weight: 700; line-height: 1.1; letter-spacing: 0.1em; color: var(--ink); }
+.splash__word span { display: inline-block; padding: 0 0.02em; animation: splashSharpen 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) var(--d, 0s) both; }
+.splash__word .splash__dash { color: var(--acc-hi); text-shadow: 0 0 18px rgba(var(--acc-hi-rgb), 0.8); }
+
+/* one word shows at a time; the strip slides up through three lines and rests on the last */
+.splash__roll { height: 1.7em; margin-top: 12px; overflow: hidden; font-size: var(--fs-eyebrow); font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-mute); -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 22%, #000 78%, transparent 100%); mask-image: linear-gradient(180deg, transparent 0, #000 22%, #000 78%, transparent 100%); animation: splashFadeIn 0.4s ease-out 1.7s both; }
+.splash__roll ul { margin: 0; padding: 0; list-style: none; animation: splashRoll 1.35s cubic-bezier(0.65, 0, 0.25, 1) 1.9s both; }
+.splash__roll li { display: flex; align-items: center; justify-content: center; height: 1.7em; text-align: center; }
+.splash__roll li:last-child { color: var(--acc-hi); }
+
+/* ---------- footer ---------- */
+.splash__foot { position: absolute; left: 0; right: 0; bottom: max(26px, env(safe-area-inset-bottom)); z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.splash__bar { width: 168px; height: 3px; overflow: hidden; border-radius: 2px; background: var(--rule-strong); }
+.splash__bar i { display: block; width: 100%; height: 100%; border-radius: 2px; transform-origin: left; background: linear-gradient(90deg, var(--acc), var(--acc-hi)); box-shadow: 0 0 10px rgba(var(--acc-hi-rgb), 0.8); animation: splashBar var(--t, 3000ms) cubic-bezier(0.4, 0.1, 0.2, 1) both; }
+.splash__foot p { margin: 0; font-size: 0.72rem; letter-spacing: 0.06em; color: var(--ink-mute); animation: splashFadeIn 0.8s ease-out 1.6s both; }
+
+/* ---------- leaving: the stage lets go, then the two halves part on a bright seam ---------- */
+.splash--out { pointer-events: none; }
+.splash--out .splash__stage { animation: splashLet 0.4s cubic-bezier(0.5, 0, 0.9, 0.4) forwards; }
+.splash--out .splash__glow { animation: splashFadeOut 0.5s ease forwards; }
+.splash--out .splash__foot { opacity: 0; transition: opacity 0.2s; }
+.splash--out .splash__half--t { animation: splashUp 0.7s cubic-bezier(0.77, 0, 0.18, 1) 0.18s forwards; }
+.splash--out .splash__half--b { animation: splashDown 0.7s cubic-bezier(0.77, 0, 0.18, 1) 0.18s forwards; }
+.splash--out::after { content: ''; position: absolute; left: 0; right: 0; top: calc(50% - 1px); z-index: 1; height: 2px; background: linear-gradient(90deg, transparent, var(--acc-hi) 30%, #fff 50%, var(--acc-hi) 70%, transparent); box-shadow: 0 0 24px 2px rgba(var(--acc-hi-rgb), 0.9); transform-origin: center; animation: splashSeam 0.7s ease-in-out 0.1s forwards; }
+.splash--calm.splash--out { animation: splashFadeOut 0.3s ease forwards; }
+.splash--calm.splash--out .splash__stage, .splash--calm.splash--out .splash__half, .splash--calm.splash--out::after { animation: none; }
+.splash--calm.splash--out::after { display: none; }
+
+@keyframes splashDraw { from { stroke-dashoffset: 1; } }
+@keyframes splashFadeIn { from { opacity: 0; } }
+@keyframes splashFadeOut { to { opacity: 0; } }
+@keyframes splashBloom { from { opacity: 0; transform: scale(0.2); } }
+@keyframes splashSweep { 0% { opacity: 0; transform: rotate(-200deg) scale(0.8); } 25% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; transform: rotate(160deg) scale(1.08); } }
+@keyframes splashTile { from { opacity: 0; transform: scale(0.35) rotate(-12deg); } }
+@keyframes splashDrop { from { opacity: 0; transform: translateY(-34px) scale(0.5); } }
+@keyframes splashShine { from { left: -60%; } to { left: 130%; } }
+@keyframes splashPulse { 0% { opacity: 0.8; transform: scale(0.6); } 100% { opacity: 0; transform: scale(1.5); } }
+@keyframes splashSharpen { from { opacity: 0; filter: blur(12px); transform: translateY(0.35em) scale(1.25); } }
+@keyframes splashRoll { 0%, 18% { transform: translateY(0); } 38%, 58% { transform: translateY(-1.7em); } 78%, 100% { transform: translateY(-3.4em); } }
+@keyframes splashBar { from { transform: scaleX(0); } }
+@keyframes splashLet { to { opacity: 0; transform: scale(0.94); } }
+@keyframes splashUp { to { transform: translateY(-101%); } }
+@keyframes splashDown { to { transform: translateY(101%); } }
+@keyframes splashSeam { 0% { opacity: 0; transform: scaleX(0); } 35% { opacity: 1; transform: scaleX(1); } 100% { opacity: 0; transform: scaleX(1) scaleY(3); } }
+
+html[data-perf='mid'] .splash__halo { animation-duration: 1.2s; }
+
+html[data-perf='low'] .splash, html[data-perf='low'] .splash *, html[data-perf='low'] .splash::before, html[data-perf='low'] .splash::after { animation: none !important; }
+html[data-perf='low'] .splash__halo, html[data-perf='low'] .splash__pulse, html[data-perf='low'] .splash__shine { display: none; }
+html[data-perf='low'] .splash--out { animation: splashFadeOut 0.3s ease forwards !important; }
+html[data-perf='low'] .splash--out::after { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .splash, .splash *, .splash::before, .splash::after { animation: none !important; }
+  .splash__halo, .splash__pulse, .splash__shine { display: none; }
+  .splash--out { animation: splashFadeOut 0.3s ease forwards !important; }
+  .splash--out::after { display: none; }
+}

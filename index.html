@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#111827" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="ME-CONNECT" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" />
+    <title>ME-CONNECT</title>
+    <!-- The plain cover shown while the app loads. The splash screen takes over at the same colour; if the app never starts, the cover fades away after a few seconds. -->
+    <style>
+      #boot { position: fixed; inset: 0; z-index: 399; background: var(--boot, #070B14); animation: boot-out 0.4s ease 8s forwards; }
+      @keyframes boot-out { to { opacity: 0; visibility: hidden; } }
+    </style>
+    <!-- The cover takes the saved theme's page colour, so a dark theme never flashes white (and a light one never flashes dark). -->
+    <script>
+      (function () {
+        try {
+          var paper = { ocean: '#070B14', emerald: '#060F0C', violet: '#0A0813', rose: '#12070B', amber: '#100B05', teal: '#04100F', sunset: '#120804', magenta: '#12060F', lime: '#0A0F04', graphite: '#0B0C0E' };
+          var t = localStorage.getItem('mc.theme');
+          var light = localStorage.getItem('mc.mode') === 'light' || t === 'light';
+          document.documentElement.style.setProperty('--boot', light ? '#F5F6F8' : paper[t] || paper.ocean);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="boot"></div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

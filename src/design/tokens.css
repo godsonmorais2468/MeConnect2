@@ -1,0 +1,244 @@
+/* ============================================================
+   Tokens v6: "graphite glass", matched to the Home hero card.
+   Deep navy canvas, glass panels with a hairline edge, bright
+   text, blue glow for actions, soft status colours.
+   ============================================================ */
+:root {
+  color-scheme: dark;
+
+  /* surfaces */
+  --paper: #070B14;
+  --paper-2: #0E1626;
+  --paper-3: #2B374D;
+  --card: #0F1727;
+  --tile-2: #131D31;
+  --tile-3: #19253C;
+  --glass: linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.015) 100%);
+  --glass-blue: radial-gradient(420px 220px at 100% 0%, rgba(var(--acc-glow-rgb), 0.2) 0%, rgba(var(--acc-glow-rgb), 0) 70%);
+
+  /* text */
+  --ink: #F2F4F7;
+  --ink-2: #E4E7EC;
+  --ink-3: #CDD5DF;
+  --ink-soft: #CDD5DF;
+  --ink-mute: #98A2B3;
+  --on-ink: #FFFFFF;
+  --on-ink-mute: #D1D5DB;
+
+  --rule: rgba(255, 255, 255, 0.08);
+  --rule-strong: rgba(255, 255, 255, 0.11);
+  --rule-input: rgba(255, 255, 255, 0.16);
+
+  /* action blue */
+  --accent: var(--acc);
+  --accent-deep: var(--acc-hi);
+  --accent-ink: var(--acc-hi);
+  --accent-wash: rgba(var(--acc-rgb), 0.18);
+  --on-accent: #FFFFFF;
+
+  /* status colours: glass tints with bright ink */
+  --mint: rgba(23, 178, 106, 0.16);
+  --mint-ink: #6CE9A6;
+  --sand: rgba(247, 144, 9, 0.16);
+  --sand-ink: #FEC84B;
+  --sky: rgba(var(--acc-rgb), 0.18);
+  --sky-ink: var(--acc-hi);
+  --lilac: rgba(139, 92, 246, 0.2);
+  --lilac-ink: #C4B5FD;
+  --danger: #F97066;
+  --danger-ink: #FDA29B;
+  --danger-wash: rgba(240, 68, 56, 0.16);
+
+  --sage: var(--mint-ink);
+  --sage-ink: var(--mint-ink);
+  --sage-wash: var(--mint);
+  --mustard: #F79009;
+  --mustard-ink: var(--sand-ink);
+  --mustard-wash: var(--sand);
+  --indigo-ink: var(--sky-ink);
+  --indigo-wash: var(--sky);
+  --plum-ink: var(--lilac-ink);
+  --plum-wash: var(--lilac);
+
+  /* type: Inter with the platform font as fallback */
+  --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: var(--font);
+
+  --fs-display: 1.75rem;
+  --fs-h1: 1.5rem;
+  --fs-h2: 1.0625rem;
+  --fs-h3: 0.9375rem;
+  --fs-body: 0.875rem;
+  --fs-small: 0.8125rem;
+  --fs-eyebrow: 0.72rem;
+
+  /* shape */
+  --r-sm: 8px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 18px;
+  --r-pill: 999px;
+
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-7: 40px;
+  --s-8: 64px;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-1: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 24px -16px rgba(0, 0, 0, 0.6);
+  --shadow-md: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 10px 24px -10px rgba(0, 0, 0, 0.7);
+  --shadow-2: 0 24px 48px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  --ring-focus: 0 0 0 4px rgba(var(--acc-hi-rgb), 0.28);
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --t-fast: 0.12s;
+  --t-med: 0.2s;
+
+  --col: 1280px;
+  --gutter: 20px;
+  --bar-h: 56px;
+  --nav-h: 48px;
+  --mast-h: calc(var(--bar-h) + var(--nav-h));
+  --dock-h: 0px;
+}
+
+
+/* ============================================================
+   Colour themes. The accent is set by <html data-theme="...">
+   (components/ThemeMenu.tsx). Ocean is the default.
+   ============================================================ */
+:root, :root[data-theme='ocean'] {
+  --on-dark-hi: #84ADFF; --on-dark-hi-rgb: 132, 173, 255; --on-dark-hi2: #B2CCFF;
+  --paper: #070B14; --paper-rgb: 7, 11, 20; --paper-2: #0E1626; --paper-3: #2B374D; --card: #0F1727; --tile-2: #131D31; --tile-3: #19253C; --hero-a: #0C111D; --hero-b: #162033; --bar-a: #05080F; --bar-b: #0A101C; --pop: #101828;
+  --acc: #3B82F6; --acc-rgb: 59, 130, 246;
+  --acc-hi: #84ADFF; --acc-hi-rgb: 132, 173, 255; --acc-hi2: #B2CCFF;
+  --acc-a: #3B76F6; --acc-a2: #528BFF; --acc-b: #1D4ED8; --acc-b2: #2563EB; --acc-d: #1E3A8A; --acc-glow-rgb: 37, 99, 235;
+}
+:root[data-theme='emerald'] {
+  --on-dark-hi: #6CE9A6; --on-dark-hi-rgb: 108, 233, 166; --on-dark-hi2: #A6F4C5;
+  --paper: #060F0C; --paper-rgb: 6, 15, 12; --paper-2: #0B1813; --paper-3: #2B4A3E; --card: #0C1A15; --tile-2: #11231C; --tile-3: #172E25; --hero-a: #08140F; --hero-b: #10281F; --bar-a: #040A08; --bar-b: #08130F; --pop: #0E1D17;
+  --acc: #12B76A; --acc-rgb: 18, 183, 106;
+  --acc-hi: #6CE9A6; --acc-hi-rgb: 108, 233, 166; --acc-hi2: #A6F4C5;
+  --acc-a: #16B364; --acc-a2: #32D583; --acc-b: #067647; --acc-b2: #079455; --acc-d: #05603A; --acc-glow-rgb: 7, 148, 85;
+}
+:root[data-theme='violet'] {
+  --on-dark-hi: #B79CFF; --on-dark-hi-rgb: 183, 156, 255; --on-dark-hi2: #D9CBFF;
+  --paper: #0A0813; --paper-rgb: 10, 8, 19; --paper-2: #110D20; --paper-3: #3B3060; --card: #130F22; --tile-2: #19142C; --tile-3: #221B3B; --hero-a: #100B1F; --hero-b: #1D1536; --bar-a: #07050E; --bar-b: #0E0A1B; --pop: #151027;
+  --acc: #8B5CF6; --acc-rgb: 139, 92, 246;
+  --acc-hi: #B79CFF; --acc-hi-rgb: 183, 156, 255; --acc-hi2: #D9CBFF;
+  --acc-a: #8A5CF5; --acc-a2: #A47BFF; --acc-b: #5B21B6; --acc-b2: #7C3AED; --acc-d: #3B1578; --acc-glow-rgb: 124, 58, 237;
+}
+:root[data-theme='rose'] {
+  --on-dark-hi: #FDA4AF; --on-dark-hi-rgb: 253, 164, 175; --on-dark-hi2: #FECDD3;
+  --paper: #12070B; --paper-rgb: 18, 7, 11; --paper-2: #1A0C12; --paper-3: #5A2A38; --card: #1D0E14; --tile-2: #26131B; --tile-3: #301A24; --hero-a: #1A0B11; --hero-b: #2D1420; --bar-a: #0C0408; --bar-b: #16090F; --pop: #1F0F16;
+  --acc: #F43F5E; --acc-rgb: 244, 63, 94;
+  --acc-hi: #FDA4AF; --acc-hi-rgb: 253, 164, 175; --acc-hi2: #FECDD3;
+  --acc-a: #F2476A; --acc-a2: #FB6482; --acc-b: #BE123C; --acc-b2: #E11D48; --acc-d: #881337; --acc-glow-rgb: 225, 29, 72;
+}
+:root[data-theme='amber'] {
+  --on-dark-hi: #FCD34D; --on-dark-hi-rgb: 252, 211, 77; --on-dark-hi2: #FDE68A;
+  --paper: #100B05; --paper-rgb: 16, 11, 5; --paper-2: #18110A; --paper-3: #5A4526; --card: #1B140B; --tile-2: #251C10; --tile-3: #30251A; --hero-a: #17100A; --hero-b: #2A1D0E; --bar-a: #0A0703; --bar-b: #140E06; --pop: #1D150B;
+  --acc: #F59E0B; --acc-rgb: 245, 158, 11;
+  --acc-hi: #FCD34D; --acc-hi-rgb: 252, 211, 77; --acc-hi2: #FDE68A;
+  --acc-a: #F59E0B; --acc-a2: #FBBF24; --acc-b: #B45309; --acc-b2: #D97706; --acc-d: #78350F; --acc-glow-rgb: 217, 119, 6;
+}
+
+:root[data-theme='teal'] {
+  --on-dark-hi: #5EEAD4; --on-dark-hi-rgb: 94, 234, 212; --on-dark-hi2: #99F6E4;
+  --paper: #04100F; --paper-rgb: 4, 16, 15; --paper-2: #0A1B1A; --paper-3: #1F4744; --card: #0A1B1A; --tile-2: #0F2524; --tile-3: #15302E; --hero-a: #061615; --hero-b: #0C2C2A; --bar-a: #030B0A; --bar-b: #071413; --pop: #0C1F1E;
+  --acc: #14B8A6; --acc-rgb: 20, 184, 166; --acc-hi: #5EEAD4; --acc-hi-rgb: 94, 234, 212; --acc-hi2: #99F6E4; --acc-a: #14B8A6; --acc-a2: #2DD4BF; --acc-b: #0F766E; --acc-b2: #0D9488; --acc-d: #134E4A; --acc-glow-rgb: 13, 148, 136;
+}
+:root[data-theme='sunset'] {
+  --on-dark-hi: #FDBA74; --on-dark-hi-rgb: 253, 186, 116; --on-dark-hi2: #FED7AA;
+  --paper: #120804; --paper-rgb: 18, 8, 4; --paper-2: #1B0F08; --paper-3: #5C3320; --card: #1C1009; --tile-2: #26160D; --tile-3: #311E13; --hero-a: #190B05; --hero-b: #2E1708; --bar-a: #0B0502; --bar-b: #150A04; --pop: #1F1209;
+  --acc: #F97316; --acc-rgb: 249, 115, 22; --acc-hi: #FDBA74; --acc-hi-rgb: 253, 186, 116; --acc-hi2: #FED7AA; --acc-a: #F97316; --acc-a2: #FB923C; --acc-b: #C2410C; --acc-b2: #EA580C; --acc-d: #7C2D12; --acc-glow-rgb: 234, 88, 12;
+}
+:root[data-theme='magenta'] {
+  --on-dark-hi: #F0ABFC; --on-dark-hi-rgb: 240, 171, 252; --on-dark-hi2: #F5D0FE;
+  --paper: #12060F; --paper-rgb: 18, 6, 15; --paper-2: #1B0C17; --paper-3: #5A2A4C; --card: #1D0D19; --tile-2: #26121F; --tile-3: #311A29; --hero-a: #1A0A16; --hero-b: #2E1228; --bar-a: #0C0409; --bar-b: #160812; --pop: #1F0E1A;
+  --acc: #D946EF; --acc-rgb: 217, 70, 239; --acc-hi: #F0ABFC; --acc-hi-rgb: 240, 171, 252; --acc-hi2: #F5D0FE; --acc-a: #D946EF; --acc-a2: #E879F9; --acc-b: #A21CAF; --acc-b2: #C026D3; --acc-d: #701A75; --acc-glow-rgb: 192, 38, 211;
+}
+:root[data-theme='lime'] {
+  --on-dark-hi: #BEF264; --on-dark-hi-rgb: 190, 242, 100; --on-dark-hi2: #D9F99D;
+  --paper: #0A0F04; --paper-rgb: 10, 15, 4; --paper-2: #121A08; --paper-3: #3D4F1F; --card: #121A08; --tile-2: #19230D; --tile-3: #212E12; --hero-a: #0E1506; --hero-b: #1D2A0B; --bar-a: #060A02; --bar-b: #0C1204; --pop: #151E09;
+  --acc: #84CC16; --acc-rgb: 132, 204, 22; --acc-hi: #BEF264; --acc-hi-rgb: 190, 242, 100; --acc-hi2: #D9F99D; --acc-a: #84CC16; --acc-a2: #A3E635; --acc-b: #4D7C0F; --acc-b2: #65A30D; --acc-d: #365314; --acc-glow-rgb: 101, 163, 13;
+}
+:root[data-theme='graphite'] {
+  --on-dark-hi: #CBD5E1; --on-dark-hi-rgb: 203, 213, 225; --on-dark-hi2: #E2E8F0;
+  --paper: #0B0C0E; --paper-rgb: 11, 12, 14; --paper-2: #131417; --paper-3: #3A3D44; --card: #141518; --tile-2: #1B1C20; --tile-3: #232529; --hero-a: #101113; --hero-b: #1D1F23; --bar-a: #060708; --bar-b: #0E0F11; --pop: #17181B;
+  --acc: #94A3B8; --acc-rgb: 148, 163, 184; --acc-hi: #CBD5E1; --acc-hi-rgb: 203, 213, 225; --acc-hi2: #E2E8F0; --acc-a: #64748B; --acc-a2: #94A3B8; --acc-b: #334155; --acc-b2: #475569; --acc-d: #1E293B; --acc-glow-rgb: 100, 116, 139;
+}
+
+:root[data-mode='light'] {
+  color-scheme: light;
+  --paper: #F5F6F8; --paper-rgb: 245, 246, 248; --paper-2: #E5E7EB; --paper-3: #D1D5DB; --card: #FFFFFF; --tile-2: #F9FAFB; --tile-3: #F2F4F7; --pop: #FFFFFF;
+  --glass: none; --glass-blue: none;
+  --ink: #101828; --ink-2: #1D2939; --ink-3: #344054; --ink-soft: #344054; --ink-mute: #667085;
+  --rule: #EAECF0; --rule-strong: #E4E7EC; --rule-input: #D0D5DD;
+  --mint: #DCFCE7; --mint-ink: #166534; --sand: #FEF3C7; --sand-ink: #92400E; --sky: #DBEAFE; --sky-ink: #1E40AF; --lilac: #EDE9FE; --lilac-ink: #5B21B6;
+  --danger: #DC2626; --danger-ink: #B91C1C; --danger-wash: #FEE2E2;
+  --ok: #16A34A; --green: #16A34A; --mustard: #D97706;
+  --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-1: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 4px 8px -2px rgba(16, 24, 40, 0.08), 0 2px 4px -2px rgba(16, 24, 40, 0.04);
+  --shadow-2: 0 20px 24px -4px rgba(16, 24, 40, 0.1), 0 8px 8px -4px rgba(16, 24, 40, 0.04);
+}
+/* light mode: the accent's text and border shades go darker so they read on white */
+:root[data-mode='light'][data-theme='ocean'] { --acc: #2563EB; --acc-rgb: 37, 99, 235; --acc-hi: #1D4ED8; --acc-hi-rgb: 29, 78, 216; --acc-hi2: #1E40AF; --ring-focus: 0 0 0 4px rgba(37, 99, 235, 0.16); }
+:root[data-mode='light'][data-theme='emerald'] { --acc: #079455; --acc-rgb: 7, 148, 85; --acc-hi: #067647; --acc-hi-rgb: 6, 118, 71; --acc-hi2: #05603A; --ring-focus: 0 0 0 4px rgba(7, 148, 85, 0.16); }
+:root[data-mode='light'][data-theme='violet'] { --acc: #7C3AED; --acc-rgb: 124, 58, 237; --acc-hi: #6D28D9; --acc-hi-rgb: 109, 40, 217; --acc-hi2: #5B21B6; --ring-focus: 0 0 0 4px rgba(124, 58, 237, 0.16); }
+:root[data-mode='light'][data-theme='rose'] { --acc: #E11D48; --acc-rgb: 225, 29, 72; --acc-hi: #BE123C; --acc-hi-rgb: 190, 18, 60; --acc-hi2: #9F1239; --ring-focus: 0 0 0 4px rgba(225, 29, 72, 0.16); }
+:root[data-mode='light'][data-theme='amber'] { --acc: #D97706; --acc-rgb: 217, 119, 6; --acc-hi: #B45309; --acc-hi-rgb: 180, 83, 9; --acc-hi2: #92400E; --ring-focus: 0 0 0 4px rgba(217, 119, 6, 0.16); }
+:root[data-mode='light'][data-theme='teal'] { --acc: #0D9488; --acc-rgb: 13, 148, 136; --acc-hi: #0F766E; --acc-hi-rgb: 15, 118, 110; --acc-hi2: #115E59; --ring-focus: 0 0 0 4px rgba(13, 148, 136, 0.16); }
+:root[data-mode='light'][data-theme='sunset'] { --acc: #EA580C; --acc-rgb: 234, 88, 12; --acc-hi: #C2410C; --acc-hi-rgb: 194, 65, 12; --acc-hi2: #9A3412; --ring-focus: 0 0 0 4px rgba(234, 88, 12, 0.16); }
+:root[data-mode='light'][data-theme='magenta'] { --acc: #C026D3; --acc-rgb: 192, 38, 211; --acc-hi: #A21CAF; --acc-hi-rgb: 162, 28, 175; --acc-hi2: #86198F; --ring-focus: 0 0 0 4px rgba(192, 38, 211, 0.16); }
+:root[data-mode='light'][data-theme='lime'] { --acc: #65A30D; --acc-rgb: 101, 163, 13; --acc-hi: #4D7C0F; --acc-hi-rgb: 77, 124, 15; --acc-hi2: #3F6212; --ring-focus: 0 0 0 4px rgba(101, 163, 13, 0.16); }
+:root[data-mode='light'][data-theme='graphite'] { --acc: #475569; --acc-rgb: 71, 85, 105; --acc-hi: #334155; --acc-hi-rgb: 51, 65, 85; --acc-hi2: #1E293B; --ring-focus: 0 0 0 4px rgba(71, 85, 105, 0.16); }
+:root[data-mode='light']:not([data-theme]) { --acc: #2563EB; --acc-rgb: 37, 99, 235; --acc-hi: #1D4ED8; --acc-hi-rgb: 29, 78, 216; --acc-hi2: #1E40AF; }
+
+@media (max-width: 720px) {
+  :root { --gutter: 12px; }
+}
+
+/* ============================================================
+   Legacy aliases for pages not yet restyled. Remove as pages go.
+   ============================================================ */
+:root {
+  --brand: var(--accent);
+  --brand-deep: var(--accent-deep);
+  --brand-wash: var(--accent-wash);
+  --line: var(--rule);
+  --line-mid: var(--rule-strong);
+  --pine: var(--ink);
+  --pine-2: var(--ink-2);
+  --amber: var(--mustard);
+  --amber-bright: var(--mustard);
+  --amber-ink: var(--sand-ink);
+  --amber-wash: var(--sand);
+  --gold: var(--mustard);
+  --gold-light: var(--sand);
+  --gold-ink: var(--sand-ink);
+  --ok: #32D583;
+  --ok-ink: var(--mint-ink);
+  --green: #32D583;
+  --green-ink: var(--mint-ink);
+  --card-sunk: var(--tile-2);
+  --surface-sunken: var(--tile-2);
+  --bg-subtle: var(--tile-2);
+  --bg-card: var(--card);
+  --text-muted: var(--ink-mute);
+  --ink-light: var(--ink-mute);
+  --radius: var(--r-md);
+  --radius-sm: var(--r-sm);
+  --shadow-0: none;
+  --top-h: var(--bar-h);
+  --tabs-h: 0px;
+  --side-w: 0px;
+  --glass-edge: var(--rule);
+  --glass-shadow: none;
+  --sheen: none;
+}
