@@ -99,3 +99,23 @@ html[data-perf='low'] .bar-top__word { animation: none; }
 /* the title bar's pop-ups (theme, notifications, account) open downward over the tab row, so the bar must stack above it */
 .bar-top { z-index: 3; }
 .nav-row { position: relative; z-index: 1; }
+
+/* ---------- notifications on phones: the standard bottom sheet ----------
+   Slides up from the bottom edge over a dimmed page: a grab handle, the title row, then a list that scrolls
+   inside it. Rows are compact (one-line title, two-line text) and the sheet never goes past 58% of the
+   screen. The title bar rises above the bottom bar while it is open. */
+.frame:has(.notes) { z-index: 95; }
+@keyframes sheetUp { from { transform: translateY(100%); } }
+@media (max-width: 900px) {
+  .bell:has(.notes) .notes__scrim { top: 0; background: rgba(3, 6, 12, 0.6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  .notes { position: fixed; top: auto; left: 0; right: 0; bottom: 0; width: auto; max-height: 58dvh; border-radius: 26px 26px 0 0; padding-bottom: env(safe-area-inset-bottom); transform-origin: bottom center; animation: sheetUp 0.38s cubic-bezier(0.32, 0.72, 0, 1); box-shadow: 0 -24px 60px -16px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05); }
+  .notes::before { content: ''; position: absolute; top: 8px; left: 50%; z-index: 2; width: 40px; height: 4px; margin-left: -20px; border-radius: 2px; background: var(--rule-input); }
+  .notes__head { padding: 22px 16px 10px; }
+  .notes__list { padding: 4px 8px 12px; gap: 2px; }
+  .notes .note { gap: 12px; padding: 8px 10px; border-radius: 14px; }
+  .notes .note .glyph { --size: 38px !important; width: 38px; height: 38px; }
+  .notes .note__body b { font-size: 0.9rem; }
+  .notes .note__body span { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.8125rem; line-height: 1.35; white-space: normal; }
+  .notes__empty { padding: var(--s-6) var(--s-5) var(--s-7); }
+}
+@media (prefers-reduced-motion: reduce) { .notes { animation: none; } }

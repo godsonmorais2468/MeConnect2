@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, Clock, Download, IndianRupee, SlidersHorizontal, TriangleAlert, UserCheck } from 'lucide-react'
-import { Avatar, Field, PageHead, Sheet, StatStrip } from '../../components/ui'
+import { Clock, Download, IndianRupee, SlidersHorizontal, TriangleAlert, UserCheck } from 'lucide-react'
+import CpHero from '../../components/CpHero'
+import { Avatar, Field } from '../../components/ui'
 import { useAuth } from '../../lib/auth'
 import { byDueDate, isOverdue, totalOf } from '../../lib/dues'
 import { fmtDate, inr } from '../../lib/format'
@@ -114,167 +114,135 @@ export default function DuesReport() {
 
   const activeFilters = [filterType !== 'all' ? filterType : '', selectedKind, selectedMember].filter(Boolean).length
 
+  /* the three kinds of unpaid, as buttons that also filter the list */
+  const buckets: { key: DuesFilter; cls: string; icon: typeof Clock; label: string; total: number; n: number }[] = [
+    { key: 'overdue', cls: 'bad', icon: TriangleAlert, label: 'Overdue', total: totalOverdue, n: overdueInvoices.length },
+    { key: 'upcoming', cls: 'warn', icon: Clock, label: 'Upcoming', total: totalUpcoming, n: upcomingInvoices.length },
+    { key: 'pending', cls: 'idle', icon: UserCheck, label: 'Verification pending', total: totalPendingVerification, n: pendingVerificationInvoices.length },
+  ]
+  const spread = Math.max(1, totalOverdue + totalUpcoming + totalPendingVerification)
+
   return (
-    <div className="page">
-      <PageHead
-        eyebrow={`${chapter.name} · ${member.designation}`}
-        icon={IndianRupee}
-        tone="red"
-        title="Dues & Outstanding Report"
-        subtitle="Chapter-wide report of pending member dues, upcoming invoices, and outstanding balances."
-        actions={
-          <Link className="btn btn--line btn--sm" to="/reports">
-            <ArrowLeft size={16} /> Reports
-          </Link>
-        }
-      />
-
-      <StatStrip
-        items={[
-          { label: 'Total Outstanding', value: inr(totalOutstanding), icon: IndianRupee, tone: 'red' },
-          { label: 'Overdue Dues', value: inr(totalOverdue), icon: TriangleAlert, tone: 'red' },
-          { label: 'Upcoming Invoices', value: inr(totalUpcoming), icon: Clock, tone: 'gold' },
-          { label: 'Pending Verification', value: inr(totalPendingVerification), icon: UserCheck, tone: 'navy' },
-        ]}
-      />
-
-      <div className="att">
-        <button
-          type="button"
-          className="btn btn--line filters-toggle"
-          aria-expanded={showFilters}
-          onClick={() => setShowFilters((v) => !v)}
-        >
-          <SlidersHorizontal size={16} /> Filters
-          {activeFilters > 0 && <span className="badge">{activeFilters}</span>}
-        </button>
-
-        <div className={`rfilters ${showFilters ? 'is-open' : ''}`}>
-          <Sheet
-            icon={SlidersHorizontal}
-            tone="red"
-            title="Filters"
-            note={
-              activeFilters > 0 ? (
-                <button
-                  type="button"
-                  className="btn btn--line btn--sm"
-                  onClick={() => {
-                    setFilterType('all')
-                    setSelectedKind('')
-                    setSelectedMember('')
-                  }}
-                >
-                  Clear all
-                </button>
-              ) : undefined
-            }
-          >
-            <div className="form-grid">
-              <Field label="Status">
-                <select
-                  className="field__control native-select"
-                  value={filterType}
-                  onChange={(e) => setFilterType(e.target.value as DuesFilter)}
-                >
-                  <option value="all">All Outstanding ({chapterInvoices.length})</option>
-                  <option value="overdue">Overdue ({overdueInvoices.length})</option>
-                  <option value="upcoming">Upcoming Invoices ({upcomingInvoices.length})</option>
-                  <option value="pending">Verification Pending ({pendingVerificationInvoices.length})</option>
-                </select>
-              </Field>
-
-              <Field label="Request / Kind">
-                <select
-                  className="field__control native-select"
-                  value={selectedKind}
-                  onChange={(e) => setSelectedKind(e.target.value)}
-                >
-                  <option value="">All invoice types</option>
-                  {kinds.map((k) => (
-                    <option key={k} value={k}>
-                      {k}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-
-              <Field label="Member">
-                <select
-                  className="field__control native-select"
-                  value={selectedMember}
-                  onChange={(e) => setSelectedMember(e.target.value)}
-                >
-                  <option value="">All members</option>
-                  {chapterMembers.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name} {m.organisation ? `(${m.organisation})` : ''}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-            </div>
-          </Sheet>
+    <div className="page dr">
+      <CpHero className="dr-hero" icon={IndianRupee} eyebrow={`${chapter.name} · ${member.designation}`} title="Dues & Outstanding Report" sub="Pending member dues, upcoming invoices and outstanding balances across the chapter." back={{ to: '/reports', label: 'Reports' }}>
+        <div className="dr-total">
+          <small>Total outstanding</small>
+          <b>{inr(totalOutstanding)}</b>
+          <span>{chapterInvoices.length} unpaid invoices</span>
         </div>
+      </CpHero>
 
-        <div className="list">
-          <h2 className="list__title">
-            Outstanding Invoices <span>{filteredInvoices.length}</span>
-            <button
-              type="button"
-              className="btn btn--line btn--sm list__act"
-              onClick={downloadPdf}
-              disabled={filteredInvoices.length === 0}
-            >
-              <Download size={15} /> Download PDF
-            </button>
-          </h2>
-
-          <ListSearch value={q} onChange={setQ} placeholder="Search members, invoice no, kind or amount" />
-
-          {q && searchedInvoices.length === 0 && filteredInvoices.length > 0 && <NoMatch query={q} />}
-
-          {filteredInvoices.length === 0 ? (
-            <div className="empty">
-              <b>No outstanding dues found.</b>
-              All member dues and invoices for this selection have been paid and verified.
-            </div>
-          ) : (
-            <ul className="plist">
-              {searchedInvoices.map((inv) => {
-                const mem = memberMap.get(inv.memberId)
-                const overdue = isOverdue(inv, now)
-                const waitingVerification = inv.status === 'pending'
-
-                return (
-                  <li key={inv.id} className="prow">
-                    <Avatar name={mem?.name ?? 'Member'} photo={mem?.photo} size={44} />
-                    <div className="prow__main">
-                      <b>{mem?.name ?? 'Unknown Member'}</b>
-                      <span>
-                        {kindOf(inv)} {mem?.organisation ? `· ${mem.organisation}` : ''}
-                      </span>
-                      <span className="prow__meta">
-                        {invoiceNo(inv)} · Due: {inv.dueDate ? fmtDate(inv.dueDate) : 'No due date'}
-                      </span>
-                    </div>
-                    <div className="prow__side">
-                      <b>{inr(inv.amount)}</b>
-                      {waitingVerification ? (
-                        <span className="stat stat--idle">Verification Pending</span>
-                      ) : overdue ? (
-                        <span className="stat stat--bad">Overdue</span>
-                      ) : (
-                        <span className="stat stat--gold">Upcoming</span>
-                      )}
-                    </div>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
-        </div>
+      {/* one bar shows how the money splits across the three kinds */}
+      <div className="dr-split" role="img" aria-label="How the unpaid amount splits">
+        {buckets.map((b) => (
+          <i key={b.key} className={`dr-split__${b.cls}`} style={{ flexGrow: b.total || 0.001 }} />
+        ))}
       </div>
+      <div className="dr-buckets" role="group" aria-label="Show unpaid invoices">
+        {buckets.map((b) => (
+          <button key={b.key} type="button" className={`dr-bucket dr-bucket--${b.cls}${filterType === b.key ? ' is-on' : ''}`} aria-pressed={filterType === b.key} onClick={() => setFilterType(filterType === b.key ? 'all' : b.key)}>
+            <span className="dr-bucket__ico">
+              <b.icon size={18} />
+            </span>
+            <span className="dr-bucket__txt">
+              <small>{b.label}</small>
+              <b>{inr(b.total)}</b>
+              <em>
+                {b.n} {b.n === 1 ? 'invoice' : 'invoices'}
+              </em>
+            </span>
+            <span className="dr-bucket__pct">{Math.round((b.total / spread) * 100)}%</span>
+          </button>
+        ))}
+      </div>
+
+      <button type="button" className="cr-toggle" aria-expanded={showFilters} onClick={() => setShowFilters((v) => !v)}>
+        <SlidersHorizontal size={16} /> Filters
+        {activeFilters > 0 && <span className="badge">{activeFilters}</span>}
+      </button>
+
+      <div className={`cr-filters rfilters ${showFilters ? 'is-open' : ''}`}>
+        <Field label="Request / Kind">
+          <select className="field__control native-select" value={selectedKind} onChange={(e) => setSelectedKind(e.target.value)}>
+            <option value="">All invoice types</option>
+            {kinds.map((k) => (
+              <option key={k} value={k}>
+                {k}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Member">
+          <select className="field__control native-select" value={selectedMember} onChange={(e) => setSelectedMember(e.target.value)}>
+            <option value="">All members</option>
+            {chapterMembers.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name} {m.organisation ? `(${m.organisation})` : ''}
+              </option>
+            ))}
+          </select>
+        </Field>
+        {activeFilters > 0 && (
+          <button
+            type="button"
+            className="cp-act cr-clear"
+            onClick={() => {
+              setFilterType('all')
+              setSelectedKind('')
+              setSelectedMember('')
+            }}
+          >
+            Clear all
+          </button>
+        )}
+      </div>
+
+      <div className="cr-listbar">
+        <h2>
+          Outstanding invoices <span>{filteredInvoices.length}</span>
+        </h2>
+        <button type="button" className="cp-act" onClick={downloadPdf} disabled={filteredInvoices.length === 0}>
+          <Download size={15} /> Download PDF
+        </button>
+      </div>
+      <ListSearch value={q} onChange={setQ} placeholder="Search members, invoice no, kind or amount" />
+      {q && searchedInvoices.length === 0 && filteredInvoices.length > 0 && <NoMatch query={q} />}
+
+      {filteredInvoices.length === 0 ? (
+        <div className="cp-empty">
+          <IndianRupee size={30} />
+          <b>No outstanding dues found</b>
+          <span>All member dues and invoices for this selection have been paid and verified.</span>
+        </div>
+      ) : (
+        <ul className="dr-list">
+          {searchedInvoices.map((inv) => {
+            const mem = memberMap.get(inv.memberId)
+            const overdue = isOverdue(inv, now)
+            const waitingVerification = inv.status === 'pending'
+            const state = waitingVerification ? 'idle' : overdue ? 'bad' : 'warn'
+
+            return (
+              <li key={inv.id} className={`dr-card dr-card--${state}`}>
+                <Avatar name={mem?.name ?? 'Member'} photo={mem?.photo} size={46} />
+                <div className="dr-card__main">
+                  <b>{mem?.name ?? 'Unknown Member'}</b>
+                  <span>
+                    {kindOf(inv)} {mem?.organisation ? `· ${mem.organisation}` : ''}
+                  </span>
+                  <small>
+                    {invoiceNo(inv)} · Due: {inv.dueDate ? fmtDate(inv.dueDate) : 'No due date'}
+                  </small>
+                </div>
+                <div className="dr-card__side">
+                  <strong>{inr(inv.amount)}</strong>
+                  <span className={`dr-pill dr-pill--${state}`}>{waitingVerification ? 'Verification pending' : overdue ? 'Overdue' : 'Upcoming'}</span>
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+      )}
     </div>
   )
 }

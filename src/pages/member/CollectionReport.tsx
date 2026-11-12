@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { ListSearch, NoMatch } from '../../components/ListSearch'
 import { matches } from '../../lib/search'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, Banknote, Clock, Download, FileChartColumn, Hourglass, Receipt, SlidersHorizontal } from 'lucide-react'
+import { Download, FileChartColumn, SlidersHorizontal } from 'lucide-react'
+import CpHero, { Nums } from '../../components/CpHero'
 import PaidRow from '../../components/PaidRow'
-import { Field, PageHead, Sheet, StatStrip } from '../../components/ui'
+import { Field } from '../../components/ui'
 import { useAuth } from '../../lib/auth'
 import { financialYearLabel, safeName } from '../../lib/fileNames'
 import { headsOf } from '../../lib/heads'
@@ -92,121 +92,120 @@ export default function CollectionReport() {
     })
   }
 
+  const kindMax = Math.max(1, ...byKind.map((x) => x.total))
+  const modeMax = Math.max(1, ...byMode.map((x) => x.total))
+
   return (
-    <div className="page">
-      <PageHead
-        eyebrow={`${chapter.name} · ${member.designation}`}
-        icon={FileChartColumn}
-        tone="gold"
-        title="Collection Report"
-        subtitle="Everything members have paid, from the app and from the payments you recorded."
-        actions={
-          <Link className="btn btn--line btn--sm" to="/reports">
-            <ArrowLeft size={16} /> Reports
-          </Link>
-        }
-      />
-
-      <StatStrip
-        items={[
-          { icon: Banknote, tone: 'green', label: 'Collected', value: inr(collected) },
-          { icon: Receipt, tone: 'gold', label: 'Payments', value: rows.length },
-          { icon: Clock, tone: 'wine', label: 'Verification Pending', value: verificationPendingCount },
-          { icon: Hourglass, tone: 'red', label: 'Still pending', value: inr(pending) },
-        ]}
-      />
-
-      <div className="att">
-        <button className="btn btn--line filters-toggle" onClick={() => setShowFilters((o) => !o)} aria-expanded={showFilters}>
-          <SlidersHorizontal size={16} /> Filters
-          {activeFilters > 0 && <span className="badge">{activeFilters}</span>}
-        </button>
-
-        <div className={`rfilters ${showFilters ? 'is-open' : ''}`}>
-          <Sheet icon={FileChartColumn} tone="gold" title="Filters">
-            <div className="form-grid">
-              <Field label="Request type">
-                <select className="field__control native-select" value={kind} onChange={(e) => setKind(e.target.value)}>
-                  <option value="">All types</option>
-                  {kinds.map((k) => (
-                    <option key={k} value={k}>
-                      {k}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-              <Field label="Mode of payment">
-                <select className="field__control native-select" value={mode} onChange={(e) => setMode(e.target.value as PayMethod | '')}>
-                  <option value="">All modes</option>
-                  {PAY_METHODS.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-              <Field label="Paid from">
-                <input className="field__control" type="date" value={from} max={to || undefined} onChange={(e) => setFrom(e.target.value)} />
-              </Field>
-              <Field label="Paid to">
-                <input className="field__control" type="date" value={to} min={from || undefined} onChange={(e) => setTo(e.target.value)} />
-              </Field>
-            </div>
-
-          </Sheet>
+    <div className="page cr">
+      <CpHero className="cr-hero" icon={FileChartColumn} eyebrow={`${chapter.name} · ${member.designation}`} title="Collection Report" sub="Everything members have paid, from the app and from the payments you recorded." back={{ to: '/reports', label: 'Reports' }}>
+        <div className="cx-side">
+          <div className="cr-total">
+            <small>Collected</small>
+            <b>{inr(collected)}</b>
+            <span>
+              {rows.length} {rows.length === 1 ? 'payment' : 'payments'}
+            </span>
+          </div>
+          <Nums
+            items={[
+              [verificationPendingCount, 'to verify'],
+              [inr(pending), 'still pending'],
+            ]}
+          />
         </div>
+      </CpHero>
 
-        {rows.length > 0 && (
-          <section className="breakdown" aria-label="Collection breakdown">
-            <div>
-              <h3>By request type</h3>
-              <ul>
-                {byKind.map((x) => (
-                  <li key={x.k}>
+      <button className="cr-toggle" onClick={() => setShowFilters((o) => !o)} aria-expanded={showFilters}>
+        <SlidersHorizontal size={16} /> Filters
+        {activeFilters > 0 && <span className="badge">{activeFilters}</span>}
+      </button>
+
+      <div className={`cr-filters rfilters ${showFilters ? 'is-open' : ''}`}>
+        <Field label="Request type">
+          <select className="field__control native-select" value={kind} onChange={(e) => setKind(e.target.value)}>
+            <option value="">All types</option>
+            {kinds.map((k) => (
+              <option key={k} value={k}>
+                {k}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Mode of payment">
+          <select className="field__control native-select" value={mode} onChange={(e) => setMode(e.target.value as PayMethod | '')}>
+            <option value="">All modes</option>
+            {PAY_METHODS.map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Paid from">
+          <input className="field__control" type="date" value={from} max={to || undefined} onChange={(e) => setFrom(e.target.value)} />
+        </Field>
+        <Field label="Paid to">
+          <input className="field__control" type="date" value={to} min={from || undefined} onChange={(e) => setTo(e.target.value)} />
+        </Field>
+      </div>
+
+      {rows.length > 0 && (
+        <section className="cr-split" aria-label="Collection breakdown">
+          <div className="cr-panel">
+            <h3>By request type</h3>
+            <ul>
+              {byKind.map((x) => (
+                <li key={x.k}>
+                  <div>
                     <span>{x.k}</span>
                     <small>{x.n}</small>
                     <b>{inr(x.total)}</b>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3>By mode of payment</h3>
-              <ul>
-                {byMode.map((x) => (
-                  <li key={x.m}>
-                    <span>{x.m}</span>
-                    <b>{inr(x.total)}</b>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </section>
-        )}
-
-        <div className="list">
-          <h2 className="list__title">
-            Collections <span>{rows.length}</span>
-            <button type="button" className="btn btn--line btn--sm list__act" onClick={downloadPdf} disabled={rows.length === 0}>
-              <Download size={15} /> Download PDF
-            </button>
-          </h2>
-          <ListSearch value={q} onChange={setQ} placeholder="Search payments" />
-          {q && listRows.length === 0 && rows.length > 0 && <NoMatch query={q} />}
-          {rows.length === 0 ? (
-            <div className="empty">
-              <b>Nothing collected for these filters.</b>
-              Payments show up here as soon as members pay their dues.
-            </div>
-          ) : (
-            <ul className="plist">
-              {listRows.map((r) => (
-                <PaidRow key={r.invoice.id} row={r} chapter={chapterName(r.member.chapterId)} />
+                  </div>
+                  <i style={{ width: `${Math.max(4, Math.round((x.total / kindMax) * 100))}%` }} />
+                </li>
               ))}
             </ul>
-          )}
-        </div>
+          </div>
+          <div className="cr-panel cr-panel--mode">
+            <h3>By mode of payment</h3>
+            <ul>
+              {byMode.map((x) => (
+                <li key={x.m}>
+                  <div>
+                    <span>{x.m}</span>
+                    <b>{inr(x.total)}</b>
+                  </div>
+                  <i style={{ width: `${Math.max(4, Math.round((x.total / modeMax) * 100))}%` }} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      <div className="cr-listbar">
+        <h2>
+          Collections <span>{rows.length}</span>
+        </h2>
+        <button type="button" className="cp-act" onClick={downloadPdf} disabled={rows.length === 0}>
+          <Download size={15} /> Download PDF
+        </button>
       </div>
+      <ListSearch value={q} onChange={setQ} placeholder="Search payments" />
+      {q && listRows.length === 0 && rows.length > 0 && <NoMatch query={q} />}
+      {rows.length === 0 ? (
+        <div className="cp-empty">
+          <FileChartColumn size={30} />
+          <b>Nothing collected for these filters</b>
+          <span>Payments show up here as soon as members pay their dues.</span>
+        </div>
+      ) : (
+        <ul className="plist cr-list">
+          {listRows.map((r) => (
+            <PaidRow key={r.invoice.id} row={r} chapter={chapterName(r.member.chapterId)} />
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

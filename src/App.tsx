@@ -23,17 +23,9 @@ import PolicyPage from './pages/PolicyPage'
 /* the animation engine arrives after the first paint */
 const loadMotion = () => import('./lib/motionFeatures').then((m) => m.default)
 
-const Plans = lazy(() => import('./pages/admin/Plans'))
-const Subscriptions = lazy(() => import('./pages/admin/Subscriptions'))
 const Subscription = lazy(() => import('./pages/Subscription'))
-const Regions = lazy(() => import('./pages/admin/Regions'))
-const RegionChapters = lazy(() => import('./pages/admin/RegionChapters'))
-const ChapterMembers = lazy(() => import('./pages/admin/ChapterMembers'))
-const AppUsageSummary = lazy(() => import('./pages/admin/AppUsageSummary'))
-const Chapters = lazy(() => import('./pages/region/Chapters'))
 const Meetings = lazy(() => import('./pages/member/Meetings'))
 const ManageRsvp = lazy(() => import('./pages/member/ManageRsvp'))
-const Designations = lazy(() => import('./pages/region/Designations'))
 const ChapterTeam = lazy(() => import('./pages/region/ChapterTeam'))
 const ManagePayments = lazy(() => import('./pages/member/ManagePayments'))
 const PaymentRequest = lazy(() => import('./pages/member/PaymentRequest'))
@@ -139,7 +131,11 @@ function OnlyVisitorHost({ children }: { children: ReactNode }) {
 
 function RoleHome() {
   const { role } = useAuth()
-  if (role && role !== 'member') return <Navigate to={HOME[role]} replace />
+  /* this app is for chapter members only: an admin sign-in has nowhere to go, so it is signed out and sent back to the login */
+  useEffect(() => {
+    if (role && role !== 'member') signOut()
+  }, [role])
+  if (role && role !== 'member') return null
   return <Home />
 }
 
@@ -212,21 +208,6 @@ export default function App() {
           <Route path="reports/ledger" element={<OnlyHeadTable><LedgerReport /></OnlyHeadTable>} />
           <Route path="reports/attendance" element={<OnlyHeadTable><AttendanceReport /></OnlyHeadTable>} />
           <Route path="reports/app-usage" element={<OnlyHeadTable><AppUsageReport /></OnlyHeadTable>} />
-
-          <Route path="admin/regions" element={<Only role="super_admin"><Regions /></Only>} />
-          <Route path="admin/regions/:regionId" element={<Only role="super_admin"><RegionChapters /></Only>} />
-          <Route path="admin/regions/:regionId/chapters/:chapterId" element={<Only role="super_admin"><ChapterMembers /></Only>} />
-          <Route path="admin/regions/:regionId/chapters/:chapterId/members/:id" element={<Only role="super_admin"><MemberView /></Only>} />
-          <Route path="admin/app-usage" element={<Only role="super_admin"><AppUsageSummary /></Only>} />
-          <Route path="admin/app-usage/:chapterId" element={<Only role="super_admin"><AppUsageReport /></Only>} />
-          <Route path="admin/plans" element={<Only role="super_admin"><Plans /></Only>} />
-          <Route path="admin/subscriptions" element={<Only role="super_admin"><Subscriptions /></Only>} />
-          <Route path="admin/designations" element={<Only role="super_admin"><Designations /></Only>} />
-          <Route path="admin/heads" element={<Only role="super_admin"><AccountHeads /></Only>} />
-
-          <Route path="region/chapters" element={<Only role="region_admin"><Chapters /></Only>} />
-          <Route path="region/designations" element={<Only role="region_admin"><Designations /></Only>} />
-          <Route path="region/team" element={<Only role="region_admin"><ChapterTeam /></Only>} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

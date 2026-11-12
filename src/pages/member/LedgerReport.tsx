@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, BookOpen, Download, HandCoins, SlidersHorizontal, TrendingDown, TrendingUp } from 'lucide-react'
-import { Avatar, Field, PageHead, Sheet, StatStrip } from '../../components/ui'
+import { BookOpen, Download, SlidersHorizontal, TrendingDown, TrendingUp } from 'lucide-react'
+import CpHero from '../../components/CpHero'
+import { Field } from '../../components/ui'
 import { useAuth } from '../../lib/auth'
 import { inr, fmtDate } from '../../lib/format'
 import { invoiceNo } from '../../lib/invoicePdf'
@@ -255,261 +255,175 @@ export default function LedgerReport() {
     toDate,
   ].filter(Boolean).length
 
+  const clearFilters = () => {
+    setEntryType('all')
+    setSelectedCategory('')
+    setSelectedMember('')
+    setSelectedMode('')
+    setSelectedBank('')
+    setFromDate('')
+    setToDate('')
+  }
+
   return (
-    <div className="page">
-      <PageHead
-        eyebrow={`${chapter.name} · ${member.designation}`}
-        icon={BookOpen}
-        tone="gold"
-        title="Transaction Books / Ledger Reports"
-        subtitle="Comprehensive chapter general ledger statements, categorized by income & expense heads, members, payment modes, and bank accounts."
-        actions={
-          <Link className="btn btn--line btn--sm" to="/reports">
-            <ArrowLeft size={16} /> Reports
-          </Link>
-        }
-      />
-
-      <StatStrip
-        items={[
-          { label: 'Total Credits (Inflow)', value: inr(totalCredit), icon: TrendingUp, tone: 'green' },
-          { label: 'Total Debits (Outflow)', value: inr(totalDebit), icon: TrendingDown, tone: 'red' },
-          {
-            label: 'Net Ledger Balance',
-            value: inr(netBalance),
-            icon: HandCoins,
-            tone: netBalance >= 0 ? 'gold' : 'red',
-          },
-        ]}
-      />
-
-      <div className="att">
-        <button
-          type="button"
-          className="btn btn--line filters-toggle"
-          aria-expanded={showFilters}
-          onClick={() => setShowFilters((v) => !v)}
-        >
-          <SlidersHorizontal size={16} /> Filters
-          {activeFilters > 0 && <span className="badge">{activeFilters}</span>}
-        </button>
-
-        <div className={`rfilters ${showFilters ? 'is-open' : ''}`}>
-          <Sheet
-            icon={SlidersHorizontal}
-            tone="gold"
-            title="Filter Ledger Entries"
-            note={
-              activeFilters > 0 ? (
-                <button
-                  type="button"
-                  className="btn btn--line btn--sm"
-                  onClick={() => {
-                    setEntryType('all')
-                    setSelectedCategory('')
-                    setSelectedMember('')
-                    setSelectedMode('')
-                    setSelectedBank('')
-                    setFromDate('')
-                    setToDate('')
-                  }}
-                >
-                  Clear all
-                </button>
-              ) : undefined
-            }
-          >
-            <div className="form-grid">
-              <Field label="Entry Nature">
-                <select
-                  className="field__control native-select"
-                  value={entryType}
-                  onChange={(e) => setEntryType(e.target.value as EntryType)}
-                >
-                  <option value="all">All entries</option>
-                  <option value="income">Income Only</option>
-                  <option value="expense">Expenses Only</option>
-                </select>
-              </Field>
-
-              <Field label="Category">
-                <select
-                  className="field__control native-select"
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                >
-                  <option value="">All categories</option>
-                  {availableCategories.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-
-              <Field label="Member">
-                <select
-                  className="field__control native-select"
-                  value={selectedMember}
-                  onChange={(e) => setSelectedMember(e.target.value)}
-                >
-                  <option value="">All Members</option>
-                  {chapterMembers.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name} {m.organisation ? `(${m.organisation})` : ''}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-
-              <Field label="Payment Mode">
-                <select
-                  className="field__control native-select"
-                  value={selectedMode}
-                  onChange={(e) => setSelectedMode(e.target.value)}
-                >
-                  <option value="">All modes</option>
-                  {availableModes.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-
-              <Field label="Bank / Ledger Account">
-                <select
-                  className="field__control native-select"
-                  value={selectedBank}
-                  onChange={(e) => setSelectedBank(e.target.value)}
-                >
-                  <option value="">All accounts</option>
-                  {availableBanks.map((b) => (
-                    <option key={b} value={b}>
-                      {b}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-
-              <Field label="From Date">
-                <input
-                  className="field__control"
-                  type="date"
-                  value={fromDate}
-                  max={toDate || undefined}
-                  onChange={(e) => setFromDate(e.target.value)}
-                />
-              </Field>
-
-              <Field label="To Date">
-                <input
-                  className="field__control"
-                  type="date"
-                  value={toDate}
-                  min={fromDate || undefined}
-                  onChange={(e) => setToDate(e.target.value)}
-                />
-              </Field>
-            </div>
-          </Sheet>
+    <div className="page lg">
+      <CpHero className="lg-hero" icon={BookOpen} eyebrow={`${chapter.name} · ${member.designation}`} title="Transaction Books / Ledger Reports" sub="The chapter's general ledger, by income and expense head, member, payment mode and bank account." back={{ to: '/reports', label: 'Reports' }}>
+        <div className="dr-total">
+          <small>Net ledger balance</small>
+          <b className={netBalance < 0 ? 'is-neg' : ''}>{inr(netBalance)}</b>
+          <span>
+            {filtered.length} {filtered.length === 1 ? 'entry' : 'entries'}
+          </span>
         </div>
+      </CpHero>
 
-        <div className="list">
-          <h2 className="list__title">
-            Ledger Entries <span>{filtered.length}</span>
-            <button
-              type="button"
-              className="btn btn--line btn--sm list__act"
-              onClick={downloadPdf}
-              disabled={filtered.length === 0}
-            >
-              <Download size={15} /> Download PDF
-            </button>
-          </h2>
-
-          <ListSearch
-            value={q}
-            onChange={setQ}
-            placeholder="Search by particulars, member, category, mode, or reference no..."
-          />
-
-          {q && searched.length === 0 && filtered.length > 0 && <NoMatch query={q} />}
-
-          {filtered.length === 0 ? (
-            <div className="empty">
-              <b>No ledger transactions found.</b>
-              Transactions appear here once invoices, expenses, or payments are recorded in your chapter.
-            </div>
-          ) : (
-            <ul className="plist">
-              {searched.map((e) => (
-                <li key={e.id} className="prow">
-                  {e.member ? (
-                    <Avatar name={e.member.name} photo={e.member.photo} size={44} />
-                  ) : (
-                    <div className="glyph t-steel" style={{ '--size': '44px' } as any}>
-                      <BookOpen size={20} />
-                    </div>
-                  )}
-
-                  <div className="prow__main">
-                    {/* 1. Inc/Exp Head 1st and Bold */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 3 }}>
-                      <b style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink)' }}>{e.category}</b>
-                      <span className={`headkind ${e.entryType === 'income' ? 'headkind--income' : 'headkind--expense'}`}>
-                        {e.entryType === 'income' ? 'Income Head' : 'Expense Head'}
-                      </span>
-                    </div>
-
-                    {/* 2. >> Remark */}
-                    <p style={{ margin: '0 0 4px', fontSize: 13.5, color: 'var(--ink-light, #2B3B4B)', fontWeight: 500, lineHeight: 1.4 }}>
-                      <span style={{ color: 'var(--ink-mute)', fontWeight: 600 }}>Remark: </span>
-                      {e.remark}
-                    </p>
-
-                    {/* 3. >> Mode of Pay */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--ink-mute)', marginBottom: 4 }}>
-                      <span style={{ fontWeight: 600, color: 'var(--ink)' }}>Mode of Pay:</span>
-                      <b>{e.paymentMode}</b>
-                      {e.bankName && (
-                        <span>({e.bankName})</span>
-                      )}
-                      {e.member && (
-                        <span>· Member: <b style={{ color: 'var(--ink)' }}>{e.member.name}</b></span>
-                      )}
-                    </div>
-
-                    {/* 4. >> Inc/Rec + Paid & Verified date */}
-                    <span className="prow__meta" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                      <span>
-                        <b>Doc / Ref:</b> {e.voucherOrInvoiceNo}{e.referenceNo && e.referenceNo !== '-' && e.referenceNo !== e.voucherOrInvoiceNo ? ` (${e.referenceNo})` : ''}
-                      </span>
-                      <span>·</span>
-                      <span>
-                        <b>Paid Date:</b> {e.paidDate ? fmtDate(e.paidDate) : (e.date ? fmtDate(e.date) : '-')}
-                      </span>
-                      <span>·</span>
-                      <span>
-                        <b>Verified Date:</b> {e.verifiedDate ? fmtDate(e.verifiedDate) : 'Verified'}
-                      </span>
-                    </span>
-                  </div>
-
-                  <div className="prow__side">
-                    <b style={{ color: e.entryType === 'income' ? 'var(--green-ink, #08734F)' : 'var(--danger)', fontSize: 16 }}>
-                      {e.entryType === 'income' ? `+${inr(e.credit)}` : `-${inr(e.debit)}`}
-                    </b>
-                    <span className={`chip ${e.entryType === 'income' ? 'chip--green' : 'chip--red'}`}>
-                      {e.entryType === 'income' ? 'Credit / Inflow' : 'Debit / Outflow'}
-                    </span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
+      <div className="lg-totals">
+        <div className="lg-totals__cr">
+          <TrendingUp size={18} />
+          <span>
+            <small>Total credits (inflow)</small>
+            <b>{inr(totalCredit)}</b>
+          </span>
+        </div>
+        <div className="lg-totals__dr">
+          <TrendingDown size={18} />
+          <span>
+            <small>Total debits (outflow)</small>
+            <b>{inr(totalDebit)}</b>
+          </span>
         </div>
       </div>
+
+      <button type="button" className="cr-toggle" aria-expanded={showFilters} onClick={() => setShowFilters((v) => !v)}>
+        <SlidersHorizontal size={16} /> Filters
+        {activeFilters > 0 && <span className="badge">{activeFilters}</span>}
+      </button>
+
+      <div className={`cr-filters cr-filters--wide rfilters ${showFilters ? 'is-open' : ''}`}>
+        <Field label="Entry nature">
+          <select className="field__control native-select" value={entryType} onChange={(e) => setEntryType(e.target.value as EntryType)}>
+            <option value="all">All entries</option>
+            <option value="income">Income Only</option>
+            <option value="expense">Expenses Only</option>
+          </select>
+        </Field>
+        <Field label="Category">
+          <select className="field__control native-select" value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
+            <option value="">All categories</option>
+            {availableCategories.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Member">
+          <select className="field__control native-select" value={selectedMember} onChange={(e) => setSelectedMember(e.target.value)}>
+            <option value="">All Members</option>
+            {chapterMembers.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name} {m.organisation ? `(${m.organisation})` : ''}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Payment mode">
+          <select className="field__control native-select" value={selectedMode} onChange={(e) => setSelectedMode(e.target.value)}>
+            <option value="">All modes</option>
+            {availableModes.map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Bank / ledger account">
+          <select className="field__control native-select" value={selectedBank} onChange={(e) => setSelectedBank(e.target.value)}>
+            <option value="">All accounts</option>
+            {availableBanks.map((b) => (
+              <option key={b} value={b}>
+                {b}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="From date">
+          <input className="field__control" type="date" value={fromDate} max={toDate || undefined} onChange={(e) => setFromDate(e.target.value)} />
+        </Field>
+        <Field label="To date">
+          <input className="field__control" type="date" value={toDate} min={fromDate || undefined} onChange={(e) => setToDate(e.target.value)} />
+        </Field>
+        {activeFilters > 0 && (
+          <button type="button" className="cp-act cr-clear" onClick={clearFilters}>
+            Clear all
+          </button>
+        )}
+      </div>
+
+      <div className="cr-listbar">
+        <h2>
+          Ledger entries <span>{filtered.length}</span>
+        </h2>
+        <button type="button" className="cp-act" onClick={downloadPdf} disabled={filtered.length === 0}>
+          <Download size={15} /> Download PDF
+        </button>
+      </div>
+      <ListSearch value={q} onChange={setQ} placeholder="Search by particulars, member, category, mode, or reference no..." />
+      {q && searched.length === 0 && filtered.length > 0 && <NoMatch query={q} />}
+
+      {filtered.length === 0 ? (
+        <div className="cp-empty">
+          <BookOpen size={30} />
+          <b>No ledger transactions found</b>
+          <span>Transactions appear here once invoices, expenses, or payments are recorded in your chapter.</span>
+        </div>
+      ) : (
+        <div className="lg-book">
+          <div className="lg-head" aria-hidden>
+            <span>Date</span>
+            <span>Particulars</span>
+            <span>Debit</span>
+            <span>Credit</span>
+          </div>
+          <ul>
+            {searched.map((e) => (
+              <li key={e.id} className={`lg-row lg-row--${e.entryType === 'income' ? 'cr' : 'dr'}`}>
+                <time className="lg-date" dateTime={e.date}>
+                  <b>{e.date ? fmtDate(e.date, { day: 'numeric' }) : '–'}</b>
+                  <small>{e.date ? fmtDate(e.date, { month: 'short', year: 'numeric' }) : ''}</small>
+                </time>
+                <div className="lg-part">
+                  <div className="lg-part__top">
+                    <b>{e.category}</b>
+                    <em>{e.entryType === 'income' ? 'Income' : 'Expense'}</em>
+                  </div>
+                  <p>{e.remark}</p>
+                  <small>
+                    {e.paymentMode}
+                    {e.bankName ? ` (${e.bankName})` : ''}
+                    {e.member ? ` · ${e.member.name}` : ''}
+                  </small>
+                  <small>
+                    {e.voucherOrInvoiceNo}
+                    {e.referenceNo && e.referenceNo !== '-' && e.referenceNo !== e.voucherOrInvoiceNo ? ` (${e.referenceNo})` : ''} · Paid {e.paidDate ? fmtDate(e.paidDate) : e.date ? fmtDate(e.date) : '-'} · Verified {e.verifiedDate ? fmtDate(e.verifiedDate) : '—'}
+                  </small>
+                </div>
+                <div className="lg-amt lg-amt--dr" aria-label="Debit">
+                  {e.debit ? inr(e.debit) : ''}
+                </div>
+                <div className="lg-amt lg-amt--cr" aria-label="Credit">
+                  {e.credit ? inr(e.credit) : ''}
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className="lg-foot">
+            <span>Total{searched.length !== filtered.length ? ' (all filtered)' : ''}</span>
+            <b className="lg-amt--dr">{inr(totalDebit)}</b>
+            <b className="lg-amt--cr">{inr(totalCredit)}</b>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

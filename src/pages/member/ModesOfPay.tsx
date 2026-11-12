@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, CheckCircle2, CreditCard, Pencil, Plus, Trash2 } from 'lucide-react'
-import { Field, FieldGroup, Glyph, PageHead, Sheet, StatStrip, Toggle } from '../../components/ui'
+import { CreditCard, Pencil, Plus, Trash2 } from 'lucide-react'
+import CpHero, { Fold, NewButton, Nums } from '../../components/CpHero'
+import { Field, FieldGroup, Toggle } from '../../components/ui'
 import { useAuth } from '../../lib/auth'
 import { createModeOfPay, deleteModeOfPay, updateModeOfPay, useDB } from '../../lib/store'
 import { useConfirm } from '../../lib/confirm'
@@ -25,6 +25,8 @@ export default function ModesOfPay() {
   const [description, setDescription] = useState('')
   const [isActive, setIsActive] = useState(true)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  /* the form: open when there are no modes yet, and shut after that until it is asked for */
+  const [composeOpt, setComposeOpt] = useState<boolean | null>(null)
 
   if (!member || !chapter) return null
 
@@ -39,9 +41,11 @@ export default function ModesOfPay() {
     setDescription('')
     setIsActive(true)
     setErrors({})
+    setComposeOpt(false)
   }
 
   function startEdit(m: ModeOfPay) {
+    setComposeOpt(true)
     setEditing(m.id)
     setName(m.name)
     setCode(m.code || 'Cash')
@@ -92,156 +96,115 @@ export default function ModesOfPay() {
     if (editing === m.id) reset()
   }
 
+  const compose = composeOpt ?? list.length === 0
+
   return (
-    <div className="page">
-      <PageHead
-        eyebrow={`${chapter.name} · ${member.designation}`}
-        icon={CreditCard}
-        tone="navy"
-        title="Mode of Pay"
-        subtitle="Manage accepted modes of payment (UPI, Cheque, Cash, Net Banking, POS) for chapter collections."
-        actions={
-          <Link className="btn btn--line btn--sm" to="/accounts">
-            <ArrowLeft size={16} /> Accounts
-          </Link>
-        }
-      />
-
-      <StatStrip
-        items={[
-          { icon: CreditCard, tone: 'navy', label: 'Total Modes', value: list.length },
-          { icon: CheckCircle2, tone: 'green', label: 'Active Modes', value: list.filter((m) => m.isActive).length },
-        ]}
-      />
-
-      <div className="duo">
-        <Sheet
-          icon={editing ? Pencil : Plus}
-          tone="navy"
-          title={editing ? 'Edit payment mode' : 'New payment mode'}
-          note={chapter.name}
-        >
-          <form className="form-stack" onSubmit={submit} noValidate>
-            <Field label="Mode Name" error={errors.name} required hint="e.g. UPI, Cheque, Cash, Bank Transfer, POS">
-              <input
-                className="field__control"
-                value={name}
-                placeholder="UPI / Cheque / Cash"
-                onChange={(e) => {
-                  setName(e.target.value)
-                  if (errors.name) setErrors({})
-                }}
-              />
-            </Field>
-
-            <Field label="Ledger" error={errors.code} hint="Account ledger linked to this payment mode">
-              <select
-                className="field__control"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-              >
-                <option value="Cash">Cash</option>
-                {banks.map((b) => {
-                  const label = b.accountNumber ? `${b.bankName} - ${b.accountNumber}` : b.bankName
-                  return (
-                    <option key={b.id} value={label}>
-                      {label}
-                    </option>
-                  )
-                })}
-              </select>
-            </Field>
-
-            <Field label="Description / Instructions" error={errors.description} hint="Instructions shown to members or coordinators">
-              <textarea
-                className="field__control field__control--area"
-                rows={2}
-                value={description}
-                placeholder="Details or guidelines for this payment method..."
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </Field>
-
-            <FieldGroup label="Status">
-              <label style={{ display: 'inline-flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-                <Toggle checked={isActive} onChange={setIsActive} label="Active mode" />
-                <span style={{ fontWeight: 600, fontSize: '0.92rem' }}>
-                  {isActive ? 'Active (available for collections)' : 'Disabled'}
-                </span>
-              </label>
-            </FieldGroup>
-
-            <div className="form-actions">
-              <button type="submit" className="btn btn--brand">
-                {editing ? 'Save changes' : 'Add mode of pay'}
-              </button>
-              {editing && (
-                <button type="button" className="btn btn--text" onClick={reset}>
-                  Cancel
-                </button>
-              )}
-            </div>
-          </form>
-        </Sheet>
-
-        <div className="list">
-          <h2 className="list__title">
-            Payment modes <span>{list.length}</span>
-          </h2>
-
-          <ListSearch value={q} onChange={setQ} placeholder="Search payment modes, ledgers..." />
-          {q && filtered.length === 0 && list.length > 0 && <NoMatch query={q} />}
-
-          {list.length === 0 ? (
-            <div className="empty">
-              <b>No payment modes yet.</b>
-              Use the form on the left to add your first payment mode.
-            </div>
-          ) : (
-            filtered.map((m) => (
-              <article key={m.id} className="row" style={{ opacity: m.isActive ? 1 : 0.75 }}>
-                <div className="row__acts">
-                  <button
-                    type="button"
-                    className="btn btn--ghost btn--sm"
-                    title="Edit mode"
-                    aria-label={`Edit ${m.name}`}
-                    onClick={() => startEdit(m)}
-                    style={{ padding: '6px 8px' }}
-                  >
-                    <Pencil size={15} />
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn--ghost btn--sm"
-                    title="Delete mode"
-                    aria-label={`Delete ${m.name}`}
-                    onClick={() => remove(m)}
-                    style={{ padding: '6px 8px', color: '#ef4444' }}
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                </div>
-
-                <Glyph icon={CreditCard} tone={m.isActive ? 'navy' : 'steel'} size={50} />
-
-                <div className="row__main">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <b>{m.name}</b>
-                    <span className="chip chip--steel" style={{ fontSize: 11.5 }}>
-                      Ledger: {m.code || 'Cash'}
-                    </span>
-                    <span className={`chip ${m.isActive ? 'chip--green' : 'chip--steel'}`}>
-                      {m.isActive ? 'Active' : 'Disabled'}
-                    </span>
-                  </div>
-                  <span>{m.description || 'No description provided'}</span>
-                </div>
-              </article>
-            ))
-          )}
+    <div className="page md">
+      <CpHero className="md-hero" icon={CreditCard} eyebrow={`${chapter.name} · ${member.designation}`} title="Mode of Pay" sub="Accepted modes of payment (UPI, Cheque, Cash, Net Banking, POS) for chapter collections." back={{ to: '/accounts', label: 'Accounts' }}>
+        <div className="cx-side">
+          <Nums
+            items={[
+              [list.length, 'modes'],
+              [list.filter((m) => m.isActive).length, 'active'],
+            ]}
+          />
+          <NewButton open={compose} label="New mode" controls="md-fold" onClick={() => (compose ? reset() : setComposeOpt(true))} />
         </div>
+      </CpHero>
+
+      <Fold id="md-fold" open={compose} label="Payment mode form">
+        <form className="cp-form" onSubmit={submit} noValidate>
+          <h2 className="cp-form__h">
+            {editing ? <Pencil size={17} /> : <Plus size={17} />} {editing ? 'Edit payment mode' : 'New payment mode'}
+          </h2>
+          <Field label="Mode Name" error={errors.name} required hint="e.g. UPI, Cheque, Cash, Bank Transfer, POS">
+            <input
+              className="field__control"
+              value={name}
+              placeholder="UPI / Cheque / Cash"
+              onChange={(e) => {
+                setName(e.target.value)
+                if (errors.name) setErrors({})
+              }}
+            />
+          </Field>
+
+          <Field label="Ledger" error={errors.code} hint="Account ledger linked to this payment mode">
+            <select className="field__control" value={code} onChange={(e) => setCode(e.target.value)}>
+              <option value="Cash">Cash</option>
+              {banks.map((b) => {
+                const label = b.accountNumber ? `${b.bankName} - ${b.accountNumber}` : b.bankName
+                return (
+                  <option key={b.id} value={label}>
+                    {label}
+                  </option>
+                )
+              })}
+            </select>
+          </Field>
+
+          <FieldGroup label="Status">
+            <label className="cp-switch">
+              <Toggle checked={isActive} onChange={setIsActive} label="Active mode" />
+              <span>{isActive ? 'Active (available for collections)' : 'Disabled'}</span>
+            </label>
+          </FieldGroup>
+
+          <div className="cp-wide">
+            <Field label="Description / Instructions" error={errors.description} hint="Instructions shown to members or coordinators">
+              <textarea className="field__control field__control--area" rows={2} value={description} placeholder="Details or guidelines for this payment method..." onChange={(e) => setDescription(e.target.value)} />
+            </Field>
+          </div>
+
+          <div className="cp-form__foot">
+            {editing && (
+              <button type="button" className="cp-btn cp-btn--ghost" onClick={reset}>
+                Cancel
+              </button>
+            )}
+            <button type="submit" className="cp-btn">
+              {editing ? 'Save changes' : 'Add mode of pay'}
+            </button>
+          </div>
+        </form>
+      </Fold>
+
+      <div className="cp-bar">
+        <ListSearch value={q} onChange={setQ} placeholder="Search payment modes, ledgers..." />
       </div>
+      {q && filtered.length === 0 && list.length > 0 && <NoMatch query={q} />}
+
+      {list.length === 0 ? (
+        <div className="cp-empty">
+          <CreditCard size={30} />
+          <b>No payment modes yet</b>
+          <span>Add your first payment mode with the button above.</span>
+        </div>
+      ) : (
+        <ul className="md-grid">
+          {filtered.map((m) => (
+            <li key={m.id} className={`md-tile${m.isActive ? '' : ' is-off'}${editing === m.id ? ' is-editing' : ''}`}>
+              <div className="md-tile__top">
+                <span className="md-tile__ico">
+                  <CreditCard size={22} />
+                </span>
+                <span className={`md-tile__lamp${m.isActive ? ' is-on' : ''}`}>{m.isActive ? 'Active' : 'Disabled'}</span>
+              </div>
+              <b>{m.name}</b>
+              <span className="md-tile__ledger">Ledger: {m.code || 'Cash'}</span>
+              <p>{m.description || 'No description provided'}</p>
+              <div className="cp-acts">
+                <button type="button" className="cp-act" title="Edit mode" aria-label={`Edit ${m.name}`} onClick={() => startEdit(m)}>
+                  <Pencil size={14} /> Edit
+                </button>
+                <button type="button" className="cp-act cp-act--icon cp-act--danger" title="Delete mode" aria-label={`Delete ${m.name}`} onClick={() => remove(m)}>
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

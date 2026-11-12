@@ -1,16 +1,7 @@
 import { useState } from 'react'
-import type { CSSProperties } from 'react'
-import { Link } from 'react-router-dom'
-import {
-  ArrowLeft,
-  CalendarCheck,
-  CalendarClock,
-  Download,
-  UserCheck,
-  UserPlus,
-  Users,
-} from 'lucide-react'
-import { Avatar, Field, PageHead, StatStrip } from '../../components/ui'
+import { CalendarCheck, Download, UserCheck, UserPlus, Users } from 'lucide-react'
+import CpHero from '../../components/CpHero'
+import { Avatar, Field } from '../../components/ui'
 import { useAuth } from '../../lib/auth'
 import { fmtDate, fmtTime } from '../../lib/format'
 import { useDB } from '../../lib/store'
@@ -102,7 +93,6 @@ export default function AttendanceReport() {
   const presentCount = roll.filter((r) => r.status === 'present').length
   const subCount = meetingSubstitutes.length
   const absentCount = roll.filter((r) => r.status === 'absent').length
-  const visitorCount = meetingVisitors.length
 
   const hasRange = !!(from || to)
   const dayKey = (iso: string) => new Date(iso).toLocaleDateString('en-CA')
@@ -265,45 +255,36 @@ export default function AttendanceReport() {
     }
   }
 
-  return (
-    <div className="page">
-      <PageHead
-        eyebrow={`${chapter.name} · ${member.designation}`}
-        icon={CalendarCheck}
-        tone="green"
-        title="Attendance & Visitors Report"
-        subtitle="Chapter meeting attendance records, substitute details, and visitor registry logs."
-        actions={
-          <Link className="btn btn--line btn--sm" to="/reports">
-            <ArrowLeft size={16} /> Reports
-          </Link>
-        }
-      />
+  const turnout = roll.length ? Math.round(((presentCount + subCount) / roll.length) * 100) : 0
+  const RING = 2 * Math.PI * 40
 
-      <StatStrip
-        items={[
-          { label: 'Present', value: presentCount, icon: UserCheck, tone: 'green' },
-          { label: 'Substitutes', value: subCount, icon: Users, tone: 'gold' },
-          { label: 'Absent', value: absentCount, icon: CalendarClock, tone: 'red' },
-          { label: 'Visitors', value: visitorCount, icon: UserPlus, tone: 'navy' },
-        ]}
-      />
+  return (
+    <div className="page ar">
+      <CpHero className="ar-hero" icon={CalendarCheck} eyebrow={`${chapter.name} · ${member.designation}`} title="Attendance & Visitors Report" sub="Meeting attendance, substitutes and the visitor registry." back={{ to: '/reports', label: 'Reports' }}>
+        <span className="rp-ring" role="img" aria-label={`${turnout} percent turnout`}>
+          <svg width="92" height="92" viewBox="0 0 92 92" aria-hidden>
+            <circle cx="46" cy="46" r="40" fill="none" strokeWidth="7" className="rp-ring__bg" />
+            <circle cx="46" cy="46" r="40" fill="none" strokeWidth="7" strokeLinecap="round" className="rp-ring__fg" strokeDasharray={RING} strokeDashoffset={RING * (1 - turnout / 100)} transform="rotate(-90 46 46)" />
+          </svg>
+          <span>
+            <b>{turnout}%</b>
+            <small>turnout</small>
+          </span>
+        </span>
+      </CpHero>
 
       {chapterMeetings.length === 0 ? (
-        <div className="empty">
-          <b>No meetings found.</b>
-          Schedule meetings in Chapter Controls &gt; Meetings to track attendance and visitors.
+        <div className="cp-empty">
+          <CalendarCheck size={30} />
+          <b>No meetings found</b>
+          <span>Schedule meetings in Chapter Controls &gt; Meetings to track attendance and visitors.</span>
         </div>
       ) : (
-        <div className="att">
-          {/* Meeting selector bar */}
-          <div className="filterbar" style={{ marginBottom: 16 }}>
-            <Field label="Select Meeting">
-              <select
-                className="field__control native-select"
-                value={activeMeetingId}
-                onChange={(e) => setSelectedMeetingId(e.target.value)}
-              >
+        <>
+          {/* which meeting, and an optional date range for the date-wise PDF */}
+          <div className="ar-pick">
+            <Field label="Select meeting">
+              <select className="field__control native-select" value={activeMeetingId} onChange={(e) => setSelectedMeetingId(e.target.value)}>
                 {chapterMeetings.map((m) => (
                   <option key={m.id} value={m.id}>
                     {m.title} · {fmtDate(m.startsAt, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })} ({m.mode.toUpperCase()})
@@ -318,259 +299,221 @@ export default function AttendanceReport() {
               <input className="field__control" type="date" value={to} min={from || undefined} onChange={(e) => setTo(e.target.value)} />
             </Field>
             {hasRange && (
-              <button type="button" className="btn btn--line btn--sm" onClick={() => { setFrom(''); setTo('') }}>
+              <button
+                type="button"
+                className="cp-act cr-clear"
+                onClick={() => {
+                  setFrom('')
+                  setTo('')
+                }}
+              >
                 Clear dates
               </button>
             )}
           </div>
-          <p className="field__hint" style={{ margin: '-8px 0 16px' }}>
+          <p className="au-hint">
             {hasRange
               ? rangeMeetings.length === 0
                 ? 'No meetings in this date range.'
                 : `Member attendance PDF: one column per meeting date, ${rangeMeetings.length} ${rangeMeetings.length === 1 ? 'meeting' : 'meetings'} in this range.`
-              : 'Choose dates to download a date-wise attendance PDF. Leave them empty for the selected meeting\'s report.'}
+              : "Choose dates to download a date-wise attendance PDF. Leave them empty for the selected meeting's report."}
           </p>
 
-          {/* Sub Navigation Tabs */}
-          <div className="seg dues__tabs" role="tablist" style={{ marginBottom: 16 }}>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === 'attendance'}
-              aria-pressed={tab === 'attendance'}
-              onClick={() => setTab('attendance')}
-            >
-              Member Attendance ({roll.length})
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === 'substitutes'}
-              aria-pressed={tab === 'substitutes'}
-              onClick={() => setTab('substitutes')}
-            >
-              Substitutes ({meetingSubstitutes.length})
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === 'visitors'}
-              aria-pressed={tab === 'visitors'}
-              onClick={() => setTab('visitors')}
-            >
-              Visitors ({meetingVisitors.length})
-            </button>
+          <div className="cp-tabs ar-tabs" role="tablist">
+            {(
+              [
+                ['attendance', 'Member attendance', roll.length],
+                ['substitutes', 'Substitutes', meetingSubstitutes.length],
+                ['visitors', 'Visitors', meetingVisitors.length],
+              ] as const
+            ).map(([id, label, n]) => (
+              <button key={id} type="button" role="tab" aria-selected={tab === id} aria-pressed={tab === id} className={tab === id ? 'is-on' : ''} onClick={() => setTab(id)}>
+                {label}
+                <i>{n}</i>
+              </button>
+            ))}
           </div>
 
-          {/* Tab 1: Member Attendance */}
+          {/* Tab 1: the roll, as a wall of people */}
           {tab === 'attendance' && (
-            <div className="list">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-                <div className="filterbar" style={{ margin: 0 }}>
-                  <select
-                    className="field__control native-select"
-                    style={{ minWidth: 180, height: 40 }}
-                    value={attFilter}
-                    onChange={(e) => setAttFilter(e.target.value as AttendanceFilter)}
-                  >
-                    <option value="all">All Members ({roll.length})</option>
-                    <option value="present">Present ({presentCount})</option>
-                    <option value="substitute">Substitute ({subCount})</option>
-                    <option value="absent">Absent ({absentCount})</option>
-                  </select>
-                </div>
-
-                <button
-                  type="button"
-                  className="btn btn--line btn--sm"
-                  onClick={downloadPdf}
-                  disabled={hasRange ? rangeMeetings.length === 0 : searchedRoll.length === 0}
-                >
+            <>
+              <div className="ar-counts">
+                {(
+                  [
+                    ['all', 'All', roll.length, 'idle'],
+                    ['present', 'Present', presentCount, 'ok'],
+                    ['substitute', 'Substitute', subCount, 'warn'],
+                    ['absent', 'Absent', absentCount, 'bad'],
+                  ] as const
+                ).map(([id, label, n, cls]) => (
+                  <button key={id} type="button" className={`ar-count ar-count--${cls}${attFilter === id ? ' is-on' : ''}`} aria-pressed={attFilter === id} onClick={() => setAttFilter(id)}>
+                    <b>{n}</b>
+                    <small>{label}</small>
+                  </button>
+                ))}
+                <button type="button" className="cp-act ar-pdf" onClick={downloadPdf} disabled={hasRange ? rangeMeetings.length === 0 : searchedRoll.length === 0}>
                   <Download size={15} /> Download PDF
                 </button>
               </div>
 
               <ListSearch value={q} onChange={setQ} placeholder="Search member name, company, or substitute..." />
-
               {q && searchedRoll.length === 0 && filteredRoll.length > 0 && <NoMatch query={q} />}
 
-              <ul className="plist">
+              <ul className="ar-wall">
                 {searchedRoll.map((r) => (
-                  <li key={r.member.id} className="prow">
-                    <Avatar name={r.member.name} photo={r.member.photo} size={44} />
-                    <div className="prow__main">
+                  <li key={r.member.id} className={`ar-tile ar-tile--${r.status}`}>
+                    <span className="ar-tile__photo">
+                      <Avatar name={r.member.name} photo={r.member.photo} size={52} />
+                    </span>
+                    <div className="ar-tile__txt">
                       <b>{r.member.name}</b>
                       <span>
                         {r.member.organisation} {r.member.category ? `· ${r.member.category}` : ''}
                       </span>
                       {r.status === 'present' && r.attRecord && (
-                        <span className="prow__meta">
+                        <small>
                           Marked at {fmtTime(r.attRecord.at)} via {r.attRecord.method.toUpperCase()}
                           {r.attRecord.distanceM !== undefined ? ` · ${Math.round(r.attRecord.distanceM)}m away` : ''}
-                        </span>
+                        </small>
                       )}
                       {r.status === 'substitute' && r.subRecord && (
-                        <span className="prow__meta" style={{ color: 'var(--gold-ink)' }}>
-                          Represented by Substitute: <b>{r.subRecord.substituteName}</b>
+                        <small>
+                          Represented by <b>{r.subRecord.substituteName}</b>
                           {r.subRecord.substitutePhone ? ` · ${r.subRecord.substitutePhone}` : ''}
-                        </span>
+                        </small>
                       )}
                     </div>
-                    <div className="prow__side">
-                      {r.status === 'present' && <span className="stat stat--ok">Present</span>}
-                      {r.status === 'substitute' && <span className="stat stat--gold">Substitute</span>}
-                      {r.status === 'absent' && <span className="stat stat--bad">Absent</span>}
-                    </div>
+                    <span className={`ar-tile__st ar-tile__st--${r.status}`}>{r.status === 'present' ? 'Present' : r.status === 'substitute' ? 'Substitute' : 'Absent'}</span>
                   </li>
                 ))}
               </ul>
 
-              <h2 className="list__title" style={{ marginTop: 18 }}>
-                Visitors <span>{meetingVisitors.length}</span>
+              <h2 className="ar-h">
+                <UserPlus size={17} /> Visitors <span>{meetingVisitors.length}</span>
               </h2>
               {meetingVisitors.length === 0 ? (
-                <div className="empty">
-                  <b>No visitors registered for this meeting.</b>
+                <div className="cp-empty cp-empty--soft">
+                  <b>No visitors registered for this meeting</b>
                 </div>
               ) : (
-                <ul className="plist">
+                <ul className="ar-people">
                   {meetingVisitors.map((v) => {
                     const inv = v.invitedById ? memberMap.get(v.invitedById) : undefined
                     return (
-                      <li key={v.id} className="prow">
-                        <div className="glyph t-navy" style={{ '--size': '44px' } as CSSProperties}>
-                          <UserPlus size={20} />
-                        </div>
-                        <div className="prow__main">
+                      <li key={v.id} className="ar-person ar-person--visitor">
+                        <span className="ar-person__ico">
+                          <UserPlus size={18} />
+                        </span>
+                        <div>
                           <b>{v.name}</b>
                           <span>{v.phone}</span>
                           {inv && (
-                            <span className="prow__meta" style={{ color: 'var(--ink)' }}>
-                              Invited by: <b>{inv.name}</b>
-                            </span>
+                            <small>
+                              Invited by <b>{inv.name}</b>
+                            </small>
                           )}
                         </div>
-                        <div className="prow__side">
-                          <span className="stat stat--ok">Visitor</span>
-                        </div>
+                        <em>Visitor</em>
                       </li>
                     )
                   })}
                 </ul>
               )}
-            </div>
+            </>
           )}
 
           {/* Tab 2: Substitutes */}
           {tab === 'substitutes' && (
-            <div className="list">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-                <h2 className="list__title" style={{ margin: 0 }}>
-                  Substitutes Attending <span>{meetingSubstitutes.length}</span>
+            <>
+              <div className="cr-listbar">
+                <h2>
+                  Substitutes attending <span>{meetingSubstitutes.length}</span>
                 </h2>
-                <button
-                  type="button"
-                  className="btn btn--line btn--sm"
-                  onClick={downloadPdf}
-                  disabled={searchedSubstitutes.length === 0}
-                >
+                <button type="button" className="cp-act" onClick={downloadPdf} disabled={searchedSubstitutes.length === 0}>
                   <Download size={15} /> Download PDF
                 </button>
               </div>
-
               <ListSearch value={q} onChange={setQ} placeholder="Search substitute name, phone, or represented member..." />
-
               {q && searchedSubstitutes.length === 0 && meetingSubstitutes.length > 0 && <NoMatch query={q} />}
-
               {meetingSubstitutes.length === 0 ? (
-                <div className="empty">
-                  <b>No substitutes entered for this meeting.</b>
-                  Substitutes attending on behalf of a member appear here.
+                <div className="cp-empty">
+                  <Users size={30} />
+                  <b>No substitutes entered for this meeting</b>
+                  <span>Substitutes attending on behalf of a member appear here.</span>
                 </div>
               ) : (
-                <ul className="plist">
+                <ul className="ar-people">
                   {searchedSubstitutes.map((s) => {
                     const mem = memberMap.get(s.memberId)
                     return (
-                      <li key={s.id} className="prow">
-                        <div className="glyph t-gold" style={{ '--size': '44px' } as any}>
-                          <Users size={20} />
-                        </div>
-                        <div className="prow__main">
+                      <li key={s.id} className="ar-person ar-person--sub">
+                        <span className="ar-person__ico">
+                          <Users size={18} />
+                        </span>
+                        <div>
                           <b>{s.substituteName}</b>
                           <span>{s.substitutePhone || 'No phone number'}</span>
-                          <span className="prow__meta">
-                            Attending for: <b>{mem?.name}</b> {mem?.organisation ? `(${mem.organisation})` : ''}
-                          </span>
-                          {s.notes && <span className="prow__meta">Note: {s.notes}</span>}
+                          <small>
+                            Attending for <b>{mem?.name}</b> {mem?.organisation ? `(${mem.organisation})` : ''}
+                          </small>
+                          {s.notes && <small>Note: {s.notes}</small>}
                         </div>
-                        <div className="prow__side" style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                          <span className="stat stat--gold">Substitute</span>
-                        </div>
+                        <em>Substitute</em>
                       </li>
                     )
                   })}
                 </ul>
               )}
-            </div>
+            </>
           )}
 
           {/* Tab 3: Visitors */}
           {tab === 'visitors' && (
-            <div className="list">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-                <h2 className="list__title" style={{ margin: 0 }}>
-                  Registered Visitors <span>{meetingVisitors.length}</span>
+            <>
+              <div className="cr-listbar">
+                <h2>
+                  Registered visitors <span>{meetingVisitors.length}</span>
                 </h2>
-                <button
-                  type="button"
-                  className="btn btn--line btn--sm"
-                  onClick={downloadPdf}
-                  disabled={searchedVisitors.length === 0}
-                >
+                <button type="button" className="cp-act" onClick={downloadPdf} disabled={searchedVisitors.length === 0}>
                   <Download size={15} /> Download PDF
                 </button>
               </div>
-
               <ListSearch value={q} onChange={setQ} placeholder="Search visitor name, company, category, phone..." />
-
               {q && searchedVisitors.length === 0 && meetingVisitors.length > 0 && <NoMatch query={q} />}
-
               {meetingVisitors.length === 0 ? (
-                <div className="empty">
-                  <b>No visitors registered for this meeting.</b>
-                  Visitors registered for this chapter meeting appear here.
+                <div className="cp-empty">
+                  <UserCheck size={30} />
+                  <b>No visitors registered for this meeting</b>
+                  <span>Visitors registered for this chapter meeting appear here.</span>
                 </div>
               ) : (
-                <ul className="plist">
+                <ul className="ar-people">
                   {searchedVisitors.map((v) => {
                     const inv = v.invitedById ? memberMap.get(v.invitedById) : undefined
                     return (
-                      <li key={v.id} className="prow">
-                        <div className="glyph t-navy" style={{ '--size': '44px' } as any}>
-                          <UserPlus size={20} />
-                        </div>
-                        <div className="prow__main">
+                      <li key={v.id} className="ar-person ar-person--visitor">
+                        <span className="ar-person__ico">
+                          <UserPlus size={18} />
+                        </span>
+                        <div>
                           <b>{v.name}</b>
                           <span>{v.phone}</span>
                           {inv && (
-                            <span className="prow__meta" style={{ color: 'var(--ink)' }}>
-                              Invited by: <b>{inv.name}</b>
-                            </span>
+                            <small>
+                              Invited by <b>{inv.name}</b>
+                            </small>
                           )}
-                          {v.notes && <span className="prow__meta">Note: {v.notes}</span>}
+                          {v.notes && <small>Note: {v.notes}</small>}
                         </div>
-                        <div className="prow__side" style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                          <span className="stat stat--ok">Visitor</span>
-                        </div>
+                        <em>Visitor</em>
                       </li>
                     )
                   })}
                 </ul>
               )}
-            </div>
+            </>
           )}
-        </div>
+        </>
       )}
     </div>
   )

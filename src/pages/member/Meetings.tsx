@@ -1,10 +1,11 @@
 import { useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { CalendarClock, CalendarPlus, LocateFixed, MapPin, Trash2, UserCheck, Users, Video } from 'lucide-react'
+import { CalendarClock, CalendarPlus, Clock, LocateFixed, MapPin, Plus, Trash2, UserCheck, Users, Video, X } from 'lucide-react'
 import AudiencePicker from '../../components/AudiencePicker'
+import CpHero from '../../components/CpHero'
 import ManualAttendance from '../../components/ManualAttendance'
 import type { AudienceChoice } from '../../components/AudiencePicker'
-import { Field, FieldGroup, Glyph, PageHead, Sheet, StatStrip } from '../../components/ui'
+import { Field, FieldGroup } from '../../components/ui'
 import { phaseOf } from '../../lib/attendance'
 import { useAuth } from '../../lib/auth'
 import { designationOptions, isHeadTable } from '../../lib/designations'
@@ -21,6 +22,7 @@ import type { MeetingMode } from '../../lib/types'
 
 const inRange = (v: number, lo: number, hi: number) => Number.isFinite(v) && v >= lo && v <= hi
 
+/** Meetings: an agenda. The composer folds open on top, the meetings run down a timeline of dates. */
 export default function Meetings() {
   const { region, chapter: myChapter } = useAuth()
   const db = useDB()
@@ -45,6 +47,9 @@ export default function Meetings() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   /* the meeting whose Manual Attendance list is open */
   const [manualFor, setManualFor] = useState<string | null>(null)
+  /* the composer: open when there are no meetings yet, and shut after that until "New meeting" is pressed */
+  const [composeOpt, setComposeOpt] = useState<boolean | null>(null)
+  const [tab, setTab] = useState<'all' | 'live' | 'ended'>('all')
 
   if (!region || !myChapter) return null
   const meetings = db.meetings
@@ -148,129 +153,166 @@ export default function Meetings() {
     if (res.error) return setErrors({ [res.field ?? 'form']: res.error })
     toast('Meeting created')
     resetForm()
+    setComposeOpt(false)
   }
 
-  const shown = meetings.filter((m) => matches(q, m.title, m.venue, m.mode, fmtDate(m.startsAt, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })))
   const upcoming = meetings.filter((m) => phaseOf(m, now) !== 'ended').length
+  const compose = composeOpt ?? meetings.length === 0
+  const found = meetings.filter((m) => matches(q, m.title, m.venue, m.mode, fmtDate(m.startsAt, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })))
+  const shown = found.filter((m) => tab === 'all' || (tab === 'live') === (phaseOf(m, now) !== 'ended'))
+  const marksTotal = db.attendance.filter((a) => meetings.some((m) => m.id === a.meetingId)).length
 
   return (
-    <div className="page">
-      <PageHead
-        eyebrow={`${myChapter.name} · Head Table`}
-        icon={CalendarClock}
-        tone="gold"
-        title="Meetings"
-        subtitle="Schedule chapter meetings. For offline meetings, set the venue location and how close members must be to mark attendance."
-      />
+    <div className="page mt">
+      <CpHero className="mt-hero" icon={CalendarClock} eyebrow={`${myChapter.name} · Head Table`} title="Meetings" sub="Schedule chapter meetings. For offline meetings, set the venue and how close members must be to mark attendance.">
+        <div className="mt-hero__side">
+          <div className="mt-hero__nums">
+            <span>
+              <b>{meetings.length}</b>
+              <small>meetings</small>
+            </span>
+            <span>
+              <b>{upcoming}</b>
+              <small>open / upcoming</small>
+            </span>
+            <span>
+              <b>{marksTotal}</b>
+              <small>marked</small>
+            </span>
+          </div>
+          <button type="button" className={`mt-new${compose ? ' is-open' : ''}`} onClick={() => setComposeOpt(!compose)} aria-expanded={compose} aria-controls="mt-composer">
+            {compose ? <X size={17} /> : <Plus size={17} />} {compose ? 'Close' : 'New meeting'}
+          </button>
+        </div>
+      </CpHero>
 
-      <StatStrip
-        items={[
-          { icon: CalendarClock, tone: 'gold', label: 'Meetings', value: meetings.length },
-          { icon: CalendarPlus, tone: 'red', label: 'Open or upcoming', value: upcoming },
-          { icon: Users, tone: 'green', label: 'Attendance marked', value: db.attendance.filter((a) => meetings.some((m) => m.id === a.meetingId)).length },
-        ]}
-      />
-
-      <div className="duo">
-        <Sheet icon={CalendarPlus} tone="gold" title="Create meeting" note={myChapter.name}>
-          <form className="form-stack" onSubmit={submit} noValidate>
-            <Field label="Meeting title" required error={errors.title}>
-              <input className="field__control" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Weekly meeting" />
-            </Field>
-
-            <FieldGroup label="Meeting type" required>
-              <div className="seg" role="group">
-                <button type="button" aria-pressed={mode === 'offline'} onClick={() => setMode('offline')}>
-                  Offline
-                </button>
-                <button type="button" aria-pressed={mode === 'online'} onClick={() => setMode('online')}>
-                  Online
-                </button>
-              </div>
-            </FieldGroup>
-
-            <div className="form-grid form-grid--pair">
-              <Field label="Date" required error={errors.when}>
-                <input className="field__control" type="date" value={when.date} onChange={(e) => setWhen((w) => ({ ...w, date: e.target.value }))} />
+      <section className="mt-composer" id="mt-composer" data-open={compose} inert={!compose} aria-label="Create meeting">
+        <div className="mt-composer__in">
+          <form className="mt-form" onSubmit={submit} noValidate>
+            <div className="mt-col">
+              <h2 className="mt-h">
+                <CalendarPlus size={17} /> The meeting
+              </h2>
+              <Field label="Meeting title" required error={errors.title}>
+                <input className="field__control" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Weekly meeting" />
               </Field>
-              <Field label="Start time" required>
-                <input className="field__control" type="time" value={when.time} onChange={(e) => setWhen((w) => ({ ...w, time: e.target.value }))} />
-              </Field>
-            </div>
-            <Field label="Duration (minutes)" required hint="Attendance stays open until the meeting ends." error={errors.duration}>
-              <input className="field__control" inputMode="numeric" value={duration} onChange={(e) => setDuration(e.target.value.replace(/\D/g, ''))} placeholder="e.g. 90" />
-            </Field>
 
-            <AudiencePicker
-              value={audience}
-              onChange={setAudience}
-              members={roster}
-              designations={designationOptions(db, region.id, '', myChapter.id)}
-              invited={invitedNow}
-              error={errors.audience}
-            />
-
-            {mode === 'offline' && (
-              <>
-                <Field label="Venue" required error={errors.venue}>
-                  <VenueSearch
-                    value={venue}
-                    onChange={setVenue}
-                    onPick={(place) => {
-                      /* choosing a suggestion fills the venue and its coordinates */
-                      setVenue(place.text)
-                      setLat(place.lat.toFixed(6))
-                      setLng(place.lng.toFixed(6))
-                      setErrors((e) => ({ ...e, venue: '', lat: '', lng: '' }))
-                    }}
-                    placeholder="Hotel or hall name, city"
-                  />
-                </Field>
-                <div className="form-grid form-grid--pair">
-                  <Field label="Latitude" required error={errors.lat}>
-                    <input className="field__control" inputMode="decimal" value={lat} onChange={(e) => setLat(e.target.value)} placeholder="8.488890" />
-                  </Field>
-                  <Field label="Longitude" required error={errors.lng}>
-                    <input className="field__control" inputMode="decimal" value={lng} onChange={(e) => setLng(e.target.value)} placeholder="76.951010" />
-                  </Field>
-                </div>
-                <div>
-                  <button type="button" className="btn btn--line btn--sm" onClick={fillFromGps} disabled={locating}>
-                    <LocateFixed size={15} /> {locating ? 'Locating…' : 'Use my current location'}
+              <FieldGroup label="Meeting type" required>
+                <div className="seg" role="group">
+                  <button type="button" aria-pressed={mode === 'offline'} onClick={() => setMode('offline')}>
+                    Offline
+                  </button>
+                  <button type="button" aria-pressed={mode === 'online'} onClick={() => setMode('online')}>
+                    Online
                   </button>
                 </div>
-                <Field label="Geofence radius (metres)" required hint="Members can mark attendance by location only within this distance of the venue." error={errors.radius}>
-                  <input className="field__control" inputMode="numeric" value={radius} onChange={(e) => setRadius(e.target.value.replace(/\D/g, ''))} placeholder="e.g. 100" />
-                </Field>
-              </>
-            )}
+              </FieldGroup>
 
-            {errors.form && <div className="form-error">{errors.form}</div>}
-            <div>
-              <button className="btn btn--primary" type="submit" disabled={saving}>
+              <div className="form-grid form-grid--pair">
+                <Field label="Date" required error={errors.when}>
+                  <input className="field__control" type="date" value={when.date} onChange={(e) => setWhen((w) => ({ ...w, date: e.target.value }))} />
+                </Field>
+                <Field label="Start time" required>
+                  <input className="field__control" type="time" value={when.time} onChange={(e) => setWhen((w) => ({ ...w, time: e.target.value }))} />
+                </Field>
+              </div>
+              <Field label="Duration (minutes)" required hint="Attendance stays open until the meeting ends." error={errors.duration}>
+                <input className="field__control" inputMode="numeric" value={duration} onChange={(e) => setDuration(e.target.value.replace(/\D/g, ''))} placeholder="e.g. 90" />
+              </Field>
+            </div>
+
+            <div className="mt-col">
+              <h2 className="mt-h">
+                <Users size={17} /> Who and where
+              </h2>
+              <AudiencePicker value={audience} onChange={setAudience} members={roster} designations={designationOptions(db, region.id, '', myChapter.id)} invited={invitedNow} error={errors.audience} />
+
+              {mode === 'offline' && (
+                <>
+                  <Field label="Venue" required error={errors.venue}>
+                    <VenueSearch
+                      value={venue}
+                      onChange={setVenue}
+                      onPick={(place) => {
+                        /* choosing a suggestion fills the venue and its coordinates */
+                        setVenue(place.text)
+                        setLat(place.lat.toFixed(6))
+                        setLng(place.lng.toFixed(6))
+                        setErrors((e) => ({ ...e, venue: '', lat: '', lng: '' }))
+                      }}
+                      placeholder="Hotel or hall name, city"
+                    />
+                  </Field>
+                  <div className="form-grid form-grid--pair">
+                    <Field label="Latitude" required error={errors.lat}>
+                      <input className="field__control" inputMode="decimal" value={lat} onChange={(e) => setLat(e.target.value)} placeholder="8.488890" />
+                    </Field>
+                    <Field label="Longitude" required error={errors.lng}>
+                      <input className="field__control" inputMode="decimal" value={lng} onChange={(e) => setLng(e.target.value)} placeholder="76.951010" />
+                    </Field>
+                  </div>
+                  <div>
+                    <button type="button" className="btn btn--line btn--sm" onClick={fillFromGps} disabled={locating}>
+                      <LocateFixed size={15} /> {locating ? 'Locating…' : 'Use my current location'}
+                    </button>
+                  </div>
+                  <Field label="Geofence radius (metres)" required hint="Members can mark attendance by location only within this distance of the venue." error={errors.radius}>
+                    <input className="field__control" inputMode="numeric" value={radius} onChange={(e) => setRadius(e.target.value.replace(/\D/g, ''))} placeholder="e.g. 100" />
+                  </Field>
+                </>
+              )}
+            </div>
+
+            <div className="mt-form__foot">
+              {errors.form && <div className="form-error">{errors.form}</div>}
+              <button className="mt-btn" type="submit" disabled={saving}>
                 <CalendarPlus size={16} /> Save meeting
               </button>
             </div>
           </form>
-        </Sheet>
+        </div>
+      </section>
 
-        <div className="list">
-          <h2 className="list__title">
-            All meetings <span>{meetings.length}</span>
-          </h2>
-          <ListSearch value={q} onChange={setQ} placeholder="Search meetings" />
-          {q && shown.length === 0 && meetings.length > 0 && <NoMatch query={q} />}
-          {meetings.length === 0 ? (
-            <div className="empty">
-              <b>No meetings yet.</b>
-              Create the first one to open attendance for your chapter.
+      <div className="mt-bar">
+        <div className="mt-tabs" role="tablist" aria-label="Show meetings">
+          {(
+            [
+              ['all', 'All', meetings.length],
+              ['live', 'Open / upcoming', upcoming],
+              ['ended', 'Ended', meetings.length - upcoming],
+            ] as const
+          ).map(([id, label, n]) => (
+            <button key={id} type="button" role="tab" aria-selected={tab === id} className={tab === id ? 'is-on' : ''} onClick={() => setTab(id)}>
+              {label}
+              <i>{n}</i>
+            </button>
+          ))}
+        </div>
+        <ListSearch value={q} onChange={setQ} placeholder="Search meetings" />
+      </div>
+      {q && found.length === 0 && meetings.length > 0 && <NoMatch query={q} />}
+
+      {meetings.length === 0 ? (
+        <div className="mt-empty">
+          <CalendarClock size={30} />
+          <b>No meetings yet</b>
+          <span>Create the first one to open attendance for your chapter.</span>
+        </div>
+      ) : (
+        <>
+          {shown.length === 0 && !q && (
+            <div className="mt-empty mt-empty--soft">
+              <b>Nothing here</b>
+              <span>No meetings in this view.</span>
             </div>
-          ) : (
-            shown.map((m) => {
+          )}
+          <ol className="mt-line">
+            {shown.map((m) => {
               const chapter = db.chapters.find((c) => c.id === m.chapterId)
               const phase = phaseOf(m, now)
               const marked = db.attendance.filter((a) => a.meetingId === m.id).length
               const total = m.invitedIds?.length ?? 0
+              const pct = total ? Math.min(100, Math.round((marked / total) * 100)) : 0
               const audienceLabel =
                 m.audience === 'designations'
                   ? m.audienceDesignations.length === 1
@@ -279,56 +321,70 @@ export default function Meetings() {
                   : m.audience === 'members'
                     ? `${m.inviteeIds.length} ${m.inviteeIds.length === 1 ? 'member' : 'members'}`
                     : 'All members'
+              const online = m.mode === 'online'
               return (
-                <article key={m.id} className="row row--meeting">
-                  <div className="row__acts">
-                  <button
-                    className="iconbtn"
-                    aria-label={`Delete ${m.title}`}
-                    onClick={async () => {
-                      if (!(await confirm({ title: 'Delete meeting?', message: `"${m.title}" and its attendance will be removed.` }))) return
-                      deleteMeeting(m.id)
-                      toast('Meeting deleted')
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                <li key={m.id} className={`mt-item mt-item--${phase}`}>
+                  <div className="mt-date" aria-hidden>
+                    <small>{fmtDate(m.startsAt, { month: 'short' })}</small>
+                    <b>{fmtDate(m.startsAt, { day: 'numeric' })}</b>
+                    <i>{fmtDate(m.startsAt, { weekday: 'short' })}</i>
                   </div>
-                  <Glyph icon={m.mode === 'online' ? Video : MapPin} tone={m.mode === 'online' ? 'navy' : 'red'} size={50} />
-                  <div className="row__main">
-                    <b>
-                      {m.title} · {chapter?.name ?? 'Chapter'}
-                    </b>
-                    <span>
-                      {fmtDate(m.startsAt, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}, {fmtTime(m.startsAt)} · {m.durationMin} min
-                      {m.mode === 'offline' && ` · ${m.venue} · ${m.radiusM} m geofence`}
-                    </span>
-                  </div>
-                  <div className="chips">
-                    <span className="chip">{m.mode === 'online' ? 'Online' : 'Offline'}</span>
-                    <span className="chip">{audienceLabel}</span>
-                    <span className={`stat ${phase === 'open' ? 'stat--ok' : phase === 'upcoming' ? 'stat--idle' : 'stat--bad'}`}>
-                      {phase === 'open' ? 'Open' : phase === 'upcoming' ? 'Upcoming' : 'Ended'}
-                    </span>
-                    <span className="chip chip--gold">
-                      {marked}/{total} present
-                    </span>
-                    <button
-                      type="button"
-                      className="btn btn--xs"
-                      disabled={phase === 'upcoming'}
-                      title={phase === 'upcoming' ? 'Available once the meeting starts' : 'Mark members who have no attendance'}
-                      onClick={() => setManualFor(m.id)}
-                    >
-                      <UserCheck size={13} /> Manual Attendance
-                    </button>
-                  </div>
-                </article>
+                  <article className="mt-card">
+                    <header className="mt-card__head">
+                      <span className="mt-mode">
+                        {online ? <Video size={14} /> : <MapPin size={14} />} {online ? 'Online' : 'Offline'}
+                      </span>
+                      <span className={`mt-phase mt-phase--${phase}`}>{phase === 'open' ? 'Open now' : phase === 'upcoming' ? 'Upcoming' : 'Ended'}</span>
+                      <button
+                        className="mt-del"
+                        aria-label={`Delete ${m.title}`}
+                        onClick={async () => {
+                          if (!(await confirm({ title: 'Delete meeting?', message: `"${m.title}" and its attendance will be removed.` }))) return
+                          deleteMeeting(m.id)
+                          toast('Meeting deleted')
+                        }}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </header>
+                    <h3>
+                      {m.title} <span>· {chapter?.name ?? 'Chapter'}</span>
+                    </h3>
+                    <p className="mt-when">
+                      <Clock size={14} /> {fmtTime(m.startsAt)} · {m.durationMin} min
+                      {!online && (
+                        <>
+                          <i /> <MapPin size={14} /> {m.venue} · {m.radiusM} m geofence
+                        </>
+                      )}
+                    </p>
+                    <div className="mt-prog" role="img" aria-label={`${marked} of ${total} present`}>
+                      <i style={{ width: `${pct}%` }} />
+                    </div>
+                    <footer className="mt-card__foot">
+                      <span className="mt-chip">
+                        <Users size={13} /> {audienceLabel}
+                      </span>
+                      <span className="mt-chip mt-chip--acc">
+                        {marked}/{total} present
+                      </span>
+                      <button
+                        type="button"
+                        className="mt-manual"
+                        disabled={phase === 'upcoming'}
+                        title={phase === 'upcoming' ? 'Available once the meeting starts' : 'Mark members who have no attendance'}
+                        onClick={() => setManualFor(m.id)}
+                      >
+                        <UserCheck size={14} /> Manual Attendance
+                      </button>
+                    </footer>
+                  </article>
+                </li>
               )
-            })
-          )}
-        </div>
-      </div>
+            })}
+          </ol>
+        </>
+      )}
 
       {manualMeeting && <ManualAttendance meeting={manualMeeting} onClose={() => setManualFor(null)} />}
     </div>

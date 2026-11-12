@@ -72,14 +72,6 @@ export default function Shell() {
         void import('../pages/member/ManagePayments')
         void import('../pages/member/Meetings')
         void import('../pages/member/ManageRsvp')
-      } else if (role === 'region_admin') {
-        void import('../pages/region/Chapters')
-        void import('../pages/region/Designations')
-        void import('../pages/region/ChapterTeam')
-      } else {
-        void import('../pages/admin/Regions')
-        void import('../pages/admin/Plans')
-        void import('../pages/admin/Subscriptions')
       }
     }
     const idle = (window as Window & { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback

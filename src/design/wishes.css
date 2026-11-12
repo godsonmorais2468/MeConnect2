@@ -1,0 +1,97 @@
+/* ============================================================
+   Wishes: a celebration page. A banner with drifting confetti and
+   three counts; today's people as greeting cards with a big green
+   Send wishes button (a swipeable strip on phones); the next 30 days
+   as a dated timeline behind one "Coming up" bar.
+   Birthdays are amber, anniversaries violet (--wc).
+   ============================================================ */
+.wx { --gap: var(--s-5); }
+.wx > .lsearch { margin-bottom: var(--s-5); }
+.wx-card--bday, .wx-row--bday { --wc: 249, 115, 22; }
+.wx-card--ann, .wx-row--ann { --wc: 139, 92, 246; }
+
+/* ---------- banner ---------- */
+.wx-hero { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: var(--s-5); padding: 28px 28px 24px; overflow: hidden; isolation: isolate; color: #fff; border-radius: 28px;
+  background: radial-gradient(460px 240px at 92% 0%, rgba(251, 146, 60, 0.5) 0%, rgba(251, 146, 60, 0) 70%), radial-gradient(380px 220px at 0% 110%, rgba(217, 70, 239, 0.32) 0%, rgba(217, 70, 239, 0) 70%), linear-gradient(160deg, var(--hero-a), var(--hero-b));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 28px 50px -28px rgba(249, 115, 22, 0.6); }
+.wx-hero__icon { display: grid; place-items: center; width: 54px; height: 54px; margin-bottom: 8px; border-radius: 18px; color: #fff; background: linear-gradient(145deg, #FDB022, #F04438 80%, #D946EF); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 14px 26px -10px rgba(240, 68, 56, 0.9); }
+.wx-hero__date { font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.04em; color: #FEC84B; }
+.wx-hero h1 { font-family: var(--font-brand); font-size: clamp(2rem, 6vw, 2.8rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; background: linear-gradient(100deg, #fff 30%, #FED7AA 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.wx-hero__sub { font-size: 0.9375rem; color: #98A2B3; }
+.wx-hero__stats { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-4); }
+.wx-hero__stats span { display: inline-flex; align-items: baseline; gap: 6px; height: 34px; align-items: center; padding: 0 14px; border-radius: 999px; background: rgba(255, 255, 255, 0.07); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14); font-size: 0.8125rem; color: #E4E7EC; }
+.wx-hero__stats b { font-family: var(--font-brand); font-size: 1.05rem; font-weight: 800; color: #fff; }
+.wx-confetti { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.wx-confetti i { position: absolute; left: var(--x); top: var(--y); width: var(--s); height: calc(var(--s) * 0.5); border-radius: 2px; opacity: 0.75; background: #FEC84B; animation: wxDrift 7s ease-in-out var(--d) infinite alternate; }
+.wx-confetti i[style*='--k: 1'] { background: #F97066; }
+.wx-confetti i[style*='--k: 2'] { background: #84ADFF; border-radius: 50%; height: var(--s); }
+.wx-confetti i[style*='--k: 3'] { background: #6CE9A6; }
+@keyframes wxDrift { from { transform: translate3d(0, 0, 0) rotate(0deg); } to { transform: translate3d(10px, 16px, 0) rotate(160deg); } }
+
+/* ---------- section headings ---------- */
+.wx-sect { margin-top: var(--s-6); }
+.wx-sect__title { display: flex; align-items: baseline; gap: var(--s-3); margin-bottom: var(--s-4); font-family: var(--font-brand); font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em; }
+.wx-sect__title::before { content: ''; align-self: center; width: 4px; height: 1.1em; border-radius: 2px; background: linear-gradient(180deg, #FDB022, #F04438); box-shadow: 0 0 12px rgba(240, 68, 56, 0.55); }
+.wx-sect__title span { font-family: var(--font); font-size: 0.8125rem; font-weight: 500; color: var(--ink-mute); }
+
+/* ---------- today: greeting cards ---------- */
+.wx-today { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: var(--s-4); }
+.wx-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--s-4); padding: 22px var(--s-4) var(--s-4); overflow: hidden; isolation: isolate; text-align: center; border: 1px solid transparent; border-radius: 26px;
+  background: radial-gradient(240px 190px at 50% 0%, rgba(var(--wc), 0.3), transparent 70%) padding-box, radial-gradient(rgba(var(--wc), 0.2) 1px, transparent 1.5px) 0 0 / 14px 14px padding-box, linear-gradient(var(--card), var(--card)) padding-box, linear-gradient(160deg, rgba(var(--wc), 0.85), rgba(255, 255, 255, 0.06) 45%, rgba(var(--wc), 0.35)) border-box;
+  box-shadow: var(--shadow-1), 0 24px 40px -28px rgba(var(--wc), 0.8); transition: transform 0.28s var(--ease), box-shadow 0.28s; }
+.wx-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md), 0 30px 46px -26px rgba(var(--wc), 1); }
+.wx-card__kind { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 12px; border-radius: 999px; background: rgba(var(--wc), 0.14); box-shadow: inset 0 0 0 1px rgba(var(--wc), 0.35); color: color-mix(in srgb, rgb(var(--wc)) 72%, var(--ink)); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.wx-card__who { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; max-width: 100%; color: inherit; }
+.wx-card__photo { display: grid; place-items: center; margin-bottom: var(--s-2); padding: 5px; border-radius: 50%; background: conic-gradient(from 200deg, rgb(var(--wc)), rgba(255, 255, 255, 0.5), rgba(var(--wc), 0.7), rgb(var(--wc))); box-shadow: 0 0 0 7px rgba(var(--wc), 0.14), 0 20px 32px -12px rgba(var(--wc), 0.85); }
+.wx-card__photo .avatar-img, .wx-card__photo .glyph { border: 3px solid var(--card); box-shadow: none; }
+.wx-card__who b { max-width: 100%; overflow: hidden; font-family: var(--font-brand); font-size: 1.1rem; font-weight: 800; letter-spacing: -0.01em; color: var(--ink); text-overflow: ellipsis; white-space: nowrap; }
+.wx-card__who small { max-width: 100%; overflow: hidden; font-size: 0.8125rem; color: var(--ink-mute); text-overflow: ellipsis; white-space: nowrap; }
+.wx-card__send { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 48px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 16px; font-size: 0.9rem; font-weight: 700; color: #fff;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.32) 50%, transparent 65%) 130% 0 / 250% 100% no-repeat, linear-gradient(160deg, #2EE27A, #0E8C6A);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 14px 24px -12px rgba(18, 140, 126, 0.9); transition: transform 0.2s var(--ease), background-position 0.7s var(--ease); }
+.wx-card__send:hover { transform: translateY(-2px); background-position: -40% 0, 0 0; }
+.wx-quiet { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: var(--s-7) var(--s-5); text-align: center; border: 1px dashed var(--rule-input); border-radius: 24px; color: var(--ink-mute); }
+.wx-quiet svg { color: #FDB022; margin-bottom: 4px; }
+.wx-quiet b { color: var(--ink); font-size: 1rem; }
+
+/* ---------- coming up ---------- */
+.wx-more { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); width: 100%; padding: var(--s-4) var(--s-5); text-align: left; border: 1px solid transparent; border-radius: 22px; color: var(--ink);
+  background: linear-gradient(var(--card), var(--card)) padding-box, var(--edge) border-box; box-shadow: var(--shadow-1); transition: transform 0.25s var(--ease), box-shadow 0.25s; }
+.wx-more:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.wx-more span { display: flex; flex-direction: column; gap: 2px; }
+.wx-more b { font-family: var(--font-brand); font-size: 1.05rem; font-weight: 800; }
+.wx-more small { font-size: 0.8125rem; color: var(--ink-mute); }
+.wx-more svg { flex-shrink: 0; color: var(--acc-hi); transition: transform 0.35s var(--ease); }
+.wx-more.is-open svg { transform: rotate(180deg); }
+.wx-line { margin: var(--s-5) 0 0; padding: 0; list-style: none; }
+.wx-day { position: relative; display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: var(--s-4); padding-bottom: var(--s-4); animation: wxIn 0.4s var(--ease) both; }
+.wx-day::before { content: ''; position: absolute; left: 37px; top: 92px; bottom: 2px; width: 2px; border-radius: 1px; background: linear-gradient(180deg, var(--rule-input), transparent); }
+.wx-day:last-child::before { display: none; }
+.wx-day__date { display: flex; flex-direction: column; align-items: center; align-self: start; gap: 1px; padding: 10px 0 9px; border: 1px solid var(--rule); border-radius: 18px; background: var(--card); box-shadow: var(--shadow-1); }
+.wx-day__date b { font-family: var(--font-brand); font-size: 1.55rem; font-weight: 800; line-height: 1.1; color: var(--ink); }
+.wx-day__date small { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-mute); }
+.wx-day__date em { margin-top: 3px; font-size: 0.64rem; font-style: normal; font-weight: 700; color: var(--acc-hi); }
+.wx-day__list { display: flex; flex-direction: column; gap: var(--s-2); list-style: none; margin: 0; padding: 0; min-width: 0; }
+.wx-row { display: flex; align-items: center; gap: var(--s-3); padding: 10px 14px; border: 1px solid var(--rule); border-radius: 18px; background: var(--card); box-shadow: var(--shadow-xs); color: inherit; transition: transform 0.22s var(--ease), border-color var(--t-fast), box-shadow 0.22s; }
+.wx-row:hover { transform: translateX(4px); border-color: rgba(var(--wc), 0.55); box-shadow: 0 14px 24px -16px rgba(var(--wc), 0.8); }
+.wx-row__who { display: flex; flex: 1; flex-direction: column; min-width: 0; line-height: 1.3; }
+.wx-row__who b { overflow: hidden; font-size: 0.95rem; font-weight: 650; color: var(--ink); text-overflow: ellipsis; white-space: nowrap; }
+.wx-row__who small { overflow: hidden; font-size: 0.78rem; color: var(--ink-mute); text-overflow: ellipsis; white-space: nowrap; }
+.wx-row__ico { display: grid; place-items: center; flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; background: rgba(var(--wc), 0.15); box-shadow: inset 0 0 0 1px rgba(var(--wc), 0.3); color: color-mix(in srgb, rgb(var(--wc)) 78%, var(--ink)); }
+@keyframes wxIn { from { opacity: 0; transform: translateY(8px); } }
+
+/* ---------- phones: the hero tightens, today becomes a swipeable strip ---------- */
+@media (max-width: 720px) {
+  .wx-hero { padding: 22px 20px 20px; border-radius: 24px; }
+  .wx-hero__icon { width: 46px; height: 46px; border-radius: 16px; }
+  .wx-hero__stats span { height: 32px; padding: 0 12px; font-size: 0.78rem; }
+  .wx-today { display: flex; gap: var(--s-3); margin: 0 calc(var(--gutter) * -1); padding: 4px var(--gutter) 14px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); scrollbar-width: none; }
+  .wx-today::-webkit-scrollbar { display: none; }
+  .wx-today > .wx-card { flex: 0 0 78%; scroll-snap-align: start; }
+  .wx-today:has(> :only-child) > .wx-card { flex-basis: 100%; }
+  .wx-day { grid-template-columns: 62px minmax(0, 1fr); gap: var(--s-3); }
+  .wx-day::before { left: 30px; top: 84px; }
+  .wx-day__date b { font-size: 1.35rem; }
+}
+@media (prefers-reduced-motion: reduce) { .wx-confetti i, .wx-day { animation: none; } }
+html[data-perf='low'] .wx-confetti { display: none; }

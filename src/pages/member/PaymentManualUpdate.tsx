@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, Check, HandCoins, Search, X } from 'lucide-react'
+import { Check, HandCoins, Search, X } from 'lucide-react'
+import CpHero, { Nums } from '../../components/CpHero'
 import HeadSelect from '../../components/HeadSelect'
-import { Avatar, Field, FieldGroup, PageHead, Sheet } from '../../components/ui'
+import { Avatar, Field, FieldGroup } from '../../components/ui'
 import { useAuth } from '../../lib/auth'
 import { byDueDate, dayOf, remainingOnRequest } from '../../lib/dues'
 import { headsOf } from '../../lib/heads'
@@ -126,70 +126,79 @@ export default function PaymentManualUpdate() {
     resetForm()
   }
 
+  /* what the receipt on the right shows while the form is filled in */
+  const slipAmount = manual || allMode ? Number(amount) || 0 : (picked?.amount ?? 0)
+  const slipFor = manual ? (incomeHeads.find((h) => h.id === headId)?.name ?? '') : picked ? kindOf(picked) : ''
+  const slipRef = method === 'UPI' ? txnId : method === 'Cheque' ? chequeNo : ''
+
   return (
-    <div className="page">
-      <PageHead
-        eyebrow={`${chapter.name} · ${member.designation}`}
-        icon={HandCoins}
-        tone="green"
-        title="Payment Manual Update"
-        subtitle="Record a cheque, cash or UPI payment you have received: against a member's pending dues, or for an income head."
-        actions={
-          <Link className="btn btn--line btn--sm" to="/payments">
-            <ArrowLeft size={16} /> Manage Payments
-          </Link>
-        }
-      />
+    <div className="page pm">
+      <CpHero className="pm-hero" icon={HandCoins} eyebrow={`${chapter.name} · ${member.designation}`} title="Payment Manual Update" sub="Record a cheque, cash or UPI payment you have received: against a member's pending dues, or for an income head." back={{ to: '/payments', label: 'Manage Payments' }}>
+        <Nums
+          items={[
+            [members.length, 'members'],
+            [modes.length, 'modes of pay'],
+          ]}
+        />
+      </CpHero>
 
-      <div className="att">
-        <Sheet icon={Check} tone="green" title="Manual Payment Update">
-          <form className="form-stack" onSubmit={submit} noValidate>
-            <FieldGroup label="Member" required>
-              {chosen ? (
-                <div className="pick__chosen">
-                  <Avatar name={chosen.name} photo={chosen.photo} size={38} />
-                  <span>
-                    <b>{chosen.name}</b>
-                    <small>
-                      {chapterName(chosen.chapterId)} · {chosen.mobile}
-                    </small>
-                  </span>
-                  <button type="button" className="iconbtn" onClick={clearMember} aria-label="Choose a different member">
-                    <X size={16} />
-                  </button>
-                </div>
-              ) : (
-                <div className="pick">
-                  <div className="pick__bar">
-                    <label className="pick__search">
-                      <Search size={16} />
-                      <input value={find} onChange={(e) => setFind(e.target.value)} placeholder="Search any member by name or mobile" aria-label="Search members" />
-                    </label>
+      <div className="pm-body">
+        <form className="pm-form" onSubmit={submit} noValidate>
+          <section className="pm-step">
+            <span className="pm-step__n" aria-hidden>1</span>
+            <div className="pm-step__body">
+              <h2>Who paid?</h2>
+              <FieldGroup label="Member" required>
+                {chosen ? (
+                  <div className="pick__chosen">
+                    <Avatar name={chosen.name} photo={chosen.photo} size={38} />
+                    <span>
+                      <b>{chosen.name}</b>
+                      <small>
+                        {chapterName(chosen.chapterId)} · {chosen.mobile}
+                      </small>
+                    </span>
+                    <button type="button" className="iconbtn" onClick={clearMember} aria-label="Choose a different member">
+                      <X size={16} />
+                    </button>
                   </div>
-                  {f && (
-                    <ul className="pick__list">
-                      {matches.length === 0 && <li className="pick__none">No member matches “{find}”.</li>}
-                      {matches.map((m) => (
-                        <li key={m.id}>
-                          <button type="button" className="pick__row" onClick={() => chooseMember(m.id)}>
-                            <Avatar name={m.name} photo={m.photo} size={34} />
-                            <span className="pick__who">
-                              <b>{m.name}</b>
-                              <small>
-                                {chapterName(m.chapterId)} · {m.mobile}
-                              </small>
-                            </span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )}
-            </FieldGroup>
+                ) : (
+                  <div className="pick">
+                    <div className="pick__bar">
+                      <label className="pick__search">
+                        <Search size={16} />
+                        <input value={find} onChange={(e) => setFind(e.target.value)} placeholder="Search any member by name or mobile" aria-label="Search members" />
+                      </label>
+                    </div>
+                    {f && (
+                      <ul className="pick__list">
+                        {matches.length === 0 && <li className="pick__none">No member matches “{find}”.</li>}
+                        {matches.map((m) => (
+                          <li key={m.id}>
+                            <button type="button" className="pick__row" onClick={() => chooseMember(m.id)}>
+                              <Avatar name={m.name} photo={m.photo} size={34} />
+                              <span className="pick__who">
+                                <b>{m.name}</b>
+                                <small>
+                                  {chapterName(m.chapterId)} · {m.mobile}
+                                </small>
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+              </FieldGroup>
+            </div>
+          </section>
 
-            {chosen && (
-              <>
+          {chosen && (
+            <section className="pm-step">
+              <span className="pm-step__n" aria-hidden>2</span>
+              <div className="pm-step__body">
+                <h2>What was it for?</h2>
                 <FieldGroup label="Payment type">
                   <div className="seg" role="radiogroup" aria-label="Payment type">
                     <button type="button" role="radio" aria-checked={!manual} aria-pressed={!manual} onClick={() => chooseKind(false)}>
@@ -206,7 +215,7 @@ export default function PaymentManualUpdate() {
                     <Field label="Income head" required error={errors.headId}>
                       <HeadSelect value={headId} onChange={setHeadId} placeholder="Select income head" options={incomeHeads.map((h) => ({ id: h.id, name: h.name, kind: h.headType }))} />
                     </Field>
-                    <div className="form-grid">
+                    <div className="pm-grid">
                       <Field label="Amount received (₹)" required error={errors.amount}>
                         <input className="field__control" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ''))} autoComplete="off" />
                       </Field>
@@ -240,73 +249,110 @@ export default function PaymentManualUpdate() {
                   </FieldGroup>
                 )}
 
-                {(manual || owed.length > 0) && (
+                {!manual && restCount > 1 && (
                   <>
-                    {!manual && restCount > 1 && (
-                      <>
-                        <label className="check">
-                          <input
-                            type="checkbox"
-                            checked={payAll}
-                            onChange={(e) => {
-                              setPayAll(e.target.checked)
-                              setAmount(e.target.checked ? String(restTotal) : '')
-                              setErrors({})
-                            }}
-                          />{' '}
-                          Pay all remaining dues of this request ({restCount} dues, {inr(restTotal)})
-                        </label>
-                        {allMode && (
-                          <Field label="Amount received (₹)" required hint={`Must equal the total of the ${restCount} remaining dues: ${inr(restTotal)}${left && left.coming.length > 0 ? `. ${left.coming.length} of them are not due yet; their invoices are made now, already paid.` : ''}`} error={errors.amount}>
-                            <input className="field__control" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ''))} autoComplete="off" />
-                          </Field>
-                        )}
-                      </>
+                    <label className="check">
+                      <input
+                        type="checkbox"
+                        checked={payAll}
+                        onChange={(e) => {
+                          setPayAll(e.target.checked)
+                          setAmount(e.target.checked ? String(restTotal) : '')
+                          setErrors({})
+                        }}
+                      />{' '}
+                      Pay all remaining dues of this request ({restCount} dues, {inr(restTotal)})
+                    </label>
+                    {allMode && (
+                      <Field label="Amount received (₹)" required hint={`Must equal the total of the ${restCount} remaining dues: ${inr(restTotal)}${left && left.coming.length > 0 ? `. ${left.coming.length} of them are not due yet; their invoices are made now, already paid.` : ''}`} error={errors.amount}>
+                        <input className="field__control" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ''))} autoComplete="off" />
+                      </Field>
                     )}
-
-                    <FieldGroup label="Mode of payment" required>
-                      <div className="seg" role="radiogroup" aria-label="Mode of payment">
-                        {modes.map((m) => (
-                          <button key={m} type="button" role="radio" aria-checked={activeMode === m} aria-pressed={activeMode === m} onClick={() => setModeName(m)}>
-                            {m}
-                          </button>
-                        ))}
-                      </div>
-                    </FieldGroup>
-
-                    {method === 'UPI' && (
-                      <div className="form-grid">
-                        <Field label="Transaction ID" required error={errors.txnId}>
-                          <input className="field__control" value={txnId} onChange={(e) => setTxnId(e.target.value.replace(/\s/g, ''))} autoComplete="off" />
-                        </Field>
-                        <Field label="Transaction date" required error={errors.txnDate}>
-                          <input className="field__control" type="date" max={today} value={txnDate || today} onChange={(e) => setTxnDate(e.target.value)} />
-                        </Field>
-                      </div>
-                    )}
-                    {method === 'Cheque' && (
-                      <div className="form-grid">
-                        <Field label="Cheque number" required error={errors.chequeNo}>
-                          <input className="field__control" inputMode="numeric" value={chequeNo} onChange={(e) => setChequeNo(e.target.value.replace(/\D/g, ''))} autoComplete="off" />
-                        </Field>
-                        <Field label="Cheque date" required error={errors.chequeDate}>
-                          <input className="field__control" type="date" value={chequeDate || today} onChange={(e) => setChequeDate(e.target.value)} />
-                        </Field>
-                      </div>
-                    )}
-
-                    {errors.form && <div className="form-error">{errors.form}</div>}
-                    <div>
-                      <button className="btn btn--primary" type="submit" disabled={saving}>
-                        <Check size={16} /> Save payment
-                      </button>
-                    </div>
                   </>
                 )}
-              </>
-            )}
-          </form>
-        </Sheet>
+              </div>
+            </section>
+          )}
+
+          {chosen && (manual || owed.length > 0) && (
+            <section className="pm-step">
+              <span className="pm-step__n" aria-hidden>3</span>
+              <div className="pm-step__body">
+                <h2>How was it paid?</h2>
+                <FieldGroup label="Mode of payment" required>
+                  <div className="seg" role="radiogroup" aria-label="Mode of payment">
+                    {modes.map((m) => (
+                      <button key={m} type="button" role="radio" aria-checked={activeMode === m} aria-pressed={activeMode === m} onClick={() => setModeName(m)}>
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                </FieldGroup>
+
+                {method === 'UPI' && (
+                  <div className="pm-grid">
+                    <Field label="Transaction ID" required error={errors.txnId}>
+                      <input className="field__control" value={txnId} onChange={(e) => setTxnId(e.target.value.replace(/\s/g, ''))} autoComplete="off" />
+                    </Field>
+                    <Field label="Transaction date" required error={errors.txnDate}>
+                      <input className="field__control" type="date" max={today} value={txnDate || today} onChange={(e) => setTxnDate(e.target.value)} />
+                    </Field>
+                  </div>
+                )}
+                {method === 'Cheque' && (
+                  <div className="pm-grid">
+                    <Field label="Cheque number" required error={errors.chequeNo}>
+                      <input className="field__control" inputMode="numeric" value={chequeNo} onChange={(e) => setChequeNo(e.target.value.replace(/\D/g, ''))} autoComplete="off" />
+                    </Field>
+                    <Field label="Cheque date" required error={errors.chequeDate}>
+                      <input className="field__control" type="date" value={chequeDate || today} onChange={(e) => setChequeDate(e.target.value)} />
+                    </Field>
+                  </div>
+                )}
+
+                {errors.form && <div className="form-error">{errors.form}</div>}
+                <button className="cp-btn pm-save" type="submit" disabled={saving}>
+                  <Check size={16} /> Save payment
+                </button>
+              </div>
+            </section>
+          )}
+        </form>
+
+        {/* the receipt, written as the form is filled in */}
+        <aside className="pm-slip" aria-label="Receipt preview">
+          <p className="pm-slip__label">Receipt preview</p>
+          <div className="pm-slip__paper">
+            <div className="pm-slip__amt">
+              <small>Amount received</small>
+              <b>{slipAmount > 0 ? inr(slipAmount) : '₹ —'}</b>
+            </div>
+            <dl>
+              <div>
+                <dt>From</dt>
+                <dd>{chosen ? chosen.name : 'Choose a member'}</dd>
+              </div>
+              <div>
+                <dt>For</dt>
+                <dd>{slipFor || '—'}</dd>
+              </div>
+              <div>
+                <dt>Mode</dt>
+                <dd>{chosen ? activeMode || '—' : '—'}</dd>
+              </div>
+              {slipRef && (
+                <div>
+                  <dt>{method === 'UPI' ? 'Txn ID' : 'Cheque no.'}</dt>
+                  <dd>{slipRef}</dd>
+                </div>
+              )}
+              <div>
+                <dt>Chapter</dt>
+                <dd>{chapter.name}</dd>
+              </div>
+            </dl>
+          </div>
+        </aside>
       </div>
     </div>
   )

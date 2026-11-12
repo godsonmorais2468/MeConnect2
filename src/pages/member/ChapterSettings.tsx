@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { ListChecks, Settings as SettingsIcon } from 'lucide-react'
-import { PageHead, Sheet, Toggle } from '../../components/ui'
+import { CalendarDays, Check, ListChecks, Settings as SettingsIcon } from 'lucide-react'
+import CpHero from '../../components/CpHero'
+import { Toggle } from '../../components/ui'
 import { useAuth } from '../../lib/auth'
 import { setDueList, useDB } from '../../lib/store'
 import { useToast } from '../../lib/toast'
@@ -11,7 +12,7 @@ const CHOICES: { value: DueListMode; label: string; hint: string }[] = [
   { value: 'due_date', label: 'Due Date', hint: 'A member joins the Due List once the due date set on the payment request has passed.' },
 ]
 
-/** The chapter's settings, changed by its head table. */
+/** The chapter's settings, changed by its head table. One switch, and a choice that opens under it. */
 export default function ChapterSettings() {
   const { member, chapter } = useAuth()
   const db = useDB()
@@ -33,43 +34,40 @@ export default function ChapterSettings() {
   }
 
   return (
-    <div className="page">
-      <PageHead
-        eyebrow={`${chapter.name} · ${member.designation}`}
-        icon={SettingsIcon}
-        tone="steel"
-        title="Settings"
-        subtitle="Settings for your chapter."
-      />
+    <div className="page st">
+      <CpHero className="st-hero" icon={SettingsIcon} eyebrow={`${chapter.name} · ${member.designation}`} title="Settings" sub="Settings for your chapter." />
 
-      <Sheet icon={ListChecks} tone="gold" title="Chapter Dues" note={enabled ? 'On' : 'Off'}>
-        <div className="form-stack">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '6px 2px' }}>
-            <span style={{ fontWeight: 500, fontSize: '14.5px' }}>Chapter Dues</span>
-            <Toggle checked={enabled} onChange={(on) => void save(on, mode)} label="Chapter Dues on or off" />
+      <section className={`st-card${enabled ? ' is-on' : ''}`}>
+        <div className="st-card__top">
+          <span className="st-card__ico">
+            <ListChecks size={24} />
+          </span>
+          <div className="st-card__txt">
+            <h2>Chapter Dues</h2>
+            <p>{enabled ? 'Members with unpaid requests appear on the Due List.' : 'The Due List is hidden from members.'}</p>
           </div>
+          <Toggle checked={enabled} onChange={(on) => void save(on, mode)} label="Chapter Dues on or off" />
+        </div>
 
-          {enabled && (
-            <div className="rchoices" role="radiogroup" aria-label="Chapter Dues">
+        <div className="st-reveal" data-open={enabled} inert={!enabled}>
+          <div className="st-reveal__in">
+            <p className="st-label">
+              <CalendarDays size={15} /> When does a member join the Due List?
+            </p>
+            <div className="st-choices" role="radiogroup" aria-label="Chapter Dues">
               {CHOICES.map((c) => (
-                <button
-                  key={c.value}
-                  type="button"
-                  role="radio"
-                  aria-checked={mode === c.value}
-                  className={`rchoice ${mode === c.value ? 'is-on' : ''}`}
-                  onClick={() => void save(true, c.value)}
-                  disabled={saving}
-                >
-                  <span className="rchoice__dot" aria-hidden />
-                  {c.label}
+                <button key={c.value} type="button" role="radio" aria-checked={mode === c.value} className={`st-choice${mode === c.value ? ' is-on' : ''}`} onClick={() => void save(true, c.value)} disabled={saving}>
+                  <span className="st-choice__tick" aria-hidden>
+                    <Check size={14} strokeWidth={3} />
+                  </span>
+                  <b>{c.label}</b>
+                  <small>{c.hint}</small>
                 </button>
               ))}
             </div>
-          )}
-          {enabled && <p className="field__hint">{CHOICES.find((c) => c.value === mode)?.hint}</p>}
+          </div>
         </div>
-      </Sheet>
+      </section>
     </div>
   )
 }

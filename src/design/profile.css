@@ -1,0 +1,125 @@
+/* ============================================================
+   Profile: an ID badge, then a guided form.
+   A dark banner with your photo inside a progress ring, a row of
+   "still to add" chips that jump to the right section, a rail of
+   numbered steps (a strip on phones) that lights up as you scroll,
+   and four step cards. A glass save bar floats at the bottom with
+   a live completion meter.
+   ============================================================ */
+.page.pfx { max-width: 1020px; }
+
+/* ---------- banner ---------- */
+.pfx-hero { position: relative; display: flex; align-items: center; gap: var(--s-6); margin-bottom: var(--s-4); padding: 28px 32px; overflow: hidden; isolation: isolate; color: #fff; border-radius: 30px;
+  background: radial-gradient(460px 260px at 100% 0%, rgba(var(--acc-glow-rgb), 0.55) 0%, rgba(var(--acc-glow-rgb), 0) 70%), radial-gradient(340px 200px at 0% 110%, rgba(var(--acc-hi-rgb), 0.18) 0%, rgba(var(--acc-hi-rgb), 0) 70%), radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1.5px) 0 0 / 18px 18px, linear-gradient(160deg, var(--hero-a), var(--hero-b));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 28px 50px -28px rgba(var(--acc-glow-rgb), 0.7); }
+.pfx-id { position: relative; flex-shrink: 0; width: 152px; height: 152px; display: grid; place-items: center; }
+.pfx-id__ring { position: absolute; inset: 0; overflow: visible; }
+.pfx-id__bg { stroke: rgba(255, 255, 255, 0.14); }
+.pfx-id__fg { stroke: var(--on-dark-hi); filter: drop-shadow(0 0 8px rgba(var(--acc-rgb), 0.85)); transition: stroke-dashoffset 0.8s var(--ease); }
+.pfx-id__photo { display: grid; place-items: center; width: 116px; height: 116px; overflow: hidden; border-radius: 50%; box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1), 0 18px 30px -12px rgba(0, 0, 0, 0.6); }
+.pfx-id__photo .avatar-img { width: 116px; height: 116px; object-fit: cover; }
+.pfx-id__pct { position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); display: grid; place-items: center; height: 28px; padding: 0 12px; border-radius: 999px; background: linear-gradient(160deg, var(--acc-a), var(--acc-b)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 8px 16px -6px rgba(var(--acc-glow-rgb), 0.95), 0 0 0 3px var(--hero-b); font-family: var(--font-brand); font-size: 0.8rem; font-weight: 800; letter-spacing: 0.02em; }
+.pfx-who { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; flex: 1; }
+.pfx-who__eyebrow { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--on-dark-hi); }
+.pfx-who h1 { font-family: var(--font-brand); font-size: clamp(1.7rem, 5vw, 2.5rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1.12; overflow-wrap: anywhere; background: linear-gradient(100deg, #fff 30%, var(--on-dark-hi2) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.pfx-who__role { font-size: 1rem; font-weight: 600; color: #DCE3EE; overflow-wrap: anywhere; }
+.pfx-who__meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.875rem; color: #B7C0CE; }
+.pfx-who__meta i { width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: 0.6; }
+.pfx-who__sub { margin-top: 6px; max-width: 46ch; font-size: 0.875rem; color: #98A2B3; }
+.pfx-skip { align-self: flex-start; flex-shrink: 0; height: 40px; padding: 0 18px; border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 999px; background: rgba(255, 255, 255, 0.08); font-size: 0.8125rem; font-weight: 650; color: #fff; transition: background var(--t-fast), transform 0.2s var(--ease); }
+.pfx-skip:hover { background: rgba(255, 255, 255, 0.16); transform: translateY(-1px); }
+
+/* ---------- still to add ---------- */
+.pfx-todo { display: flex; align-items: center; gap: var(--s-3); margin-bottom: var(--s-5); padding: 10px 12px 10px 16px; border: 1px solid var(--rule); border-radius: 20px; background: var(--card); box-shadow: var(--shadow-1); }
+.pfx-todo__lead { display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0; font-size: 0.8125rem; font-weight: 750; letter-spacing: 0.04em; text-transform: uppercase; color: var(--acc-hi); }
+.pfx-todo__lead--done { text-transform: none; letter-spacing: 0; font-size: 0.9rem; color: #17b26a; }
+.pfx-todo ul { display: flex; gap: 6px; margin: 0; padding: 0; overflow-x: auto; list-style: none; scrollbar-width: none; mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); }
+.pfx-todo ul::-webkit-scrollbar { display: none; }
+.pfx-todo li { flex-shrink: 0; }
+.pfx-todo li button { height: 32px; padding: 0 13px; border: 1px dashed rgba(var(--acc-rgb), 0.55); border-radius: 999px; background: rgba(var(--acc-rgb), 0.08); font-size: 0.78rem; font-weight: 650; color: var(--ink); white-space: nowrap; transition: background var(--t-fast), transform 0.2s var(--ease); }
+.pfx-todo li button::before { content: '+'; margin-right: 6px; font-weight: 800; color: var(--acc-hi); }
+.pfx-todo li button:hover { background: rgba(var(--acc-rgb), 0.18); transform: translateY(-1px); }
+
+/* ---------- rail + form ---------- */
+.pfx-body { display: grid; grid-template-columns: 238px minmax(0, 1fr); gap: var(--s-6); align-items: start; }
+.pfx-rail { position: sticky; top: calc(var(--mast-h) + 16px); display: flex; flex-direction: column; gap: 4px; padding: 8px; border: 1px solid var(--rule); border-radius: 22px; background: var(--card); box-shadow: var(--shadow-1); }
+.pfx-rail button { position: relative; display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 12px 0 10px; border: 0; border-radius: 15px; background: transparent; text-align: left; font-size: 0.875rem; font-weight: 650; color: var(--ink-mute); transition: color var(--t-fast), background var(--t-fast); }
+.pfx-rail button:hover { color: var(--ink); background: rgba(var(--acc-rgb), 0.08); }
+.pfx-rail button span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pfx-rail button i { display: grid; place-items: center; flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; background: var(--tile-3); box-shadow: inset 0 0 0 1px var(--rule-input); font-size: 0.75rem; font-style: normal; font-weight: 800; color: var(--ink-mute); transition: background var(--t-fast), color var(--t-fast), box-shadow var(--t-fast); }
+.pfx-rail button small { font-size: 0.72rem; font-weight: 700; color: var(--ink-mute); }
+.pfx-rail button.is-full i { color: #fff; background: #17b26a; box-shadow: none; }
+.pfx-rail button.is-on { color: var(--ink); background: linear-gradient(90deg, rgba(var(--acc-rgb), 0.2), rgba(var(--acc-rgb), 0.05)); box-shadow: inset 0 0 0 1px rgba(var(--acc-hi-rgb), 0.5); }
+.pfx-rail button.is-on:not(.is-full) i { color: #fff; background: linear-gradient(160deg, var(--acc-a), var(--acc-b)); box-shadow: 0 6px 12px -6px rgba(var(--acc-glow-rgb), 0.95); }
+
+.pfx-form { display: flex; flex-direction: column; gap: var(--s-5); min-width: 0; }
+
+/* ---------- step cards ---------- */
+.pfx-step { position: relative; scroll-margin-top: calc(var(--mast-h) + 16px); padding: var(--s-6); overflow: hidden; isolation: isolate; border: 1px solid transparent; border-radius: 26px;
+  background: radial-gradient(360px 180px at 100% 0%, rgba(var(--acc-rgb), 0.12), transparent 70%) padding-box, linear-gradient(var(--card), var(--card)) padding-box, linear-gradient(150deg, rgba(var(--acc-rgb), 0.5), rgba(255, 255, 255, 0.06) 40%, rgba(var(--acc-rgb), 0.22)) border-box;
+  box-shadow: var(--shadow-1); }
+:root[data-mode='light'] .pfx-step { background: radial-gradient(360px 180px at 100% 0%, rgba(var(--acc-rgb), 0.09), transparent 70%) padding-box, linear-gradient(#fff, #fff) padding-box, linear-gradient(150deg, rgba(var(--acc-rgb), 0.5), rgba(16, 24, 40, 0.07) 40%, rgba(var(--acc-rgb), 0.22)) border-box; }
+.pfx-step__head { display: flex; align-items: center; gap: var(--s-4); margin-bottom: var(--s-5); padding-bottom: var(--s-4); border-bottom: 1px dashed var(--rule-input); }
+.pfx-step__ico { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; border-radius: 15px; color: #fff; background: linear-gradient(145deg, var(--acc-a2), var(--acc-b2)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 12px 22px -10px rgba(var(--acc-glow-rgb), 0.95); }
+.pfx-step__head > div { flex: 1; min-width: 0; }
+.pfx-step__head h2 { font-family: var(--font-brand); font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em; color: var(--ink); }
+.pfx-step__head p { margin-top: 2px; font-size: 0.8125rem; color: var(--ink-mute); }
+.pfx-step__count { flex-shrink: 0; display: grid; place-items: center; height: 28px; padding: 0 11px; border-radius: 999px; background: rgba(var(--acc-rgb), 0.14); box-shadow: inset 0 0 0 1px rgba(var(--acc-rgb), 0.4); font-size: 0.75rem; font-weight: 800; color: var(--acc-hi); }
+.pfx-step__count.is-full { background: rgba(23, 178, 106, 0.16); box-shadow: inset 0 0 0 1px rgba(23, 178, 106, 0.5); color: #17b26a; }
+.pfx-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-4) var(--s-5); align-items: start; }
+.pfx-wide { grid-column: 1 / -1; }
+
+/* fields inside the cards */
+.pfx .field__label { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em; color: var(--ink-3); }
+.pfx .field__control { height: 50px; padding: 0 16px; border: 1px solid var(--rule-input); border-radius: 16px; background: rgba(255, 255, 255, 0.04); font-size: 0.95rem; color: var(--ink); transition: border-color var(--t-fast), box-shadow 0.25s, background var(--t-fast); }
+:root[data-mode='light'] .pfx .field__control { background: var(--tile-2); }
+.pfx .field__control:hover:not(:disabled) { border-color: rgba(var(--acc-rgb), 0.55); }
+.pfx .field__control:focus { outline: 0; border-color: rgba(var(--acc-hi-rgb), 0.9); box-shadow: 0 0 0 4px rgba(var(--acc-rgb), 0.2); }
+.pfx .field__control:disabled { opacity: 0.7; cursor: not-allowed; }
+.pfx .lockwrap svg { color: var(--ink-mute); }
+.pfx .seg { align-self: stretch; padding: 4px; border-radius: 16px; }
+.pfx .seg button { flex: 1; height: 40px; border-radius: 12px; }
+.pfx .photo__preview { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 3px rgba(var(--acc-rgb), 0.5); }
+.pfx .filebox { border-radius: 16px; }
+
+/* ---------- save bar ---------- */
+.pfx-save { position: sticky; bottom: 16px; z-index: 5; margin: var(--s-5) 0 0 calc(238px + var(--s-6)); display: flex; align-items: center; gap: var(--s-3); padding: 10px 10px 10px 18px; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 22px; background: color-mix(in srgb, var(--card) 86%, transparent); -webkit-backdrop-filter: blur(16px) saturate(1.3); backdrop-filter: blur(16px) saturate(1.3); box-shadow: 0 20px 40px -18px rgba(0, 0, 0, 0.55), var(--shadow-1); }
+:root[data-mode='light'] .pfx-save { border-color: rgba(16, 24, 40, 0.1); }
+.pfx-save__meter { flex: 1; height: 8px; overflow: hidden; border-radius: 4px; background: var(--tile-3); box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25); }
+.pfx-save__meter i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--acc-a), var(--on-dark-hi)); box-shadow: 0 0 12px rgba(var(--acc-rgb), 0.7); transition: width 0.6s var(--ease); }
+.pfx-save__txt { flex-shrink: 0; font-size: 0.8125rem; color: var(--ink-mute); }
+.pfx-save__txt b { font-family: var(--font-brand); font-size: 0.95rem; color: var(--ink); }
+.pfx-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0; height: 48px; padding: 0 24px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 16px; font-size: 0.9rem; font-weight: 700; color: #fff;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.32) 50%, transparent 65%) 130% 0 / 250% 100% no-repeat, linear-gradient(160deg, var(--acc-a), var(--acc-b));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 14px 24px -12px rgba(var(--acc-glow-rgb), 0.95); transition: transform 0.2s var(--ease), background-position 0.7s var(--ease), opacity 0.2s; }
+.pfx-btn:hover:not(:disabled) { transform: translateY(-2px); background-position: -40% 0, 0 0; }
+.pfx-btn:disabled { opacity: 0.6; cursor: progress; }
+.pfx-btn--ghost { color: var(--ink-3); border-color: var(--rule-input); background: transparent; box-shadow: none; }
+.pfx-btn--ghost:hover:not(:disabled) { color: var(--ink); background: rgba(var(--acc-rgb), 0.08); }
+
+/* ---------- tablets and phones ---------- */
+@media (max-width: 900px) {
+  .pfx-body { grid-template-columns: minmax(0, 1fr); gap: var(--s-4); }
+  /* no section strip on phones: the cards stack and the "still to add" chips already jump to them */
+  .pfx-rail { display: none; }
+  /* pinned just above the bottom bar, from the first screen */
+  .pfx-save { margin-left: 0; bottom: calc(92px + env(safe-area-inset-bottom)); }
+}
+@media (max-width: 720px) {
+  .pfx-hero { flex-direction: column; align-items: center; gap: var(--s-4); padding: 24px 18px 22px; border-radius: 26px; text-align: center; }
+  .pfx-who { align-items: center; }
+  .pfx-who__meta { justify-content: center; }
+  .pfx-who__sub { max-width: 34ch; }
+  .pfx-skip { align-self: center; }
+  .pfx-todo { flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px 14px; }
+  .pfx-todo ul { width: 100%; }
+  .pfx-step { padding: var(--s-4); border-radius: 22px; }
+  .pfx-step__head { gap: var(--s-3); margin-bottom: var(--s-4); }
+  .pfx-step__ico { width: 40px; height: 40px; border-radius: 14px; }
+  .pfx-grid { grid-template-columns: minmax(0, 1fr); gap: var(--s-4); }
+  .pfx-save { gap: 10px; padding: 8px 8px 8px 14px; border-radius: 20px; }
+  .pfx-save__meter { display: none; }
+  .pfx-save__txt { flex: 1; }
+  .pfx-btn { height: 46px; padding: 0 18px; }
+}
+@media (prefers-reduced-motion: reduce) { .pfx-id__fg, .pfx-save__meter i { transition: none; } }

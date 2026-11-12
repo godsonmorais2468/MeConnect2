@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, CalendarClock, CheckCircle2, Lock, Pencil, Plus, Trash2 } from 'lucide-react'
-import { Field, Glyph, PageHead, Sheet, StatStrip } from '../../components/ui'
+import { CalendarClock, Lock, Pencil, Plus, Trash2 } from 'lucide-react'
+import CpHero, { Fold, NewButton, Nums } from '../../components/CpHero'
+import { Field } from '../../components/ui'
 import { useAuth } from '../../lib/auth'
 import { createFinancialYear, deleteFinancialYear, updateFinancialYear, useDB } from '../../lib/store'
 import { useConfirm } from '../../lib/confirm'
@@ -60,6 +60,8 @@ export default function FinancialYearSettings() {
   const [voucherPrefix, setVoucherPrefix] = useState('VOU')
   const [voucherStartNumber, setVoucherStartNumber] = useState('1')
   const [errors, setErrors] = useState<Record<string, string>>({})
+  /* the form: open when there are no years yet, and shut after that until it is asked for */
+  const [composeOpt, setComposeOpt] = useState<boolean | null>(null)
 
   if (!member || !chapter) return null
 
@@ -113,6 +115,7 @@ export default function FinancialYearSettings() {
     setVoucherPrefix('VOU')
     setVoucherStartNumber('1')
     setErrors({})
+    setComposeOpt(false)
   }
 
   function startEdit(y: FinancialYear) {
@@ -121,6 +124,7 @@ export default function FinancialYearSettings() {
       toast(lockInfo.reason || 'This financial year is locked because records exist.', 'info')
       return
     }
+    setComposeOpt(true)
     setEditing(y.id)
     setTitle(y.title)
     setStartDate(y.startDate)
@@ -194,43 +198,34 @@ export default function FinancialYearSettings() {
 
   const lockedCount = list.filter((y) => isYearInUse(y).inUse).length
 
+  const compose = composeOpt ?? list.length === 0
+  const todayMs = Date.parse(today)
+  /* the years run down a timeline, the latest first */
+  const ordered = [...filtered].sort((a, b) => b.startDate.localeCompare(a.startDate))
+
   return (
-    <div className="page">
-      <PageHead
-        eyebrow={`${chapter.name} · ${member.designation}`}
-        icon={CalendarClock}
-        tone="gold"
-        title="Financial Year Settings"
-        subtitle="Manage fiscal periods, select the active financial year, and configure invoice billing start numbers."
-        actions={
-          <Link className="btn btn--line btn--sm" to="/accounts">
-            <ArrowLeft size={16} /> Accounts
-          </Link>
-        }
-      />
+    <div className="page fy">
+      <CpHero className="fy-hero" icon={CalendarClock} eyebrow={`${chapter.name} · ${member.designation}`} title="Financial Year Settings" sub="Fiscal periods, the active financial year, and the number series for invoices, receipts and vouchers." back={{ to: '/accounts', label: 'Accounts' }}>
+        <div className="cx-side">
+          <Nums
+            items={[
+              [list.length, 'years'],
+              [activeYear?.title || 'Not set', 'current'],
+              [lockedCount, 'locked'],
+            ]}
+          />
+          <NewButton open={compose} label="New year" controls="fy-fold" onClick={() => (compose ? reset() : setComposeOpt(true))} />
+        </div>
+      </CpHero>
 
-      <StatStrip
-        items={[
-          { icon: CalendarClock, tone: 'gold', label: 'Fiscal Years', value: list.length },
-          { icon: CheckCircle2, tone: 'green', label: 'Current Year', value: activeYear?.title || 'Not Set' },
-          { icon: Lock, tone: 'wine', label: 'Locked Years', value: lockedCount },
-        ]}
-      />
-
-      <div className="duo">
-        <Sheet
-          icon={editing ? Pencil : Plus}
-          tone="gold"
-          title={editing ? 'Edit financial year' : 'New financial year'}
-          note={chapter.name}
-        >
-          <form className="form-stack" onSubmit={submit} noValidate>
+      <Fold id="fy-fold" open={compose} label="Financial year form">
+        <form className="cp-form cp-form--stack" onSubmit={submit} noValidate>
+          <h2 className="cp-form__h">
+            {editing ? <Pencil size={17} /> : <Plus size={17} />} {editing ? 'Edit financial year' : 'New financial year'}
+          </h2>
+          <div className="cp-wide">
             <Field label="Financial Year" error={errors.title} required>
-              <select
-                className="field__control"
-                value={title}
-                onChange={(e) => onSelectFY(e.target.value)}
-              >
+              <select className="field__control" value={title} onChange={(e) => onSelectFY(e.target.value)}>
                 <option value="">Select Financial Year</option>
                 {FY_OPTIONS.map((opt) => (
                   <option key={opt} value={opt}>
@@ -239,200 +234,135 @@ export default function FinancialYearSettings() {
                 ))}
               </select>
             </Field>
+          </div>
 
-            <div style={{ padding: '12px 14px', borderRadius: 'var(--radius)', background: 'var(--surface-sunken)', border: '1px solid var(--line)' }}>
-              <div style={{ fontSize: '0.84rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--brand)', marginBottom: 8 }}>
-                Invoice Settings
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                <Field label="Invoice Prefix">
-                  <input
-                    type="text"
-                    className="field__control"
-                    value={invoicePrefix}
-                    onChange={(e) => setInvoicePrefix(e.target.value.toUpperCase())}
-                    placeholder="INV"
-                  />
-                </Field>
-                <Field label="Start Number">
-                  <input
-                    type="number"
-                    min="1"
-                    className="field__control"
-                    value={invoiceStartNumber}
-                    onChange={(e) => setInvoiceStartNumber(e.target.value)}
-                    placeholder="1"
-                  />
-                </Field>
-              </div>
-            </div>
+          {/* three number series, side by side */}
+          <div className="fy-series cp-wide">
+            <fieldset className="fy-series__box fy-series__box--inv">
+              <legend>Invoice</legend>
+              <Field label="Prefix">
+                <input type="text" className="field__control" value={invoicePrefix} onChange={(e) => setInvoicePrefix(e.target.value.toUpperCase())} placeholder="INV" />
+              </Field>
+              <Field label="Start number">
+                <input type="number" min="1" className="field__control" value={invoiceStartNumber} onChange={(e) => setInvoiceStartNumber(e.target.value)} placeholder="1" />
+              </Field>
+            </fieldset>
+            <fieldset className="fy-series__box fy-series__box--rec">
+              <legend>Receipt</legend>
+              <Field label="Prefix">
+                <input type="text" className="field__control" value={receiptPrefix} onChange={(e) => setReceiptPrefix(e.target.value.toUpperCase())} placeholder="REC" />
+              </Field>
+              <Field label="Start number">
+                <input type="number" min="1" className="field__control" value={receiptStartNumber} onChange={(e) => setReceiptStartNumber(e.target.value)} placeholder="1" />
+              </Field>
+            </fieldset>
+            <fieldset className="fy-series__box fy-series__box--vou">
+              <legend>Voucher</legend>
+              <Field label="Prefix">
+                <input type="text" className="field__control" value={voucherPrefix} onChange={(e) => setVoucherPrefix(e.target.value.toUpperCase())} placeholder="VOU" />
+              </Field>
+              <Field label="Start number">
+                <input type="number" min="1" className="field__control" value={voucherStartNumber} onChange={(e) => setVoucherStartNumber(e.target.value)} placeholder="1" />
+              </Field>
+            </fieldset>
+          </div>
 
-            <div style={{ padding: '12px 14px', borderRadius: 'var(--radius)', background: 'var(--surface-sunken)', border: '1px solid var(--line)' }}>
-              <div style={{ fontSize: '0.84rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--gold, #d97706)', marginBottom: 8 }}>
-                Receipt Settings
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                <Field label="Receipt Prefix">
-                  <input
-                    type="text"
-                    className="field__control"
-                    value={receiptPrefix}
-                    onChange={(e) => setReceiptPrefix(e.target.value.toUpperCase())}
-                    placeholder="REC"
-                  />
-                </Field>
-                <Field label="Start Number">
-                  <input
-                    type="number"
-                    min="1"
-                    className="field__control"
-                    value={receiptStartNumber}
-                    onChange={(e) => setReceiptStartNumber(e.target.value)}
-                    placeholder="1"
-                  />
-                </Field>
-              </div>
-            </div>
-
-            <div style={{ padding: '12px 14px', borderRadius: 'var(--radius)', background: 'var(--surface-sunken)', border: '1px solid var(--line)' }}>
-              <div style={{ fontSize: '0.84rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--sea, #0284c7)', marginBottom: 8 }}>
-                Voucher Settings
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                <Field label="Voucher Prefix">
-                  <input
-                    type="text"
-                    className="field__control"
-                    value={voucherPrefix}
-                    onChange={(e) => setVoucherPrefix(e.target.value.toUpperCase())}
-                    placeholder="VOU"
-                  />
-                </Field>
-                <Field label="Start Number">
-                  <input
-                    type="number"
-                    min="1"
-                    className="field__control"
-                    value={voucherStartNumber}
-                    onChange={(e) => setVoucherStartNumber(e.target.value)}
-                    placeholder="1"
-                  />
-                </Field>
-              </div>
-            </div>
-
-            <div className="form-actions">
-              <button type="submit" className="btn btn--brand">
-                {editing ? 'Save changes' : 'Add financial year'}
+          <div className="cp-form__foot">
+            {editing && (
+              <button type="button" className="cp-btn cp-btn--ghost" onClick={reset}>
+                Cancel
               </button>
-              {editing && (
-                <button type="button" className="btn btn--text" onClick={reset}>
-                  Cancel
-                </button>
-              )}
-            </div>
-          </form>
-        </Sheet>
+            )}
+            <button type="submit" className="cp-btn">
+              {editing ? 'Save changes' : 'Add financial year'}
+            </button>
+          </div>
+        </form>
+      </Fold>
 
-        <div className="list">
-          <h2 className="list__title">
-            Financial periods <span>{list.length}</span>
-          </h2>
-
-          <ListSearch value={q} onChange={setQ} placeholder="Search financial years..." />
-          {q && filtered.length === 0 && list.length > 0 && <NoMatch query={q} />}
-
-          {list.length === 0 ? (
-            <div className="empty">
-              <b>No financial years set.</b>
-              Use the form on the left to set your chapter's fiscal year.
-            </div>
-          ) : (
-            filtered.map((y) => {
-              const lockInfo = isYearInUse(y)
-              const isCurrentActive = activeYear?.id === y.id
-
-              return (
-                <article key={y.id} className="row" style={{ opacity: lockInfo.inUse ? 0.85 : 1 }}>
-                  <div className="row__acts">
-                    {lockInfo.inUse ? (
-                      <button
-                        type="button"
-                        className="btn btn--ghost btn--sm"
-                        disabled
-                        title={lockInfo.reason}
-                        style={{
-                          padding: '6px 8px',
-                          color: 'var(--ink-mute)',
-                          opacity: 0.5,
-                          cursor: 'not-allowed',
-                        }}
-                      >
-                        <Lock size={15} />
-                      </button>
-                    ) : (
-                      <>
-                        <button
-                          type="button"
-                          className="btn btn--ghost btn--sm"
-                          title="Edit year"
-                          aria-label={`Edit ${y.title}`}
-                          onClick={() => startEdit(y)}
-                          style={{ padding: '6px 8px' }}
-                        >
-                          <Pencil size={15} />
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn--ghost btn--sm"
-                          title="Delete year"
-                          aria-label={`Delete ${y.title}`}
-                          onClick={() => remove(y)}
-                          style={{ padding: '6px 8px', color: '#ef4444' }}
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </>
-                    )}
-                  </div>
-
-                  <Glyph icon={CalendarClock} tone={isCurrentActive ? 'gold' : 'steel'} size={50} />
-
-                  <div className="row__main">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                      <b>{y.title}</b>
-                      {isCurrentActive && (
-                        <span className="chip chip--green" style={{ fontSize: 11.5 }}>
-                          Active Year
-                        </span>
-                      )}
-                      {lockInfo.inUse && (
-                        <span
-                          className="chip chip--wine"
-                          style={{ fontSize: 11.5, display: 'inline-flex', alignItems: 'center', gap: 4 }}
-                          title={lockInfo.reason}
-                        >
-                          <Lock size={11} /> Locked
-                        </span>
-                      )}
-                    </div>
-                    <span>
-                      {fmtDate(y.startDate)} – {fmtDate(y.endDate)}
-                    </span>
-                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', fontSize: '0.82rem', color: 'var(--ink-mute)', marginTop: 2 }}>
-                      <span>Inv: <b>{y.invoicePrefix || 'INV'}-#{y.invoiceStartNumber ?? y.billStartNumber ?? 1}</b></span>
-                      <span>·</span>
-                      <span>Rec: <b>{y.receiptPrefix || 'REC'}-#{y.receiptStartNumber ?? 1}</b></span>
-                      <span>·</span>
-                      <span>Vou: <b>{y.voucherPrefix || 'VOU'}-#{y.voucherStartNumber ?? 1}</b></span>
-                    </div>
-                  </div>
-                </article>
-              )
-            })
-          )}
-        </div>
+      <div className="cp-bar">
+        <ListSearch value={q} onChange={setQ} placeholder="Search financial years..." />
       </div>
+      {q && filtered.length === 0 && list.length > 0 && <NoMatch query={q} />}
+
+      {list.length === 0 ? (
+        <div className="cp-empty">
+          <CalendarClock size={30} />
+          <b>No financial years set</b>
+          <span>Add your chapter's fiscal year with the button above.</span>
+        </div>
+      ) : (
+        <ol className="fy-line">
+          {ordered.map((y) => {
+            const lockInfo = isYearInUse(y)
+            const isCurrentActive = activeYear?.id === y.id
+            const from = Date.parse(y.startDate)
+            const to = Date.parse(y.endDate)
+            /* how far through the year today is (only meaningful while today falls inside it) */
+            const pos = to > from ? Math.min(100, Math.max(0, Math.round(((todayMs - from) / (to - from)) * 100))) : 0
+            const inside = todayMs >= from && todayMs <= to
+            return (
+              <li key={y.id} className={`fy-item${isCurrentActive ? ' is-active' : ''}${lockInfo.inUse ? ' is-locked' : ''}${editing === y.id ? ' is-editing' : ''}`}>
+                <span className="fy-item__dot" aria-hidden />
+                <article className="fy-card">
+                  <header>
+                    <h3>{y.title}</h3>
+                    {isCurrentActive && <span className="fy-tag fy-tag--on">Active year</span>}
+                    {lockInfo.inUse && (
+                      <span className="fy-tag fy-tag--lock" title={lockInfo.reason}>
+                        <Lock size={11} /> Locked
+                      </span>
+                    )}
+                    <div className="cp-acts">
+                      {lockInfo.inUse ? (
+                        <button type="button" className="cp-act cp-act--icon" disabled title={lockInfo.reason} aria-label="Locked">
+                          <Lock size={14} />
+                        </button>
+                      ) : (
+                        <>
+                          <button type="button" className="cp-act cp-act--icon" title="Edit year" aria-label={`Edit ${y.title}`} onClick={() => startEdit(y)}>
+                            <Pencil size={14} />
+                          </button>
+                          <button type="button" className="cp-act cp-act--icon cp-act--danger" title="Delete year" aria-label={`Delete ${y.title}`} onClick={() => remove(y)}>
+                            <Trash2 size={14} />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </header>
+                  <div className="fy-span" role="img" aria-label={inside ? `${pos} percent of the year has passed` : 'Not the current period'}>
+                    <span>{fmtDate(y.startDate)}</span>
+                    <div>
+                      <i style={{ width: `${inside ? pos : todayMs > to ? 100 : 0}%` }} />
+                    </div>
+                    <span>{fmtDate(y.endDate)}</span>
+                  </div>
+                  <ul className="fy-tickets">
+                    <li className="fy-ticket fy-ticket--inv">
+                      <small>Invoice</small>
+                      <b>
+                        {y.invoicePrefix || 'INV'}-#{y.invoiceStartNumber ?? y.billStartNumber ?? 1}
+                      </b>
+                    </li>
+                    <li className="fy-ticket fy-ticket--rec">
+                      <small>Receipt</small>
+                      <b>
+                        {y.receiptPrefix || 'REC'}-#{y.receiptStartNumber ?? 1}
+                      </b>
+                    </li>
+                    <li className="fy-ticket fy-ticket--vou">
+                      <small>Voucher</small>
+                      <b>
+                        {y.voucherPrefix || 'VOU'}-#{y.voucherStartNumber ?? 1}
+                      </b>
+                    </li>
+                  </ul>
+                </article>
+              </li>
+            )
+          })}
+        </ol>
+      )}
     </div>
   )
 }

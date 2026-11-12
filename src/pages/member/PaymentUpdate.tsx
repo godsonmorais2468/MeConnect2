@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, Banknote, Check, Search } from 'lucide-react'
+import { Banknote, Check, Search } from 'lucide-react'
+import CpHero, { Nums } from '../../components/CpHero'
 import PaidRow from '../../components/PaidRow'
 import VisitorPaidRow from '../../components/VisitorPaidRow'
-import { PageHead } from '../../components/ui'
 import { useAuth } from '../../lib/auth'
 import { inr } from '../../lib/format'
 import { kindOf, modeLabel, modesOf, paidInChapter } from '../../lib/payments'
@@ -96,82 +95,68 @@ export default function PaymentUpdate() {
   }
 
   return (
-    <div className="page">
-      <PageHead
-        eyebrow={`${chapter.name} · ${member.designation}`}
-        icon={Banknote}
-        tone="green"
-        title="Payment Verifications"
-        subtitle="See which members have paid and how, and verify the payments members have made."
-        actions={
-          <Link className="btn btn--line btn--sm" to="/payments">
-            <ArrowLeft size={16} /> Manage Payments
-          </Link>
-        }
-      />
+    <div className="page pv">
+      <CpHero className="pv-hero" icon={Banknote} eyebrow={`${chapter.name} · ${member.designation}`} title="Payment Verifications" sub="See which members have paid and how, and verify the payments members have made." back={{ to: '/payments', label: 'Manage Payments' }}>
+        <Nums
+          items={[
+            [pendingCount, 'to verify'],
+            [everything, 'payments'],
+          ]}
+        />
+      </CpHero>
 
-      <div className="att">
-        <div className="list">
-          <h2 className="list__title">
-            Pending Verifications <span>{entries.length}</span>
-          </h2>
-
-          <div className="filterbar">
-            <label className="pick__search pick__search--wide">
-              <Search size={16} />
-              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search all members, receipt, transaction or cheque number" aria-label="Search payments" />
-            </label>
-            <div className="fgroup">
-              <span className="fgroup__label">Status</span>
-            <div className="seg seg--fill" role="radiogroup" aria-label="Filter by status">
-              {([['all', 'All'], ['pending', `Verification pending${pendingCount > 0 ? ` (${pendingCount})` : ''}`], ['updated', 'Updated']] as const).map(([key, label]) => (
-                <button key={key} type="button" role="radio" aria-checked={status === key} aria-pressed={status === key} onClick={() => setStatus(key)}>
-                  {label}
-                </button>
-              ))}
-            </div>
-            </div>
-            <div className="fgroup">
-              <span className="fgroup__label">Mode of pay</span>
-            <div className="seg seg--fill" role="radiogroup" aria-label="Filter by mode of pay">
-              {['All', ...modes].map((m) => (
-                <button key={m} type="button" role="radio" aria-checked={mode === m} aria-pressed={mode === m} onClick={() => setMode(m)}>
-                  {m}
-                </button>
-              ))}
-            </div>
-            </div>
-          </div>
-
-          {waiting.length > 0 && (
-            <div className="verifybar">
-              <label className="check">
-                <input type="checkbox" checked={allPicked} onChange={toggleAllPicks} /> Select all ({waiting.length} waiting)
-              </label>
-              <button type="button" className="btn btn--primary btn--sm" onClick={verify} disabled={picks.length === 0}>
-                <Check size={15} /> Update{picks.length > 0 ? ` (${picks.length})` : ''}
-              </button>
-            </div>
-          )}
-
-          {entries.length === 0 ? (
-            <div className="empty">
-              <b>{everything === 0 ? 'No payments yet.' : status === 'pending' && !q && mode === 'All' ? 'Nothing waiting for verification.' : 'No payment found.'}</b>
-              {everything === 0 ? 'Payments appear here once members pay.' : status === 'pending' && !q && mode === 'All' ? 'Payments members make show here until you verify them. Choose Updated to see the verified ones.' : 'Try another name, number, mode or status.'}
-            </div>
-          ) : (
-            <ul className="plist">
-              {entries.map((e) =>
-                e.row ? (
-                  <PaidRow key={e.row.invoice.id} row={e.row} chapter={chapterName(e.row.member.chapterId)} check={{ checked: selected.includes(e.row.invoice.id), onChange: () => togglePick(e.row.invoice.id) }} onDelete={() => removePayment(e.row)} />
-                ) : e.visitor ? (
-                  <VisitorPaidRow key={e.visitor.id} payment={e.visitor} chapter={chapter} region={region} onDelete={() => removeVisitorPayment(e.visitor!)} />
-                ) : null,
-              )}
-            </ul>
-          )}
+      {/* an inbox: tabs for the state, a search, and the modes of pay as chips */}
+      <div className="pv-tools">
+        <div className="cp-tabs" role="radiogroup" aria-label="Filter by status">
+          {([['pending', 'To verify', pendingCount], ['updated', 'Verified', null], ['all', 'All', everything]] as const).map(([key, label, n]) => (
+            <button key={key} type="button" role="radio" aria-checked={status === key} aria-pressed={status === key} className={status === key ? 'is-on' : ''} onClick={() => setStatus(key)}>
+              {label}
+              {n !== null && <i>{n}</i>}
+            </button>
+          ))}
         </div>
+        <label className="pick__search pick__search--wide pv-search">
+          <Search size={16} />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search member, receipt, transaction or cheque number" aria-label="Search payments" />
+        </label>
       </div>
+      <div className="pv-modes" role="radiogroup" aria-label="Filter by mode of pay">
+        <span>Mode of pay</span>
+        {['All', ...modes].map((m) => (
+          <button key={m} type="button" role="radio" aria-checked={mode === m} aria-pressed={mode === m} className={mode === m ? 'is-on' : ''} onClick={() => setMode(m)}>
+            {m}
+          </button>
+        ))}
+      </div>
+
+      {entries.length === 0 ? (
+        <div className="cp-empty">
+          <Banknote size={30} />
+          <b>{everything === 0 ? 'No payments yet' : status === 'pending' && !q && mode === 'All' ? 'Nothing waiting for verification' : 'No payment found'}</b>
+          <span>{everything === 0 ? 'Payments appear here once members pay.' : status === 'pending' && !q && mode === 'All' ? 'Payments members make show here until you verify them. Choose Verified to see the done ones.' : 'Try another name, number, mode or status.'}</span>
+        </div>
+      ) : (
+        <ul className="plist pv-list">
+          {entries.map((e) =>
+            e.row ? (
+              <PaidRow key={e.row.invoice.id} row={e.row} chapter={chapterName(e.row.member.chapterId)} check={{ checked: selected.includes(e.row.invoice.id), onChange: () => togglePick(e.row.invoice.id) }} onDelete={() => removePayment(e.row)} />
+            ) : e.visitor ? (
+              <VisitorPaidRow key={e.visitor.id} payment={e.visitor} chapter={chapter} region={region} onDelete={() => removeVisitorPayment(e.visitor!)} />
+            ) : null,
+          )}
+        </ul>
+      )}
+
+      {waiting.length > 0 && (
+        <div className="pv-bar" role="region" aria-label="Verify selected payments">
+          <label className="check">
+            <input type="checkbox" checked={allPicked} onChange={toggleAllPicks} /> Select all ({waiting.length} waiting)
+          </label>
+          <button type="button" className="cp-btn" onClick={verify} disabled={picks.length === 0}>
+            <Check size={15} /> Verify{picks.length > 0 ? ` (${picks.length})` : ''}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

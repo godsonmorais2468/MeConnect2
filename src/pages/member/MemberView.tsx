@@ -15,14 +15,14 @@ const linkOrText = (value: string) => {
 }
 
 export default function MemberView() {
-  const { id, regionId, chapterId } = useParams()
+  const { id } = useParams()
   const { member: me } = useAuth()
   const db = useDB()
   const [photoOpen, setPhotoOpen] = useState(false)
 
-  /* a Super Admin opens a member from a chapter's list (the chapter is in the address); a member opens one from their own E-Directory */
-  const fromChapter = chapterId ? { to: `/admin/regions/${regionId}/chapters/${chapterId}`, label: 'Members' } : { to: '/directory', label: 'E-Directory' }
-  const m = db.members.find((x) => x.id === id && x.chapterId === (chapterId ?? me?.chapterId))
+  /* a member opens another member from their own E-Directory */
+  const fromChapter = { to: '/directory', label: 'E-Directory' }
+  const m = db.members.find((x) => x.id === id && x.chapterId === me?.chapterId)
   if (!m) {
     return (
       <div className="page">

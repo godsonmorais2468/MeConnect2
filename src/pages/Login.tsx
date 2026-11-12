@@ -230,16 +230,6 @@ export default function Login() {
                 Forgot PIN?
               </Link>
             </div>
-
-            <div className="login__as">
-              <span>Open as</span>
-              <button type="button" className="link-btn" onClick={() => void open('region_admin')}>
-                Region Admin
-              </button>
-              <button type="button" className="link-btn" onClick={() => void open('super_admin')}>
-                Super Admin
-              </button>
-            </div>
           </form>
           )}
           </div>

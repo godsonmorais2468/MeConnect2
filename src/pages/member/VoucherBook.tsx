@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowDownLeft, ArrowLeft, ArrowUpRight, Download, FileText, Pencil, Plus, Receipt, Trash2 } from 'lucide-react'
-import { Field, Glyph, PageHead, Sheet, StatStrip } from '../../components/ui'
+import { ArrowDownLeft, ArrowUpRight, Download, Pencil, Plus, Trash2 } from 'lucide-react'
+import CpHero, { Fold, NewButton, Nums } from '../../components/CpHero'
+import { Field } from '../../components/ui'
 import { ListSearch, NoMatch } from '../../components/ListSearch'
 import { useAuth } from '../../lib/auth'
 import { useConfirm } from '../../lib/confirm'
@@ -63,6 +63,8 @@ export default function VoucherBook({ kind }: { kind: VoucherKind }) {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState(false)
   const [q, setQ] = useState('')
+  /* the form: open when nothing is recorded yet, and shut after that until it is asked for */
+  const [composeOpt, setComposeOpt] = useState<boolean | null>(null)
 
   if (!member || !chapter) return null
   const when = date || today
@@ -84,9 +86,11 @@ export default function VoucherBook({ kind }: { kind: VoucherKind }) {
     setModeName('')
     setRemarks('')
     setErrors({})
+    setComposeOpt(false)
   }
 
   function startEdit(v: Voucher) {
+    setComposeOpt(true)
     setEditing(v)
     setDate(v.date)
     setHeadId(v.headId)
@@ -126,139 +130,128 @@ export default function VoucherBook({ kind }: { kind: VoucherKind }) {
     if (editing?.id === v.id) reset()
   }
 
+  const compose = composeOpt ?? list.length === 0
+
   return (
-    <div className="page">
-      <PageHead
-        eyebrow={`${chapter.name} · ${member.designation}`}
-        icon={copy.icon}
-        tone={copy.tone}
-        title={`${copy.title} (${copy.word})`}
-        subtitle={copy.subtitle}
-        actions={
-          <Link className="btn btn--line btn--sm" to="/accounts/vouchers">
-            <ArrowLeft size={16} /> Vouchers
-          </Link>
-        }
-      />
+    <div className={`page vb vb--${kind}`}>
+      <CpHero className="vb-hero" icon={copy.icon} eyebrow={`${chapter.name} · ${member.designation}`} title={`${copy.title} (${copy.word})`} sub={copy.subtitle} back={{ to: '/accounts/vouchers', label: 'Vouchers' }}>
+        <div className="cx-side">
+          <Nums
+            items={[
+              [list.length, 'vouchers'],
+              [inr(total), `total ${copy.word.toLowerCase()}`],
+            ]}
+          />
+          <NewButton open={compose} label={`New ${copy.title.replace(/s$/, '').toLowerCase()}`} controls="vb-fold" onClick={() => (compose ? reset() : setComposeOpt(true))} />
+        </div>
+      </CpHero>
 
-      <StatStrip
-        items={[
-          { icon: FileText, tone: 'gold', label: 'Vouchers', value: list.length },
-          { icon: copy.icon, tone: copy.tone, label: `Total ${copy.word.toLowerCase()}`, value: inr(total) },
-        ]}
-      />
+      <Fold id="vb-fold" open={compose} label="Voucher form">
+        <form className="cp-form" onSubmit={submit} noValidate>
+          <h2 className="cp-form__h">
+            {editing ? <Pencil size={17} /> : <Plus size={17} />} {editing ? `Edit ${editing.number}` : `New ${copy.title.replace(/s$/, '').toLowerCase()}`}
+          </h2>
+          <Field label="Financial year" hint="From the financial year settings">
+            <input className="field__control" value={editing ? editYear?.title ?? editing.financialYearTitle : (year?.title ?? 'None for this date')} readOnly disabled />
+          </Field>
+          <Field label={copy.numberLabel} hint="Given automatically when saved">
+            <input className="field__control" value={editing ? editing.number : preview.number || '-'} readOnly disabled />
+          </Field>
 
-      <div className="att">
-        <Sheet icon={editing ? Pencil : Plus} tone={copy.tone} title={editing ? `Edit ${editing.number}` : `New ${copy.title.replace(/s$/, '').toLowerCase()}`} note={chapter.name}>
-          <form className="form-stack" onSubmit={submit} noValidate>
-            <div className="form-grid">
-              <Field label="Financial year" hint="From the financial year settings">
-                <input className="field__control" value={editing ? editYear?.title ?? editing.financialYearTitle : (year?.title ?? 'None for this date')} readOnly disabled />
-              </Field>
-              <Field label={copy.numberLabel} hint="Given automatically when saved">
-                <input className="field__control" value={editing ? editing.number : preview.number || '-'} readOnly disabled />
-              </Field>
-            </div>
+          <Field label="Date" required error={errors.date}>
+            <input className="field__control" type="date" value={when} min={editing ? editYear?.startDate : undefined} max={editing ? editYear?.endDate : undefined} onChange={(e) => setDate(e.target.value)} />
+          </Field>
 
-            <Field label="Date" required error={errors.date}>
-              <input
-                className="field__control"
-                type="date"
-                value={when}
-                min={editing ? editYear?.startDate : undefined}
-                max={editing ? editYear?.endDate : undefined}
-                onChange={(e) => setDate(e.target.value)}
-              />
-            </Field>
+          <Field label={copy.head} required error={errors.headId} hint={heads.length ? undefined : `Add an ${copy.headType} head in Income & Expense Heads first.`}>
+            <select className="field__control native-select" value={headId} onChange={(e) => setHeadId(e.target.value)}>
+              <option value="">Select {copy.head.toLowerCase()}</option>
+              {heads.map((h) => (
+                <option key={h.id} value={h.id}>
+                  {h.name}
+                </option>
+              ))}
+            </select>
+          </Field>
 
-            <Field label={copy.head} required error={errors.headId} hint={heads.length ? undefined : `Add an ${copy.headType} head in Income & Expense Heads first.`}>
-              <select className="field__control native-select" value={headId} onChange={(e) => setHeadId(e.target.value)}>
-                <option value="">Select {copy.head.toLowerCase()}</option>
-                {heads.map((h) => (
-                  <option key={h.id} value={h.id}>
-                    {h.name}
-                  </option>
-                ))}
-              </select>
-            </Field>
+          <Field label="Amount (₹)" required error={errors.amount}>
+            <input className="field__control" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ''))} placeholder="e.g. 500" />
+          </Field>
+          <Field label="Mode of pay" required error={errors.modeName}>
+            <select className="field__control native-select" value={modeName} onChange={(e) => setModeName(e.target.value)}>
+              <option value="">Select mode of pay</option>
+              {[...modes, ...(modeName && !modes.includes(modeName) ? [modeName] : [])].map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+          </Field>
 
-            <div className="form-grid">
-              <Field label="Amount (₹)" required error={errors.amount}>
-                <input className="field__control" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ''))} placeholder="e.g. 500" />
-              </Field>
-              <Field label="Mode of pay" required error={errors.modeName}>
-                <select className="field__control native-select" value={modeName} onChange={(e) => setModeName(e.target.value)}>
-                  <option value="">Select mode of pay</option>
-                  {[...modes, ...(modeName && !modes.includes(modeName) ? [modeName] : [])].map((m) => (
-                    <option key={m} value={m}>
-                      {m}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-            </div>
-
+          <div className="cp-wide">
             <Field label="Remarks" required error={errors.remarks} hint="What this voucher is for">
               <textarea className="field__control" rows={2} maxLength={300} value={remarks} onChange={(e) => setRemarks(e.target.value)} placeholder="e.g. Hall rent for October meetings" />
             </Field>
+          </div>
 
-            {errors.form && <div className="form-error">{errors.form}</div>}
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button className="btn btn--primary" type="submit" disabled={saving}>
-                {editing ? <Pencil size={16} /> : <Plus size={16} />} {saving ? 'Saving…' : editing ? 'Update voucher' : 'Save voucher'}
+          {errors.form && <div className="form-error cp-wide">{errors.form}</div>}
+          <div className="cp-form__foot">
+            {editing && (
+              <button className="cp-btn cp-btn--ghost" type="button" onClick={reset}>
+                Cancel
               </button>
-              {editing && (
-                <button className="btn btn--ghost" type="button" onClick={reset}>
-                  Cancel
-                </button>
-              )}
-            </div>
-          </form>
-        </Sheet>
+            )}
+            <button className="cp-btn" type="submit" disabled={saving}>
+              {editing ? <Pencil size={16} /> : <Plus size={16} />} {saving ? 'Saving…' : editing ? 'Update voucher' : 'Save voucher'}
+            </button>
+          </div>
+        </form>
+      </Fold>
 
-        <div className="list">
-          <h2 className="list__title">
-            {copy.title} <span>{list.length}</span>
-          </h2>
-          <ListSearch value={q} onChange={setQ} placeholder="Search by number, head, mode, remarks or amount" />
-          {q && shown.length === 0 && list.length > 0 && <NoMatch query={q} />}
-          {list.length === 0 ? (
-            <div className="empty">
-              <b>Nothing recorded yet.</b>
-              {copy.empty}
-            </div>
-          ) : (
-            shown.map((v) => (
-              <article key={v.id} className="row">
-                <div className="row__acts">
-                  <button type="button" className="btn btn--ghost btn--sm" title="Download voucher" aria-label={`Download ${v.number}`} onClick={() => downloadVoucher({ voucher: v, chapter, region: db.regions.find((r) => r.id === chapter.regionId) ?? null })} style={{ padding: '6px 8px' }}>
-                    <Download size={15} />
-                  </button>
-                  <button type="button" className="btn btn--ghost btn--sm" title="Edit voucher" aria-label={`Edit ${v.number}`} onClick={() => startEdit(v)} style={{ padding: '6px 8px' }}>
-                    <Pencil size={15} />
-                  </button>
-                  <button type="button" className="btn btn--ghost btn--sm" title="Delete voucher" aria-label={`Delete ${v.number}`} onClick={() => remove(v)} style={{ padding: '6px 8px', color: '#ef4444' }}>
-                    <Trash2 size={15} />
-                  </button>
-                </div>
-                <Glyph icon={Receipt} tone={copy.tone} size={50} />
-                <div className="row__main">
-                  <b>{v.number}</b>
-                  <span>{v.headName}</span>
-                  <span>
-                    {fmtDate(v.date)} · {v.modeName}
-                  </span>
-                  {v.remarks && <span>Remarks: {v.remarks}</span>}
-                </div>
-                <div className="chips">
-                  <span className="chip">{v.financialYearTitle}</span>
-                  <span className={`headkind ${kind === 'receipt' ? 'headkind--income' : 'headkind--expense'}`}>{inr(v.amount)}</span>
-                </div>
-              </article>
-            ))
-          )}
-        </div>
+      <div className="cp-bar">
+        <ListSearch value={q} onChange={setQ} placeholder="Search by number, head, mode, remarks or amount" />
       </div>
+      {q && shown.length === 0 && list.length > 0 && <NoMatch query={q} />}
+
+      {list.length === 0 ? (
+        <div className="cp-empty">
+          <copy.icon size={30} />
+          <b>Nothing recorded yet</b>
+          <span>{copy.empty}</span>
+        </div>
+      ) : (
+        <ul className="vb-slips">
+          {shown.map((v) => (
+            <li key={v.id} className={`vb-slip${editing?.id === v.id ? ' is-editing' : ''}`}>
+              <div className="vb-slip__stub">
+                <small>{copy.numberLabel}</small>
+                <b>{v.number}</b>
+                <i>{v.financialYearTitle}</i>
+              </div>
+              <div className="vb-slip__main">
+                <b>{v.headName}</b>
+                <span>
+                  {fmtDate(v.date)} · {v.modeName}
+                </span>
+                {v.remarks && <p>{v.remarks}</p>}
+              </div>
+              <div className="vb-slip__side">
+                <strong>{inr(v.amount)}</strong>
+                <div className="cp-acts">
+                  <button type="button" className="cp-act cp-act--icon" title="Download voucher" aria-label={`Download ${v.number}`} onClick={() => downloadVoucher({ voucher: v, chapter, region: db.regions.find((r) => r.id === chapter.regionId) ?? null })}>
+                    <Download size={14} />
+                  </button>
+                  <button type="button" className="cp-act cp-act--icon" title="Edit voucher" aria-label={`Edit ${v.number}`} onClick={() => startEdit(v)}>
+                    <Pencil size={14} />
+                  </button>
+                  <button type="button" className="cp-act cp-act--icon cp-act--danger" title="Delete voucher" aria-label={`Delete ${v.number}`} onClick={() => remove(v)}>
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

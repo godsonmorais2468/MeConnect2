@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, CheckCircle2, Landmark, Pencil, Plus, Trash2 } from 'lucide-react'
-import { Field, FieldGroup, Glyph, PageHead, Sheet, StatStrip, Toggle } from '../../components/ui'
+import { Landmark, Pencil, Plus, Star, Trash2 } from 'lucide-react'
+import CpHero, { Fold, NewButton, Nums } from '../../components/CpHero'
+import { Field, FieldGroup, Toggle } from '../../components/ui'
 import { useAuth } from '../../lib/auth'
 import { createBankMaster, deleteBankMaster, updateBankMaster, useDB } from '../../lib/store'
 import { useConfirm } from '../../lib/confirm'
@@ -31,6 +31,8 @@ export default function BankAccounts() {
   const [isDefault, setIsDefault] = useState(false)
   const [isActive, setIsActive] = useState(true)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  /* the form: open when there are no accounts yet, and shut after that until it is asked for */
+  const [composeOpt, setComposeOpt] = useState<boolean | null>(null)
 
   if (!member || !chapter) return null
 
@@ -49,9 +51,11 @@ export default function BankAccounts() {
     setIsDefault(false)
     setIsActive(true)
     setErrors({})
+    setComposeOpt(false)
   }
 
   function startEdit(b: BankMaster) {
+    setComposeOpt(true)
     setEditing(b.id)
     setBankName(b.bankName)
     setAccountName(b.accountName)
@@ -112,214 +116,165 @@ export default function BankAccounts() {
     if (editing === b.id) reset()
   }
 
+  const compose = composeOpt ?? list.length === 0
+  const opening = list.reduce((n, b) => n + (b.openingBalance || 0), 0)
+
   return (
-    <div className="page">
-      <PageHead
-        eyebrow={`${chapter.name} · ${member.designation}`}
-        icon={Landmark}
-        tone="green"
-        title="Bank Master"
-        subtitle="Manage chapter bank accounts, IFSC codes, branches, linked UPI IDs, and opening balances."
-        actions={
-          <Link className="btn btn--line btn--sm" to="/accounts">
-            <ArrowLeft size={16} /> Accounts
-          </Link>
-        }
-      />
+    <div className="page bk">
+      <CpHero className="bk-hero" icon={Landmark} eyebrow={`${chapter.name} · ${member.designation}`} title="Bank Master" sub="Chapter bank accounts, IFSC codes, branches, linked UPI IDs and opening balances." back={{ to: '/accounts', label: 'Accounts' }}>
+        <div className="cx-side">
+          <Nums
+            items={[
+              [list.length, 'accounts'],
+              [list.filter((b) => b.isActive).length, 'active'],
+              [inr(opening), 'opening'],
+            ]}
+          />
+          <NewButton open={compose} label="New account" controls="bk-fold" onClick={() => (compose ? reset() : setComposeOpt(true))} />
+        </div>
+      </CpHero>
 
-      <StatStrip
-        items={[
-          { icon: Landmark, tone: 'green', label: 'Bank Accounts', value: list.length },
-          { icon: CheckCircle2, tone: 'navy', label: 'Active Accounts', value: list.filter((b) => b.isActive).length },
-        ]}
-      />
-
-      <div className="duo">
-        <Sheet
-          icon={editing ? Pencil : Plus}
-          tone="green"
-          title={editing ? 'Edit bank account' : 'New bank account'}
-          note={chapter.name}
-        >
-          <form className="form-stack" onSubmit={submit} noValidate>
-            <Field label="Bank Name" error={errors.bankName} required hint="e.g. HDFC Bank, SBI, ICICI Bank">
-              <input
-                className="field__control"
-                value={bankName}
-                placeholder="HDFC Bank"
-                onChange={(e) => {
-                  setBankName(e.target.value)
-                  if (errors.bankName) setErrors({})
-                }}
-              />
-            </Field>
-
-            <Field label="Account Holder Name" error={errors.accountName} hint="Optional name as in bank records">
-              <input
-                className="field__control"
-                value={accountName}
-                placeholder="ME-CONNECT Account"
-                onChange={(e) => {
-                  setAccountName(e.target.value)
-                  if (errors.accountName) setErrors({})
-                }}
-              />
-            </Field>
-
-            <Field label="Account Number" error={errors.accountNumber} hint="Optional account number">
-              <input
-                className="field__control"
-                value={accountNumber}
-                placeholder="50100234567890"
-                onChange={(e) => {
-                  setAccountNumber(e.target.value)
-                  if (errors.accountNumber) setErrors({})
-                }}
-              />
-            </Field>
-
-            <div className="form-grid">
-              <Field label="IFSC Code" error={errors.ifscCode}>
-                <input
-                  className="field__control"
-                  value={ifscCode}
-                  placeholder="HDFC0001234"
-                  onChange={(e) => setIfscCode(e.target.value.toUpperCase())}
-                />
-              </Field>
-
-              <Field label="Branch Name" error={errors.branch}>
-                <input
-                  className="field__control"
-                  value={branch}
-                  placeholder="Kochi Main Branch"
-                  onChange={(e) => setBranch(e.target.value)}
-                />
-              </Field>
-            </div>
-
-            <div className="form-grid">
-              <Field label="Linked UPI ID" error={errors.upiId} hint="Optional UPI handle">
-                <input
-                  className="field__control"
-                  value={upiId}
-                  placeholder="chapter@okhdfcbank"
-                  onChange={(e) => setUpiId(e.target.value)}
-                />
-              </Field>
-
-              <Field label="Opening Balance (₹)" error={errors.openingBalance}>
-                <input
-                  type="number"
-                  step="0.01"
-                  className="field__control"
-                  value={openingBalance}
-                  placeholder="0.00"
-                  onChange={(e) => setOpeningBalance(e.target.value)}
-                />
-              </Field>
-            </div>
-
-            <FieldGroup label="Status">
-              <label style={{ display: 'inline-flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-                <Toggle checked={isActive} onChange={setIsActive} label="Active account" />
-                <span style={{ fontWeight: 600, fontSize: '0.92rem' }}>
-                  {isActive ? 'Active (available for collections)' : 'Disabled'}
-                </span>
-              </label>
-            </FieldGroup>
-
-            <div className="form-actions">
-              <button type="submit" className="btn btn--brand">
-                {editing ? 'Save changes' : 'Add bank account'}
-              </button>
-              {editing && (
-                <button type="button" className="btn btn--text" onClick={reset}>
-                  Cancel
-                </button>
-              )}
-            </div>
-          </form>
-        </Sheet>
-
-        <div className="list">
-          <h2 className="list__title">
-            Bank accounts <span>{list.length}</span>
+      <Fold id="bk-fold" open={compose} label="Bank account form">
+        <form className="cp-form" onSubmit={submit} noValidate>
+          <h2 className="cp-form__h">
+            {editing ? <Pencil size={17} /> : <Plus size={17} />} {editing ? 'Edit bank account' : 'New bank account'}
           </h2>
+          <Field label="Bank Name" error={errors.bankName} required hint="e.g. HDFC Bank, SBI, ICICI Bank">
+            <input
+              className="field__control"
+              value={bankName}
+              placeholder="HDFC Bank"
+              onChange={(e) => {
+                setBankName(e.target.value)
+                if (errors.bankName) setErrors({})
+              }}
+            />
+          </Field>
 
-          <ListSearch value={q} onChange={setQ} placeholder="Search accounts, IFSC, branch..." />
-          {q && filtered.length === 0 && list.length > 0 && <NoMatch query={q} />}
+          <Field label="Account Holder Name" error={errors.accountName} hint="Optional name as in bank records">
+            <input
+              className="field__control"
+              value={accountName}
+              placeholder="ME-CONNECT Account"
+              onChange={(e) => {
+                setAccountName(e.target.value)
+                if (errors.accountName) setErrors({})
+              }}
+            />
+          </Field>
 
-          {list.length === 0 ? (
-            <div className="empty">
-              <b>No bank accounts registered.</b>
-              Use the form on the left to add your chapter's official bank account.
-            </div>
-          ) : (
-            filtered.map((b) => (
-              <article key={b.id} className="row" style={{ opacity: b.isActive ? 1 : 0.75 }}>
-                <div className="row__acts">
-                  <button
-                    type="button"
-                    className="btn btn--ghost btn--sm"
-                    title="Edit account"
-                    aria-label={`Edit ${b.bankName}`}
-                    onClick={() => startEdit(b)}
-                    style={{ padding: '6px 8px' }}
-                  >
-                    <Pencil size={15} />
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn--ghost btn--sm"
-                    title="Delete account"
-                    aria-label={`Delete ${b.bankName}`}
-                    onClick={() => remove(b)}
-                    style={{ padding: '6px 8px', color: '#ef4444' }}
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                </div>
+          <Field label="Account Number" error={errors.accountNumber} hint="Optional account number">
+            <input
+              className="field__control"
+              value={accountNumber}
+              placeholder="50100234567890"
+              onChange={(e) => {
+                setAccountNumber(e.target.value)
+                if (errors.accountNumber) setErrors({})
+              }}
+            />
+          </Field>
 
-                <Glyph icon={Landmark} tone={b.isDefault ? 'green' : 'navy'} size={50} />
+          <Field label="IFSC Code" error={errors.ifscCode}>
+            <input className="field__control" value={ifscCode} placeholder="HDFC0001234" onChange={(e) => setIfscCode(e.target.value.toUpperCase())} />
+          </Field>
 
-                <div className="row__main">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <b>{b.bankName}</b>
-                    {b.isDefault && (
-                      <span className="chip chip--green" style={{ fontSize: 11.5 }}>
-                        Primary
-                      </span>
-                    )}
-                    {!b.isActive && (
-                      <span className="chip chip--steel" style={{ fontSize: 11.5 }}>
-                        Disabled
-                      </span>
-                    )}
-                  </div>
-                  {(b.accountNumber || b.accountName) && (
-                    <span style={{ marginTop: 2 }}>
-                      {b.accountNumber && (
-                        <>
-                          A/C: <span style={{ fontFamily: 'monospace', fontWeight: 600 }}>{b.accountNumber}</span>
-                        </>
-                      )}
-                      {b.accountNumber && b.accountName && ' · '}
-                      {b.accountName}
+          <Field label="Branch Name" error={errors.branch}>
+            <input className="field__control" value={branch} placeholder="Kochi Main Branch" onChange={(e) => setBranch(e.target.value)} />
+          </Field>
+
+          <Field label="Linked UPI ID" error={errors.upiId} hint="Optional UPI handle">
+            <input className="field__control" value={upiId} placeholder="chapter@okhdfcbank" onChange={(e) => setUpiId(e.target.value)} />
+          </Field>
+
+          <Field label="Opening Balance (₹)" error={errors.openingBalance}>
+            <input type="number" step="0.01" className="field__control" value={openingBalance} placeholder="0.00" onChange={(e) => setOpeningBalance(e.target.value)} />
+          </Field>
+
+          <FieldGroup label="Status">
+            <label className="cp-switch">
+              <Toggle checked={isActive} onChange={setIsActive} label="Active account" />
+              <span>{isActive ? 'Active (available for collections)' : 'Disabled'}</span>
+            </label>
+          </FieldGroup>
+
+          <div className="cp-form__foot">
+            {editing && (
+              <button type="button" className="cp-btn cp-btn--ghost" onClick={reset}>
+                Cancel
+              </button>
+            )}
+            <button type="submit" className="cp-btn">
+              {editing ? 'Save changes' : 'Add bank account'}
+            </button>
+          </div>
+        </form>
+      </Fold>
+
+      <div className="cp-bar">
+        <ListSearch value={q} onChange={setQ} placeholder="Search accounts, IFSC, branch..." />
+      </div>
+      {q && filtered.length === 0 && list.length > 0 && <NoMatch query={q} />}
+
+      {list.length === 0 ? (
+        <div className="cp-empty">
+          <Landmark size={30} />
+          <b>No bank accounts registered</b>
+          <span>Add your chapter's official bank account with the button above.</span>
+        </div>
+      ) : (
+        <ul className="bk-grid">
+          {filtered.map((b) => (
+            <li key={b.id} className={`bk-card${b.isDefault ? ' is-primary' : ''}${b.isActive ? '' : ' is-off'}${editing === b.id ? ' is-editing' : ''}`}>
+              <div className="bk-face">
+                <header>
+                  <Landmark size={18} />
+                  <b>{b.bankName}</b>
+                  {b.isDefault && (
+                    <span className="bk-face__tag">
+                      <Star size={11} /> Primary
                     </span>
                   )}
-                  <span style={{ fontSize: 12, color: 'var(--ink-mute)', marginTop: 2 }}>
-                    {b.ifscCode && <>IFSC: {b.ifscCode} · </>}
-                    {b.branch && <>Branch: {b.branch} · </>}
-                    {b.upiId && <>UPI: {b.upiId} · </>}
-                    Opening: {inr(b.openingBalance)}
+                  {!b.isActive && <span className="bk-face__tag bk-face__tag--off">Disabled</span>}
+                </header>
+                <p className="bk-face__no">{b.accountNumber ? b.accountNumber.replace(/\s+/g, '').replace(/(.{4})/g, '$1 ').trim() : '•••• •••• ••••'}</p>
+                <footer>
+                  <span>
+                    <small>Account holder</small>
+                    {b.accountName || '—'}
                   </span>
+                  <span>
+                    <small>Opening</small>
+                    {inr(b.openingBalance)}
+                  </span>
+                </footer>
+              </div>
+              <dl className="bk-meta">
+                <div>
+                  <dt>IFSC</dt>
+                  <dd>{b.ifscCode || '—'}</dd>
                 </div>
-              </article>
-            ))
-          )}
-        </div>
-      </div>
+                <div>
+                  <dt>Branch</dt>
+                  <dd>{b.branch || '—'}</dd>
+                </div>
+                <div>
+                  <dt>UPI</dt>
+                  <dd>{b.upiId || '—'}</dd>
+                </div>
+              </dl>
+              <div className="cp-acts">
+                <button type="button" className="cp-act" title="Edit account" aria-label={`Edit ${b.bankName}`} onClick={() => startEdit(b)}>
+                  <Pencil size={14} /> Edit
+                </button>
+                <button type="button" className="cp-act cp-act--icon cp-act--danger" title="Delete account" aria-label={`Delete ${b.bankName}`} onClick={() => remove(b)}>
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
